@@ -1,0 +1,242 @@
+import React, { useState } from 'react';
+import { ChevronLeft } from 'lucide-react';
+
+interface FAQItem {
+  question: string;
+  answer: string;
+  category?: string;
+}
+
+export const FAQAccordion: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'all' | 'payment' | 'activation' | 'security' | 'general'>('all');
+  const [openQuestion, setOpenQuestion] = useState<string | null>('هل يجب الدفع قبل التفعيل؟');
+
+  const faqs: FAQItem[] = [
+    {
+      question: 'هل يجب الدفع قبل التفعيل؟',
+      answer: 'لا، نقوم بتفعيل الاشتراك أولاً على حسابك الشخصي، ثم تدفع لاحقاً بعد التأكد من وصول كامل المزايا ونماذج Gemini Advanced إلى بريدك.',
+      category: 'الدفع'
+    },
+    {
+      question: 'كيف أتأكد من نجاح التفعيل؟',
+      answer: 'بمجرد التنشيط، ستظهر لك علامة Gemini Advanced ومساحة التخزين الإضافية 2TB مباشرة في حساب جوجل وجيميل الخاص بك. يمكنك تجربتها والتأكد بنفسك قبل تحويل أي مبلغ.',
+      category: 'التفعيل'
+    },
+    {
+      question: 'لماذا تقدمون خدمة التفعيل قبل الدفع؟',
+      answer: 'لبناء الثقة التامة مع عملائنا في العراق، وتوفير تجربة شراء شفافة وآمنة تضمن حقوقك كاملة وتزيل أي شكوك أو مخاوف.',
+      category: 'عام'
+    },
+    {
+      question: 'هل الحساب رسمي 100%؟',
+      answer: 'نعم، تفعيل رسمي 100% على حسابك الشخصي ببريد Gmail الخاص بك، وبشكل قانوني تماماً دون أي مخاطرة.',
+      category: 'الأمان'
+    },
+    {
+      question: 'هل أحتاج إلى VPN لتشغيل الخدمة في العراق؟',
+      answer: 'لا، الخدمة تعمل بشكل طبيعي ومستقر في العراق ومتاحة باللغة العربية والإنجليزية دون الحاجة لتشغيل أي VPN.',
+      category: 'عام'
+    },
+    {
+      question: 'كم يستغرق تفعيل الاشتراك بعد الطلب؟',
+      answer: 'يتم تفعيل الاشتراك بسرعة فائقة، وعادة ما يستغرق التفعيل من 15 دقيقة إلى ساعتين كحد أقصى بعد إرسال الطلب وتأكيده.',
+      category: 'التفعيل'
+    },
+    {
+      question: 'هل يمكنني تجديد اشتراكي الحالي لاحقاً؟',
+      answer: 'نعم، يمكنك تجديد الاشتراك بسهولة من خلال لوحة التحكم الخاصة بك، أو بطلب تجديد الباقة وسيتم تمديدها تلقائياً دون فقدان بياناتك.',
+      category: 'عام'
+    },
+    {
+      question: 'هل يعمل على الهاتف والكمبيوتر في نفس الوقت؟',
+      answer: 'نعم، يمكنك استخدام اشتراك Google AI Pro على جميع أجهزتك بما فيها الهاتف (Android/iOS) والكمبيوتر والأجهزة اللوحية بدون أي مشاكل.',
+      category: 'عام'
+    },
+    {
+      question: 'هل سأحصل على جميع مزايا Google AI Pro؟',
+      answer: 'نعم، ستحصل على كامل المزايا الرسمية بما في ذلك نموذج Gemini 1.5 Pro الأكثر ذكاءً، ومساحة تخزين 2 تيرابايت في Google One، ودمج الذكاء الاصطناعي في Gmail وDocs وSlides.',
+      category: 'المزايا'
+    },
+    {
+      question: 'كيف تتم عملية الدفع داخل العراق؟',
+      answer: 'نوفر طرق دفع محلية سهلة: زين كاش (Zain Cash)، آسيا حوالة، الطيف، بالإضافة إلى البطاقات الائتمانية والماستر كارد.',
+      category: 'الدفع'
+    },
+    {
+      question: 'هل أحتاج لمشاركة كلمة مرور Gmail؟',
+      answer: 'لا، نحن لا نطلب كلمة مرور حسابك أبداً. نقوم بإرسال دعوة تفعيل رسمية إلى بريدك الإلكتروني وتقوم بقبولها بنفسك.',
+      category: 'الأمان'
+    },
+    {
+      question: 'هل الاشتراك شخصي أم مشترك؟',
+      answer: 'الاشتراك شخصي وخاص بك بالكامل. لا أحد يشاركك حسابك أو ملفاتك أو محادثاتك مع الذكاء الاصطناعي.',
+      category: 'الأمان'
+    },
+    {
+      question: 'ماذا يحدث لملفاتي بعد انتهاء الاشتراك؟',
+      answer: 'تظل جميع ملفاتك محفوظة بشكل آمن لدى جوجل. إذا لم تجدد، سيعود حسابك إلى السعة المجانية دون حذف أي ملفات.',
+      category: 'عام'
+    },
+    {
+      question: 'هل يمكنني ترقية الباقة لاحقاً؟',
+      answer: 'نعم، يمكنك ترقية باقتك في أي وقت عبر لوحة التحكم أو التواصل مع الدعم الفني، وسنحتسب المدة المتبقية لك.',
+      category: 'الباقات'
+    },
+    {
+      question: 'هل الدعم الفني يغطي كامل فترة الاشتراك؟',
+      answer: 'نعم، نقدم دعماً فنياً متواصلاً 24/7 عبر واتساب طوال فترة اشتراكك، لمعالجة أي مشكلة فوراً.',
+      category: 'الدعم'
+    },
+    {
+      question: 'هل يمكن استخدامه لأغراض تجارية؟',
+      answer: 'نعم، الحساب مخصص للاستخدام الشخصي والتجاري والبرمجة وتحليل البيانات وإنشاء الصور وتوليد المحتوى.',
+      category: 'عام'
+    },
+    {
+      question: 'هل هذا السعر لمرة واحدة أم يتجدد تلقائياً؟',
+      answer: 'الدفع لمرة واحدة فقط. لن يتم خصم أي مبالغ تلقائياً، وسننبهك قبل انتهاء اشتراكك لتحديد رغبتك بالتجديد.',
+      category: 'الدفع'
+    },
+    {
+      question: 'هل الخدمة مضمونة وموثوقة في العراق؟',
+      answer: 'نعم، نحن أول وأكبر متجر متخصص في العراق لاشتراكات الذكاء الاصطناعي. خدمنا أكثر من 2500 عميل عراقي وحصلنا على تقييم 98% بفضل تفعيلنا السريع وضماننا الكامل.',
+      category: 'عام'
+    }
+  ];
+
+  const filteredFaqs = faqs.filter(faq => {
+    if (activeTab === 'all') return true;
+    if (activeTab === 'payment') return faq.category === 'الدفع' || faq.category === 'الباقات';
+    if (activeTab === 'activation') return faq.category === 'التفعيل';
+    if (activeTab === 'security') return faq.category === 'الأمان';
+    if (activeTab === 'general') return faq.category === 'المزايا' || faq.category === 'الدعم' || faq.category === 'عام';
+    return true;
+  });
+
+  const handleTabChange = (tab: typeof activeTab) => {
+    setActiveTab(tab);
+    // Automatically open the first FAQ in the selected category
+    const firstMatch = faqs.find(faq => {
+      if (tab === 'all') return faq.question === 'هل يجب الدفع قبل التفعيل؟';
+      if (tab === 'payment') return faq.category === 'الدفع' || faq.category === 'الباقات';
+      if (tab === 'activation') return faq.category === 'التفعيل';
+      if (tab === 'security') return faq.category === 'الأمان';
+      if (tab === 'general') return faq.category === 'المزايا' || faq.category === 'الدعم' || faq.category === 'عام';
+      return true;
+    });
+    setOpenQuestion(firstMatch ? firstMatch.question : null);
+  };
+
+  const toggleFAQ = (question: string) => {
+    setOpenQuestion(openQuestion === question ? null : question);
+  };
+
+  const categoryColors: Record<string, string> = {
+    'الدفع': '#10b981',     // Emerald
+    'التفعيل': '#3b82f6',   // Blue
+    'الأمان': '#8b5cf6',    // Violet
+    'المزايا': '#06b6d4',    // Cyan
+    'الباقات': '#f59e0b',    // Amber
+    'الدعم': '#10b981',     // Emerald
+    'عام': '#6b7280',       // Gray
+  };
+
+  const tabs = [
+    { id: 'all', label: 'الكل' },
+    { id: 'payment', label: 'الدفع والضمان' },
+    { id: 'activation', label: 'طريقة التفعيل' },
+    { id: 'security', label: 'الأمان والخصوصية' },
+    { id: 'general', label: 'المميزات والدعم' }
+  ] as const;
+
+  return (
+    <div style={{ width: '100%' }}>
+
+      {/* Category Tabs */}
+      <div className="faq-tabs">
+        {tabs.map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => handleTabChange(tab.id)}
+            className={`faq-tab-btn ${activeTab === tab.id ? 'active' : ''}`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* FAQs List */}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+          maxWidth: '820px',
+          margin: '0 auto',
+        }}
+      >
+        {filteredFaqs.map((faq, index) => {
+          const isOpen = openQuestion === faq.question;
+          const catColor = categoryColors[faq.category ?? 'عام'] ?? '#6b7280';
+
+          return (
+            <div
+              key={index}
+              className={`border rounded-2xl backdrop-blur-md overflow-hidden transition-all duration-300 ${isOpen
+                  ? 'border-[var(--secondary-glow-border)] bg-[var(--surface-raised)] shadow-lg shadow-black/5 dark:shadow-black/20'
+                  : 'border-[var(--border)] bg-[var(--surface-glass)] hover:border-[var(--primary)]/30 hover:translate-y-[-1px]'
+                }`}
+            >
+              {/* Header / Button */}
+              <button
+                onClick={() => toggleFAQ(faq.question)}
+                className="w-full flex items-center justify-between p-4 md:p-5 text-right font-bold text-base md:text-lg hover:text-[var(--primary)] transition-colors focus:outline-none cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  {faq.category && (
+                    <span
+                      className="text-[10px] font-black tracking-wide px-2.5 py-0.5 rounded-full uppercase shrink-0"
+                      style={{
+                        color: catColor,
+                        backgroundColor: `${catColor}15`,
+                        border: `1px solid ${catColor}25`
+                      }}
+                    >
+                      {faq.category}
+                    </span>
+                  )}
+                  <span className={`transition-colors duration-200 ${isOpen ? 'text-[var(--text)]' : 'text-[var(--text-secondary)]'}`}>
+                    {faq.question}
+                  </span>
+                </div>
+                <span
+                  className={`text-muted-foreground shrink-0 mr-4 transition-transform duration-300 ${isOpen ? '-rotate-90 text-[var(--primary)]' : 'rotate-0'
+                    }`}
+                >
+                  <ChevronLeft size={20} />
+                </span>
+              </button>
+
+              {/* Answer body */}
+              <div
+                style={{
+                  maxHeight: isOpen ? '400px' : '0px',
+                  opacity: isOpen ? 1 : 0,
+                  overflow: 'hidden',
+                  transition: 'max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease',
+                }}
+              >
+                <div className="px-5 pb-5 pt-4 text-sm md:text-base text-muted-foreground leading-relaxed border-t border-[var(--border)]/50">
+                  {faq.answer}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+    </div>
+  );
+};
+
+export default FAQAccordion;
