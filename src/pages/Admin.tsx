@@ -292,21 +292,53 @@ export const Admin: React.FC = () => {
       const plan = plans[order.plan_id];
       if (!plan) throw new Error('الباقة غير متوفرة');
 
-      const startDate = new Date();
-      const endDate = new Date();
-      endDate.setMonth(startDate.getMonth() + plan.duration_months);
-
-      // A. Create Subscription
-      const { error: subError } = await supabase
+      // Check if the user already has an active subscription for the product
+      const { data: existingSubs, error: fetchError } = await supabase
         .from('subscriptions')
-        .insert({
-          user_id: order.user_id,
-          product_id: 'e5b98f24-5d5d-4f10-bf9d-f685d03a11b6', // Google AI Pro UUID
-          plan_id: order.plan_id,
-          activated_at: startDate.toISOString(),
-          expires_at: endDate.toISOString(),
-          status: 'Active'
-        });
+        .select('*')
+        .eq('user_id', order.user_id)
+        .eq('product_id', 'e5b98f24-5d5d-4f10-bf9d-f685d03a11b6')
+        .eq('status', 'Active');
+
+      if (fetchError) throw fetchError;
+
+      const now = new Date();
+      const activeSub = existingSubs ? existingSubs.find(s => new Date(s.expires_at) > now) : null;
+
+      let subError;
+      if (activeSub) {
+        // Extend the existing active subscription
+        const currentExpiry = new Date(activeSub.expires_at);
+        currentExpiry.setMonth(currentExpiry.getMonth() + plan.duration_months);
+
+        const { error } = await supabase
+          .from('subscriptions')
+          .update({
+            plan_id: order.plan_id, // Update to the new plan if they changed it
+            expires_at: currentExpiry.toISOString(),
+          })
+          .eq('id', activeSub.id);
+        
+        subError = error;
+      } else {
+        // Create a new subscription starting now
+        const startDate = new Date();
+        const endDate = new Date();
+        endDate.setMonth(startDate.getMonth() + plan.duration_months);
+
+        const { error } = await supabase
+          .from('subscriptions')
+          .insert({
+            user_id: order.user_id,
+            product_id: 'e5b98f24-5d5d-4f10-bf9d-f685d03a11b6', // Google AI Pro UUID
+            plan_id: order.plan_id,
+            activated_at: startDate.toISOString(),
+            expires_at: endDate.toISOString(),
+            status: 'Active'
+          });
+
+        subError = error;
+      }
 
       if (subError) throw subError;
 
