@@ -57,6 +57,8 @@ interface Renewal {
 interface UserProfile {
   id: string;
   email: string;
+  full_name?: string;
+  avatar_url?: string;
   phone: string;
   is_admin: boolean;
   created_at: string;
@@ -126,6 +128,8 @@ export const Admin: React.FC = () => {
         mappedUsers = usersData.map((u: any) => ({
           id: u.id,
           email: u.email || '',
+          full_name: u.full_name || '',
+          avatar_url: u.avatar_url || '',
           phone: u.phone || '',
           is_admin: u.role === 'admin',
           created_at: u.created_at
@@ -647,6 +651,12 @@ export const Admin: React.FC = () => {
     return users.find(u => u.id === userId)?.email || 'مستخدم مجهول';
   };
 
+  const getUserDisplayName = (userId: string) => {
+    const u = users.find(user => user.id === userId);
+    if (!u) return 'مستخدم مجهول';
+    return u.full_name ? `${u.full_name} (${u.email})` : u.email;
+  };
+
   const getOrderStatusDetails = (status: Order['status']) => {
     switch (status) {
       case 'pending':
@@ -1081,7 +1091,7 @@ export const Admin: React.FC = () => {
                     const userPhone = users.find(u => u.id === r.user_id)?.phone || 'غير مسجل';
                     return (
                       <tr key={r.id} style={{ borderBottom: '1px solid var(--border)', background: r.status === 'pending' ? 'rgba(245, 158, 11, 0.02)' : 'none' }}>
-                        <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{getUserEmail(r.user_id)}</td>
+                        <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{getUserDisplayName(r.user_id)}</td>
                         <td style={{ padding: '16px' }} className="number-latin">{userPhone}</td>
                         <td style={{ padding: '16px' }} className="number-latin">{new Date(r.created_at).toLocaleString('ar-IQ')}</td>
                         <td style={{ padding: '16px' }}>
@@ -1137,7 +1147,7 @@ export const Admin: React.FC = () => {
                 {filteredSubscriptions.length > 0 ? (
                   filteredSubscriptions.map((s) => (
                     <tr key={s.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{getUserEmail(s.user_id)}</td>
+                      <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{getUserDisplayName(s.user_id)}</td>
                       <td style={{ padding: '16px' }}>{plans[s.plan_id]?.name || 'غير معروف'}</td>
                       <td style={{ padding: '16px' }} className="number-latin">{new Date(s.start_date).toLocaleDateString('ar-IQ')}</td>
                       <td style={{ padding: '16px' }} className="number-latin">{new Date(s.end_date).toLocaleDateString('ar-IQ')}</td>
@@ -1161,7 +1171,7 @@ export const Admin: React.FC = () => {
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', fontSize: '0.9rem' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
-                  <th style={{ padding: '16px', color: 'var(--text)' }}>البريد الإلكتروني</th>
+                  <th style={{ padding: '16px', color: 'var(--text)' }}>المستخدم</th>
                   <th style={{ padding: '16px', color: 'var(--text)' }}>رقم الهاتف المسجل</th>
                   <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ التسجيل</th>
                   <th style={{ padding: '16px', color: 'var(--text)' }}>الرتبة</th>
@@ -1172,7 +1182,19 @@ export const Admin: React.FC = () => {
                 {filteredUsers.length > 0 ? (
                   filteredUsers.map((u) => (
                     <tr key={u.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{u.email}</td>
+                      <td style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        {u.avatar_url ? (
+                          <img src={u.avatar_url} alt="" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
+                        ) : (
+                          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--primary-light)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
+                            {(u.full_name || u.email || '?')[0].toUpperCase()}
+                          </div>
+                        )}
+                        <div>
+                          <div style={{ fontWeight: 700, color: 'var(--text)' }}>{u.full_name || 'بدون اسم'}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{u.email}</div>
+                        </div>
+                      </td>
                       <td style={{ padding: '16px' }} className="number-latin">{u.phone || 'غير متوفر'}</td>
                       <td style={{ padding: '16px' }} className="number-latin">{new Date(u.created_at).toLocaleDateString('ar-IQ')}</td>
                       <td style={{ padding: '16px' }}>

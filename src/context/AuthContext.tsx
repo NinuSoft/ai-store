@@ -4,6 +4,8 @@ import { supabase } from '../lib/supabase';
 interface UserProfile {
   id: string;
   email: string;
+  full_name: string;
+  avatar_url: string;
   phone: string;
   is_admin: boolean;
   created_at: string;
@@ -40,6 +42,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: dbProfile.id,
           phone: dbProfile.phone || '',
           email: dbProfile.email || '',
+          full_name: dbProfile.full_name || '',
+          avatar_url: dbProfile.avatar_url || '',
           is_admin: dbProfile.role === 'admin',
           created_at: dbProfile.created_at
         });

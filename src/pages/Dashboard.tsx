@@ -300,7 +300,7 @@ export const Dashboard: React.FC = () => {
               </Link>
             )}
             <span style={{ color: 'var(--text)', fontSize: '0.9rem', fontWeight: 600 }}>
-              {profile?.email}
+              {profile?.full_name || profile?.email}
             </span>
             <button 
               onClick={handleSignOut}
