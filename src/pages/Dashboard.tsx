@@ -22,7 +22,7 @@ interface Order {
   user_id: string;
   gmail: string;
   phone: string;
-  status: 'pending' | 'processing' | 'awaiting_payment' | 'paid' | 'expired' | 'rejected';
+  status: 'pending' | 'processing' | 'awaiting_payment' | 'paid' | 'expired' | 'rejected' | 'cancelled';
   created_at: string;
   plan_id: string;
   activation_date?: string;
@@ -64,6 +64,7 @@ export const Dashboard: React.FC = () => {
   const [submittingRenewal, setSubmittingRenewal] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState({ text: '', type: '' });
   const [whatsappNum, setWhatsappNum] = useState('9647750977509');
+  const [cancellingOrder, setCancellingOrder] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -113,7 +114,7 @@ export const Dashboard: React.FC = () => {
           } else if (o.status === 'Rejected') {
             frontendStatus = 'rejected';
           } else if (o.status === 'Cancelled') {
-            frontendStatus = 'rejected';
+            frontendStatus = 'cancelled';
           }
           return {
             ...o,
@@ -217,6 +218,33 @@ export const Dashboard: React.FC = () => {
     }
   };
 
+  const handleCancelOrder = async (orderId: string) => {
+    if (!window.confirm('هل أنت متأكد من إلغاء هذا الطلب؟')) return;
+
+    setCancellingOrder(orderId);
+    setActionMessage({ text: '', type: '' });
+
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: 'Cancelled' })
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      setActionMessage({ text: 'تم إلغاء الطلب بنجاح.', type: 'success' });
+      await loadData();
+    } catch (err: any) {
+      console.error('Error cancelling order:', err);
+      setActionMessage({
+        text: err.message || 'حدث خطأ أثناء إلغاء الطلب. يرجى المحاولة لاحقاً.',
+        type: 'danger'
+      });
+    } finally {
+      setCancellingOrder(null);
+    }
+  };
+
   // Helper: calculate remaining days
   const calculateDaysRemaining = (endDateStr: string) => {
     const end = new Date(endDateStr);
@@ -264,6 +292,8 @@ export const Dashboard: React.FC = () => {
         return { label: 'منتهي الصلاحية', badgeClass: 'badge-danger', color: '#f87171' };
       case 'rejected':
         return { label: 'مرفوض', badgeClass: 'badge-danger', color: '#f87171' };
+      case 'cancelled':
+        return { label: 'تم الإلغاء', badgeClass: 'badge-danger', color: '#f87171' };
       default:
         return { label: status, badgeClass: 'badge-primary', color: 'var(--text-muted)' };
     }
@@ -573,6 +603,35 @@ export const Dashboard: React.FC = () => {
                         <span style={{ fontSize: '0.85rem', color: 'var(--success)', fontWeight: 700, fontFamily: 'var(--font-latin)' }}>
                           {plans[o.plan_id]?.price_iqd.toLocaleString('en-US')} د.ع
                         </span>
+
+                        {o.status === 'pending' && (
+                          <button
+                            onClick={() => handleCancelOrder(o.id)}
+                            disabled={cancellingOrder === o.id}
+                            style={{
+                              padding: '4px 10px',
+                              fontSize: '0.72rem',
+                              borderRadius: '6px',
+                              border: '1px solid var(--border)',
+                              background: 'transparent',
+                              color: 'var(--danger)',
+                              cursor: 'pointer',
+                              fontWeight: 700,
+                              transition: 'all 0.2s ease',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              marginTop: '2px'
+                            }}
+                            className="hover:bg-red-500/10 hover:border-red-500/20"
+                          >
+                            {cancellingOrder === o.id ? (
+                              <RotateCw size={12} className="animate-spin" />
+                            ) : (
+                              'إلغاء الطلب'
+                            )}
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}

@@ -45,56 +45,56 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
   }, [user, profile]);
 
   // Automatic order submission if user has a phone
-  useEffect(() => {
-    const autoSubmitOrder = async () => {
-      if (!user || !profile || !profile.phone || !plan || orderSubmitted.current) return;
+  const autoSubmitOrder = React.useCallback(async () => {
+    if (!user || !profile || !profile.phone || !plan) return;
+    
+    setLoading(true);
+    setErrorMessage('');
+
+    try {
+      const orderEmail = user.email || profile.email || '';
       
-      orderSubmitted.current = true;
-      setLoading(true);
-      setErrorMessage('');
+      // 1. Prevent duplicate pending orders for the same Gmail
+      const { data: existingOrders, error: orderCheckError } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('gmail', orderEmail.trim().toLowerCase())
+        .eq('status', 'Pending');
 
-      try {
-        const orderEmail = user.email || profile.email || '';
-        
-        // 1. Prevent duplicate pending orders for the same Gmail
-        const { data: existingOrders, error: orderCheckError } = await supabase
-          .from('orders')
-          .select('*')
-          .eq('gmail', orderEmail.trim().toLowerCase())
-          .eq('status', 'Pending');
+      if (orderCheckError) throw orderCheckError;
 
-        if (orderCheckError) throw orderCheckError;
-
-        if (existingOrders && existingOrders.length > 0) {
-          throw new Error('يوجد بالفعل طلب قيد الانتظار لهذا البريد الإلكتروني. سنقوم بالتواصل معكم قريباً لتفعيله.');
-        }
-
-        // 2. Create the order
-        const { error: insertError } = await supabase
-          .from('orders')
-          .insert({
-            user_id: user.id,
-            plan_id: plan.id,
-            gmail: orderEmail.trim().toLowerCase(),
-            phone: profile.phone.trim(),
-            status: 'Pending'
-          });
-
-        if (insertError) throw insertError;
-
-        setSuccess(true);
-      } catch (err: any) {
-        console.error('Auto Order Submission Error:', err);
-        setErrorMessage(err.message || 'حدث خطأ غير متوقع أثناء إرسال طلبك. يرجى المحاولة لاحقاً.');
-      } finally {
-        setLoading(false);
+      if (existingOrders && existingOrders.length > 0) {
+        throw new Error('يوجد بالفعل طلب قيد الانتظار لهذا البريد الإلكتروني. سنقوم بالتواصل معكم قريباً لتفعيله.');
       }
-    };
 
-    if (user && profile && profile.phone && plan) {
-      autoSubmitOrder();
+      // 2. Create the order
+      const { error: insertError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user.id,
+          plan_id: plan.id,
+          gmail: orderEmail.trim().toLowerCase(),
+          phone: profile.phone.trim(),
+          status: 'Pending'
+        });
+
+      if (insertError) throw insertError;
+
+      setSuccess(true);
+    } catch (err: any) {
+      console.error('Auto Order Submission Error:', err);
+      setErrorMessage(err.message || 'حدث خطأ غير متوقع أثناء إرسال طلبك. يرجى المحاولة لاحقاً.');
+    } finally {
+      setLoading(false);
     }
   }, [user, profile, plan]);
+
+  useEffect(() => {
+    if (user && profile && profile.phone && plan && !orderSubmitted.current) {
+      orderSubmitted.current = true;
+      autoSubmitOrder();
+    }
+  }, [user, profile, plan, autoSubmitOrder]);
 
   if (!plan) return null;
 
@@ -251,7 +251,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
             </div>
 
             {/* Error Message */}
-            {errorMessage && (
+            {errorMessage && !hasPhone && (
               <div 
                 className="flex items-start gap-3"
                 style={{
@@ -326,14 +326,56 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
                 </button>
               </div>
             ) : hasPhone ? (
-              /* Automatic Loader if profile is already complete */
-              <div style={{ textAlign: 'center', padding: '40px 0' }} className="flex flex-col items-center gap-4">
-                <RotateCw size={36} className="animate-spin" style={{ color: 'var(--primary)' }} />
-                <h4 style={{ color: 'var(--text)', fontWeight: 700 }}>جاري تسجيل طلبك...</h4>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                  نقوم بتسجيل الباقة على حسابك الشخصي، يرجى الانتظار للحظة.
-                </p>
-              </div>
+              loading ? (
+                /* Automatic Loader if profile is already complete */
+                <div style={{ textAlign: 'center', padding: '40px 0' }} className="flex flex-col items-center gap-4">
+                  <RotateCw size={36} className="animate-spin" style={{ color: 'var(--primary)' }} />
+                  <h4 style={{ color: 'var(--text)', fontWeight: 700 }}>جاري تسجيل طلبك...</h4>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                    نقوم بتسجيل الباقة على حسابك الشخصي، يرجى الانتظار للحظة.
+                  </p>
+                </div>
+              ) : errorMessage ? (
+                /* Error Screen for automatic orders */
+                <div style={{ textAlign: 'center', padding: '30px 0' }} className="flex flex-col items-center gap-4">
+                  <div style={{
+                    width: '56px',
+                    height: '56px',
+                    borderRadius: '50%',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#f87171',
+                    marginBottom: '8px'
+                  }}>
+                    <AlertTriangle size={28} />
+                  </div>
+                  <h4 style={{ color: 'var(--text)', fontWeight: 800, fontSize: '1.15rem' }}>تعذر إرسال الطلب</h4>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', maxWidth: '340px', lineHeight: '1.6' }}>
+                    {errorMessage}
+                  </p>
+                  <div style={{ display: 'flex', gap: '12px', marginTop: '16px', justifyContent: 'center' }}>
+                    <button
+                      onClick={() => {
+                        setErrorMessage('');
+                        autoSubmitOrder();
+                      }}
+                      className="btn btn-primary"
+                      style={{ padding: '10px 24px', fontSize: '0.88rem' }}
+                    >
+                      إعادة المحاولة
+                    </button>
+                    <button
+                      onClick={onClose}
+                      className="btn"
+                      style={{ padding: '10px 24px', fontSize: '0.88rem', border: '1px solid var(--border)', background: 'transparent', color: 'var(--text)' }}
+                    >
+                      إغلاق
+                    </button>
+                  </div>
+                </div>
+              ) : null
             ) : (
               /* Form to complete profile (first login / missing phone) */
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
