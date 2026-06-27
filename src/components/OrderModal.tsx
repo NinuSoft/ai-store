@@ -18,12 +18,12 @@ interface OrderModalProps {
 
 export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '9647750977509', onClose }) => {
   const { user, profile, signInWithGoogle, refreshProfile } = useAuth();
-  
+
   // Profile / Order inputs
   const [name, setName] = useState('');
   const [gmail, setGmail] = useState('');
   const [phone, setPhone] = useState('');
-  
+
   // UX states
   const [loading, setLoading] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
@@ -47,13 +47,13 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
   // Automatic order submission if user has a phone
   const autoSubmitOrder = React.useCallback(async () => {
     if (!user || !profile || !profile.phone || !plan) return;
-    
+
     setLoading(true);
     setErrorMessage('');
 
     try {
       const orderEmail = user.email || profile.email || '';
-      
+
       // 1. Prevent duplicate pending orders for the same Gmail
       const { data: existingOrders, error: orderCheckError } = await supabase
         .from('orders')
@@ -122,7 +122,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
-    
+
     if (!name.trim()) {
       setErrorMessage('يرجى إدخال اسمك الكامل.');
       return;
@@ -196,7 +196,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
   const hasPhone = !!(profile && profile.phone);
 
   return (
-    <div 
+    <div
       className="modal-overlay flex items-center justify-center"
       style={{
         position: 'fixed',
@@ -207,7 +207,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
         padding: '20px'
       }}
     >
-      <div 
+      <div
         className="modal-container glass-panel"
         style={{
           width: '100%',
@@ -224,7 +224,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
       >
         {/* Close Button */}
         {(!loading || success) && (
-          <button 
+          <button
             onClick={onClose}
             style={{
               position: 'absolute',
@@ -252,7 +252,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
 
             {/* Error Message */}
             {errorMessage && !hasPhone && (
-              <div 
+              <div
                 className="flex items-start gap-3"
                 style={{
                   background: 'rgba(239, 68, 68, 0.08)',
@@ -272,7 +272,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
             {!user ? (
               /* Google Authentication segment if not logged in */
               <div style={{ textAlign: 'center' }} className="flex flex-col gap-4">
-                <div 
+                <div
                   style={{
                     background: 'rgba(124, 58, 237, 0.03)',
                     border: '1px dashed var(--border)',
@@ -290,7 +290,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
                   </p>
                 </div>
 
-                <button 
+                <button
                   onClick={handleGoogleLogin}
                   disabled={authLoading}
                   style={{
@@ -315,10 +315,10 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
                   ) : (
                     <>
                       <svg width="18" height="18" viewBox="0 0 24 24">
-                        <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                        <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                        <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                        <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                        <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                        <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
                       </svg>
                       <span>الدخول باستخدام حساب Google</span>
                     </>
@@ -379,7 +379,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
             ) : (
               /* Form to complete profile (first login / missing phone) */
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <div 
+                <div
                   style={{
                     background: 'rgba(16, 185, 129, 0.03)',
                     border: '1px solid rgba(16, 185, 129, 0.1)',
@@ -401,9 +401,9 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
                   <label style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)' }}>البريد الإلكتروني للتفعيل</label>
                   <div style={{ position: 'relative' }}>
                     <Mail size={16} style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                    <input 
-                      type="email" 
-                      value={gmail} 
+                    <input
+                      type="email"
+                      value={gmail}
                       disabled
                       style={{
                         width: '100%', padding: '12px 42px 12px 16px',
@@ -420,9 +420,9 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
                   <label style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)' }}>الاسم الكامل (قابل للتعديل)</label>
                   <div style={{ position: 'relative' }}>
                     <User size={16} style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
-                    <input 
-                      type="text" 
-                      value={name} 
+                    <input
+                      type="text"
+                      value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="الاسم الكامل"
                       required
@@ -438,12 +438,12 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
 
                 {/* Phone */}
                 <div className="flex flex-col gap-2">
-                  <label style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)' }}>رقم الهاتف (زين كاش أو اتصال)</label>
+                  <label style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)' }}>رقم الهاتف</label>
                   <div style={{ position: 'relative' }}>
                     <Phone size={16} style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
-                    <input 
-                      type="tel" 
-                      value={phone} 
+                    <input
+                      type="tel"
+                      value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="مثال: 07701234567"
                       required
@@ -457,7 +457,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
                   </div>
                 </div>
 
-                <button 
+                <button
                   type="submit"
                   disabled={loading}
                   style={{
@@ -489,11 +489,11 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
             <div className="flex justify-center mb-6">
               <CheckCircle size={64} style={{ color: 'var(--success)' }} />
             </div>
-            
+
             <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text)', marginBottom: '12px' }}>
               تم استلام طلبك بنجاح!
             </h3>
-            
+
             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: '1.7', marginBottom: '28px' }}>
               لقد سجلنا طلبك لتنشيط باقة <strong style={{ color: 'var(--text)' }}>{plan.name}</strong> على بريدك الإلكتروني:
               <br />
@@ -505,7 +505,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
             </p>
 
             <div className="flex flex-col gap-3">
-              <a 
+              <a
                 href={`https://wa.me/${whatsappNum}?text=${encodeURIComponent(`مرحباً، قمت بتقديم طلب تفعيل باقة ${plan.name} على بريد ${gmail || user?.email} وأود تسريع عملية التفعيل.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -529,8 +529,8 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
               >
                 تواصل معنا لتسريع التفعيل عبر واتساب
               </a>
-              
-              <button 
+
+              <button
                 onClick={onClose}
                 style={{
                   width: '100%',
