@@ -529,40 +529,28 @@ export const Dashboard: React.FC = () => {
                   </div>
 
                   {/* Action row */}
-                  <div className="flex gap-4 mt-2">
-                    {activeSub.status === 'expired' ? (
-                      <>
-                        <button 
-                          onClick={() => handleRequestRenewal(activeSub)}
-                          disabled={submittingRenewal === activeSub.id}
-                          className="btn btn-primary"
-                          style={{ padding: '10px 24px', fontSize: '0.9rem' }}
-                        >
-                          {submittingRenewal === activeSub.id ? 'جاري إرسال الطلب...' : 'طلب تجديد الاشتراك'}
-                        </button>
-                        
-                        <a 
-                          href={`https://wa.me/${whatsappNum}?text=${encodeURIComponent(`مرحباً، انتهى اشتراكي وأود تجديده وتفعيل الباقة مجدداً.`)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn btn-outline"
-                          style={{ padding: '10px 24px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}
-                        >
-                          <MessageSquare size={16} style={{ color: '#25d366' }} /> تواصل مع الدعم
-                        </a>
-                      </>
-                    ) : (
+                  {activeSub.status === 'expired' && (
+                    <div className="flex gap-4 mt-2">
+                      <button 
+                        onClick={() => handleRequestRenewal(activeSub)}
+                        disabled={submittingRenewal === activeSub.id}
+                        className="btn btn-primary"
+                        style={{ padding: '10px 24px', fontSize: '0.9rem' }}
+                      >
+                        {submittingRenewal === activeSub.id ? 'جاري إرسال الطلب...' : 'طلب تجديد الاشتراك'}
+                      </button>
+                      
                       <a 
-                        href={`https://wa.me/${whatsappNum}?text=${encodeURIComponent(`مرحباً، أود الاستفسار حول اشتراكي الحالي المفعّل على حسابي.`)}`}
+                        href={`https://wa.me/${whatsappNum}?text=${encodeURIComponent(`مرحباً، انتهى اشتراكي وأود تجديده وتفعيل الباقة مجدداً.`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="btn btn-primary"
+                        className="btn btn-outline"
                         style={{ padding: '10px 24px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}
                       >
                         <MessageSquare size={16} style={{ color: '#25d366' }} /> تواصل مع الدعم
                       </a>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 /* Empty state */
