@@ -23,7 +23,7 @@ interface Plan {
   official_price_iqd?: number;
 }
 
-const WhatsAppIcon = ({ size = 24, ...props }: { size?: number; [key: string]: any }) => (
+const WhatsAppIcon = ({ size = 24, ...props }: { size?: number;[key: string]: any }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={size}
@@ -584,7 +584,7 @@ export const Home: React.FC = () => {
             >
               <span style={{ color: 'var(--text-muted)', fontWeight: 700, fontSize: '1rem', marginBottom: '16px' }}>السعر الرسمي من Google</span>
               <span className="number-latin" style={{ fontSize: '2.8rem', fontWeight: 800, color: 'var(--text-muted)', textDecoration: 'line-through' }}>
-                360,000
+                300,000
               </span>
               <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '4px' }}>د.ع / سنوياً</span>
             </div>
@@ -630,7 +630,7 @@ export const Home: React.FC = () => {
                   fontWeight: 800
                 }}
               >
-                وفر أكثر من 88%
+                وفر أكثر من 86%
               </div>
             </div>
           </div>
@@ -777,7 +777,7 @@ export const Home: React.FC = () => {
                   }}
                 >
                   {/* Card Header */}
-                  <div 
+                  <div
                     style={{
                       padding: '24px',
                       borderBottom: '1px solid var(--border)',
@@ -803,7 +803,7 @@ export const Home: React.FC = () => {
 
                     {/* Badges row */}
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '16px', position: 'relative', zIndex: 10 }}>
-                      <span 
+                      <span
                         style={{
                           fontSize: '11px',
                           fontWeight: 800,
@@ -814,11 +814,11 @@ export const Home: React.FC = () => {
                           color: 'var(--text-secondary)'
                         }}
                       >
-                        {p.duration_months === 1 ? 'شهر واحد' : p.duration_months === 3 ? '٣ أشهر' : p.duration_months === 12 ? 'سنة كاملة (١٢ شهراً)' : `${p.duration_months} شهراً`}
+                        {p.duration_months === 1 ? 'شهر واحد' : p.duration_months === 3 ? '3 أشهر' : p.duration_months === 12 ? '12 شهراً' : `${p.duration_months} شهراً`}
                       </span>
 
                       {isRecommended ? (
-                        <span 
+                        <span
                           style={{
                             fontSize: '10px',
                             fontWeight: 900,
@@ -832,10 +832,10 @@ export const Home: React.FC = () => {
                             gap: '4px'
                           }}
                         >
-                          الأوفر والأكثر طلباً ⭐
+                          الأكثر طلباً ⭐
                         </span>
                       ) : isMid ? (
-                        <span 
+                        <span
                           style={{
                             fontSize: '10px',
                             fontWeight: 800,
@@ -865,7 +865,7 @@ export const Home: React.FC = () => {
                   <div style={{ padding: '24px', flex: '1', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <div>
                       {/* Price block */}
-                      <div 
+                      <div
                         style={{
                           background: 'rgba(255,255,255,0.01)',
                           border: '1px solid var(--border)',
@@ -883,7 +883,7 @@ export const Home: React.FC = () => {
                       >
                         {/* Floating discount badge */}
                         {savingsPct > 0 && (
-                          <div 
+                          <div
                             style={{
                               position: 'absolute',
                               top: '-12px',
@@ -919,7 +919,7 @@ export const Home: React.FC = () => {
                         </div>
 
                         {/* Per-month breakdown */}
-                        <div 
+                        <div
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',

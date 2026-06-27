@@ -1252,8 +1252,8 @@ td.number-latin {
 /* 3. Floating Scroll Progress Back to Top Button */
 .scroll-progress-btn {
   position: fixed;
-  bottom: 80px;
-  left: 28px;
+  bottom: 35px;
+  left: 35px;
   width: 52px;
   height: 52px;
   border-radius: 50%;
@@ -1272,6 +1272,13 @@ td.number-latin {
   visibility: hidden;
   transform: translateY(20px) scale(0.85);
   transition: opacity 0.4s ease, visibility 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s, border-color 0.3s;
+}
+
+@media (max-width: 768px) {
+  .scroll-progress-btn {
+    bottom: 90px;
+    left: 18px;
+  }
 }
 
 .scroll-progress-btn.visible {
