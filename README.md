@@ -185,7 +185,7 @@ supabase/migrations/007_add_suspended_to_subscription_status.sql
 pnpm dev
 ```
 
-App is available at `http://localhost:5173`.
+App is available at `http://localhost:8080`.
 
 ---
 
