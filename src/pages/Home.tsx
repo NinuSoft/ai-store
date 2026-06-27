@@ -11,7 +11,6 @@ import { StatsCounter } from '../components/StatsCounter';
 import { TestimonialsCarousel } from '../components/TestimonialsCarousel';
 import { FAQAccordion } from '../components/FAQAccordion';
 import { OrderModal } from '../components/OrderModal';
-import { IntroScreen } from '../components/IntroScreen';
 import { supabase } from '../lib/supabase';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { ScrollProgressButton } from '../components/ScrollProgressButton';
@@ -33,7 +32,6 @@ export const Home: React.FC = () => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
-  const [showIntro, setShowIntro] = useState(() => !!document.getElementById('ns-intro'));
   const [countdown, setCountdown] = useState({ hours: 2, minutes: 14, seconds: 45 });
 
   // Listen to redirect query param from protected route guards
@@ -119,7 +117,6 @@ export const Home: React.FC = () => {
 
   return (
     <div style={{ position: 'relative' }}>
-      {showIntro && <IntroScreen onComplete={() => setShowIntro(false)} />}
 
       {/* 1. LOSS AVERSION COUNTDOWN BANNER */}
       <div className="countdown-banner flex items-center justify-center gap-4">

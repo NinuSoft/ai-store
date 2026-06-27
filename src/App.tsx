@@ -7,10 +7,11 @@ import Admin from './pages/Admin';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import { RotateCw } from 'lucide-react';
+import { IntroScreen } from './components/IntroScreen';
 
-// Protected Route Guard (redirects to /?login=true if unauthenticated)
+// Protected Route Guard (redirects to / if unauthenticated)
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
 
   if (loading) {
     return (
@@ -21,7 +22,11 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   }
 
   if (!user) {
-    return <Navigate to="/?login=true" replace />;
+    return <Navigate to="/" replace />;
+  }
+
+  if (profile && profile.is_admin) {
+    return <Navigate to="/admin" replace />;
   }
 
   return <>{children}</>;
@@ -40,7 +45,7 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   }
 
   if (!user) {
-    return <Navigate to="/?login=true" replace />;
+    return <Navigate to="/" replace />;
   }
 
   if (profile && !profile.is_admin) {
@@ -53,6 +58,7 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 export const App: React.FC = () => {
   return (
     <AuthProvider>
+      <IntroScreen onComplete={() => {}} />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
