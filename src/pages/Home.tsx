@@ -23,6 +23,19 @@ interface Plan {
   official_price_iqd?: number;
 }
 
+const WhatsAppIcon = ({ size = 24, ...props }: { size?: number; [key: string]: any }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    {...props}
+  >
+    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.5-5.729-1.448L0 24zm6.59-4.846c1.6.95 2.51 1.442 4.415 1.443 5.485.002 9.953-4.464 9.956-9.953.002-2.661-1.029-5.163-2.906-7.042C16.177 1.721 13.68 .69 11.02.69 5.534.69 1.066 5.158 1.063 10.645c-.001 1.896.486 2.802 1.444 4.416l-.995 3.637 3.737-.98a10.87 10.87 0 0 0 2.808.436zm10.74-5.385c-.27-.136-1.602-.79-1.85-.88-.25-.09-.432-.136-.614.137-.182.273-.705.88-.863 1.058-.158.177-.317.2-.587.064a7.393 7.393 0 0 1-2.18-1.34 8.15 8.15 0 0 1-1.51-1.879c-.16-.272-.017-.42.119-.556.122-.122.27-.318.406-.477.135-.16.18-.272.271-.453.09-.182.046-.34-.022-.477-.068-.137-.614-1.477-.84-2.023-.223-.537-.468-.463-.643-.472-.166-.008-.356-.01-.546-.01-.19 0-.5.07-.762.355-.262.286-1 .977-1 2.385s1.02 2.766 1.163 2.956c.143.19 2.01 3.07 4.869 4.3.68.293 1.213.468 1.628.6a3.9 3.9 0 0 0 1.787.112c.55-.082 1.602-.654 1.828-1.285.227-.63.227-1.173.159-1.285-.068-.113-.25-.177-.52-.313z" />
+  </svg>
+);
+
 export const Home: React.FC = () => {
   const { user, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
@@ -32,7 +45,6 @@ export const Home: React.FC = () => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
-  const [countdown, setCountdown] = useState({ hours: 2, minutes: 14, seconds: 45 });
 
   // Listen to redirect query param from protected route guards
   useEffect(() => {
@@ -83,24 +95,7 @@ export const Home: React.FC = () => {
     fetchSettings();
   }, []);
 
-  // Countdown timer logic
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown(prev => {
-        if (prev.seconds > 0) {
-          return { ...prev, seconds: prev.seconds - 1 };
-        } else if (prev.minutes > 0) {
-          return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
-        } else if (prev.hours > 0) {
-          return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        } else {
-          clearInterval(timer);
-          return prev;
-        }
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+
 
   const handleSelectPlan = (plan: Plan) => {
     setSelectedPlan(plan);
@@ -118,23 +113,7 @@ export const Home: React.FC = () => {
   return (
     <div style={{ position: 'relative' }}>
 
-      {/* 1. LOSS AVERSION COUNTDOWN BANNER */}
-      <div className="countdown-banner flex items-center justify-center gap-4">
-        <span>⚡ الأسعار الحالية محدودة! اشترك الآن قبل انتهاء العرض</span>
-        <span
-          className="number-latin"
-          style={{
-            background: 'rgba(0,0,0,0.25)',
-            padding: '3px 12px',
-            borderRadius: '9999px',
-            fontWeight: 900,
-            letterSpacing: '0.05em',
-            border: '1px solid rgba(255,255,255,0.2)'
-          }}
-        >
-          {countdown.hours.toString().padStart(2, '0')}:{countdown.minutes.toString().padStart(2, '0')}:{countdown.seconds.toString().padStart(2, '0')}
-        </span>
-      </div>
+
 
       {/* 2. HEADER — Premium glassy navbar */}
       <header
@@ -1309,7 +1288,8 @@ export const Home: React.FC = () => {
         className="whatsapp-float animate-float"
         title="تواصل معنا قبل الشراء"
       >
-        <MessageSquare size={28} />
+        <span className="whatsapp-pulse-ring" />
+        <WhatsAppIcon size={26} style={{ position: 'relative', zIndex: 10 }} />
       </a>
 
       {/* 14. STICKY MOBILE CTA BAR */}
