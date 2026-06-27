@@ -670,7 +670,7 @@ export const Home: React.FC = () => {
           background: 'radial-gradient(ellipse 70% 55% at 50% 50%, var(--primary-light) 0%, transparent 70%)'
         }} />
 
-        <div className="container" style={{ position: 'relative' }}>
+        <div className="container" style={{ position: 'relative', maxWidth: '1350px' }}>
 
           {/* Section header */}
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
@@ -734,7 +734,7 @@ export const Home: React.FC = () => {
             className="pricing-grid"
             style={{
               display: 'grid',
-              maxWidth: '1000px',
+              maxWidth: '1350px',
               margin: '0 auto',
               alignItems: 'stretch',
               paddingTop: '12px',
@@ -748,8 +748,8 @@ export const Home: React.FC = () => {
               }
               @media (min-width: 768px) {
                 .pricing-grid {
-                  grid-template-columns: repeat(3, minmax(0, 1fr));
-                  gap: 32px;
+                  grid-template-columns: repeat(4, minmax(0, 1fr));
+                  gap: 20px;
                 }
               }
               @media (max-width: 767px) {
@@ -772,126 +772,206 @@ export const Home: React.FC = () => {
               return (
                 <div
                   key={p.id}
-                  className={`relative group rounded-[24px] border transition-all duration-500 flex flex-col h-full ${isRecommended
-                      ? 'border-[var(--primary)] pricing-card-recommended pricing-card-elevated shadow-[0_20px_40px_rgba(99,102,241,0.12)]'
-                      : 'border-[var(--border)] shadow-md hover:border-[var(--primary)]/30 hover:shadow-xl'
-                    }`}
                   style={{
-                    background: isRecommended ? 'var(--surface-raised)' : 'var(--surface-glass)',
+                    position: 'relative',
+                    borderRadius: '24px',
+                    overflow: 'hidden',
+                    border: isRecommended ? '2.5px solid var(--primary)' : '1px solid var(--border)',
+                    background: 'var(--surface-glass)',
                     backdropFilter: 'blur(24px)',
                     WebkitBackdropFilter: 'blur(24px)',
-                    transform: isRecommended ? 'translateY(-8px)' : 'translateY(0)',
-                    transition: 'transform 0.4s cubic-bezier(0.16,1,0.3,1), box-shadow 0.4s ease, border-color 0.3s ease',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%',
+                    transform: 'translateY(0)',
+                    boxShadow: 'var(--shadow-md)',
+                    transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, border-color 0.3s ease',
+                    zIndex: 1
                   }}
+                  className="group"
                   onMouseEnter={e => {
-                    if (!isRecommended) {
-                      (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-4px)';
-                    } else {
-                      (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-12px)';
-                    }
+                    e.currentTarget.style.boxShadow = 'var(--shadow-xl)';
+                    e.currentTarget.style.borderColor = isRecommended ? 'var(--primary)' : 'rgba(99, 102, 241, 0.3)';
+                    e.currentTarget.style.transform = 'translateY(-6px)';
                   }}
                   onMouseLeave={e => {
-                    if (!isRecommended) {
-                      (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
-                    } else {
-                      (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-8px)';
-                    }
+                    e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                    e.currentTarget.style.borderColor = isRecommended ? 'var(--primary)' : 'var(--border)';
+                    e.currentTarget.style.transform = 'translateY(0)';
                   }}
                 >
-                  {/* Animated glow border for recommended */}
-                  {isRecommended && (
-                    <div style={{
-                      position: 'absolute',
-                      inset: '-2px',
-                      borderRadius: '26px',
-                      background: 'linear-gradient(135deg, hsl(258,82%,60%), hsl(220,90%,65%), hsl(195,90%,60%), hsl(258,82%,60%))',
-                      backgroundSize: '300% 300%',
-                      animation: 'shimmer 3s linear infinite',
-                      zIndex: -1,
-                    }} />
-                  )}
-
                   {/* Card Header */}
-                  <div className="p-4 md:p-6 pb-3 md:pb-4 border-b border-[var(--border)]/40 relative overflow-hidden">
-                    {/* Glow effect at top corner */}
+                  <div 
+                    style={{
+                      padding: '24px',
+                      borderBottom: '1px solid var(--border)',
+                      position: 'relative',
+                      overflow: 'hidden'
+                    }}
+                  >
+                    {/* Glowing aura at background corner */}
                     <div
-                      className={`absolute -top-12 -right-12 w-24 h-24 rounded-full blur-2xl opacity-20 pointer-events-none ${p.duration_months === 1 ? 'bg-cyan-500' : p.duration_months === 3 ? 'bg-violet-500' : 'bg-primary'
-                        }`}
+                      style={{
+                        position: 'absolute',
+                        top: '-48px',
+                        right: '-48px',
+                        width: '96px',
+                        height: '96px',
+                        borderRadius: '50%',
+                        filter: 'blur(32px)',
+                        opacity: 0.15,
+                        pointerEvents: 'none',
+                        background: p.duration_months === 1 ? 'var(--accent)' : p.duration_months === 3 ? 'var(--secondary)' : 'var(--primary)'
+                      }}
                     />
 
                     {/* Badges row */}
-                    <div className="flex items-center justify-between gap-2 mb-4 relative z-10">
-                      <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-full text-[var(--text-secondary)]">
-                        {p.duration_months === 1 ? '١ شهر' : p.duration_months === 3 ? '٣ أشهر' : '١٢ شهراً'}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '16px', position: 'relative', zIndex: 10 }}>
+                      <span 
+                        style={{
+                          fontSize: '11px',
+                          fontWeight: 800,
+                          padding: '4px 12px',
+                          background: 'rgba(255,255,255,0.05)',
+                          border: '1px solid var(--border)',
+                          borderRadius: '9999px',
+                          color: 'var(--text-secondary)'
+                        }}
+                      >
+                        {p.duration_months === 1 ? 'شهر واحد' : p.duration_months === 3 ? '٣ أشهر' : p.duration_months === 12 ? 'سنة كاملة (١٢ شهراً)' : `${p.duration_months} شهراً`}
                       </span>
 
                       {isRecommended ? (
-                        <span className="text-[10px] font-black px-2.5 py-1 rounded-full text-white bg-gradient-to-r from-indigo-500 to-violet-600 shadow-sm animate-pulse">
-                          الأفضل قيمة
+                        <span 
+                          style={{
+                            fontSize: '10px',
+                            fontWeight: 900,
+                            padding: '4px 12px',
+                            borderRadius: '9999px',
+                            color: 'var(--primary)',
+                            background: 'var(--primary-light)',
+                            border: '1px solid var(--secondary-glow-border)',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          الأوفر والأكثر طلباً ⭐
                         </span>
                       ) : isMid ? (
-                        <span className="text-[10px] font-black px-2.5 py-1 rounded-full text-[var(--secondary)] bg-[var(--secondary-glow)] border border-[var(--secondary-glow-border)]">
-                          الأكثر طلباً
+                        <span 
+                          style={{
+                            fontSize: '10px',
+                            fontWeight: 800,
+                            padding: '4px 12px',
+                            borderRadius: '9999px',
+                            color: 'var(--secondary)',
+                            background: 'var(--secondary-glow)',
+                            border: '1px solid var(--secondary-glow-border)'
+                          }}
+                        >
+                          شائع 🔥
                         </span>
                       ) : null}
                     </div>
 
                     {/* Plan title */}
-                    <h3 className="text-xl font-black text-[var(--text)] mb-1 flex items-center gap-2">
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                       Google AI Pro
-                      {isRecommended && <Sparkles size={16} className="text-amber-500 animate-pulse" />}
+                      {isRecommended && <Sparkles size={16} style={{ color: '#f59e0b' }} className="animate-pulse" />}
                     </h3>
-                    <p className="text-[11px] text-[var(--text-muted)] font-medium">
-                      تفعيل رسمي وآمن بنسبة 100% على بريدك الشخصي
+                    <p style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500 }}>
+                      تفعيل رسمي وأصلي 100% على إيميلك الشخصي
                     </p>
                   </div>
 
                   {/* Card Body */}
-                  <div className="p-4 md:p-6 flex-1 flex flex-col justify-between">
+                  <div style={{ padding: '24px', flex: '1', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <div>
                       {/* Price block */}
-                      <div className="bg-black/[0.02] dark:bg-white/[0.01] border border-[var(--border)] rounded-2xl p-5 text-center mb-6 relative flex flex-col items-center justify-center min-h-[140px]">
+                      <div 
+                        style={{
+                          background: 'rgba(255,255,255,0.01)',
+                          border: '1px solid var(--border)',
+                          borderRadius: '20px',
+                          padding: '24px 16px',
+                          textAlign: 'center',
+                          marginBottom: '24px',
+                          position: 'relative',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          minHeight: '155px',
+                        }}
+                      >
                         {/* Floating discount badge */}
                         {savingsPct > 0 && (
-                          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] font-black px-3.5 py-1 rounded-full shadow-md shadow-emerald-500/20 whitespace-nowrap animate-bounce">
+                          <div 
+                            style={{
+                              position: 'absolute',
+                              top: '-12px',
+                              left: '50%',
+                              transform: 'translateX(-50%)',
+                              background: 'linear-gradient(90deg, #10b981, #059669)',
+                              color: 'white',
+                              fontSize: '10px',
+                              fontWeight: 900,
+                              padding: '4px 14px',
+                              borderRadius: '9999px',
+                              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
                             وفر {savingsPct}%
                           </div>
                         )}
 
                         {/* Original Google Price */}
                         {p.official_price_iqd && p.official_price_iqd > p.price_iqd && (
-                          <div className="text-[11px] text-[var(--text-muted)] line-through mb-1 font-bold">
-                            السعر الرسمي من Google: <span className="number-latin">{p.official_price_iqd.toLocaleString()}</span> د.ع
+                          <div style={{ fontSize: '11px', color: 'var(--text-muted)', textDecoration: 'line-through', marginBottom: '4px', fontWeight: 600 }}>
+                            السعر الرسمي: <span className="number-latin">{p.official_price_iqd.toLocaleString()}</span> د.ع
                           </div>
                         )}
 
                         {/* Price tag */}
-                        <div className="flex items-baseline justify-center gap-1">
-                          <span className="number-latin text-3xl md:text-4xl font-black text-[var(--text)] tracking-tight">
+                        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: '4px', marginBottom: '8px' }}>
+                          <span className="number-latin text-gradient" style={{ fontSize: '2.6rem', fontWeight: 900, color: 'var(--text)', letterSpacing: '-0.02em' }}>
                             {p.price_iqd.toLocaleString()}
                           </span>
-                          <span className="text-xs text-[var(--text-muted)] font-bold">د.ع</span>
+                          <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 700 }}>د.ع</span>
                         </div>
 
                         {/* Per-month breakdown */}
-                        <div className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/10 rounded-lg">
-                          <span className="text-[11px] text-[var(--text-muted)]">يعادل تقريباً:</span>
-                          <span className="number-latin font-black text-xs text-emerald-600 dark:text-emerald-400">
+                        <div 
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '4px 12px',
+                            background: 'rgba(16, 185, 129, 0.05)',
+                            border: '1px solid rgba(16, 185, 129, 0.12)',
+                            borderRadius: '8px'
+                          }}
+                        >
+                          <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>يعادل:</span>
+                          <span className="number-latin" style={{ fontWeight: 800, fontSize: '12px', color: '#059669' }}>
                             {monthlyPrice.toLocaleString()}
                           </span>
-                          <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">د.ع / شهر</span>
+                          <span style={{ fontSize: '10px', color: '#059669', fontWeight: 700 }}>د.ع / شهر</span>
                         </div>
 
-                        {p.duration_months === 1 && (
-                          <p className="text-[10px] text-[var(--text-subtle)] mt-2 font-medium">
-                            دفعة واحدة — بدون تجديد تلقائي
-                          </p>
+                        {/* Absolute savings label */}
+                        {p.official_price_iqd && p.official_price_iqd > p.price_iqd && (
+                          <div style={{ fontSize: '10px', color: 'var(--success)', fontWeight: 800, marginTop: '12px' }}>
+                            توفير حقيقي بقيمة <span className="number-latin">{(p.official_price_iqd - p.price_iqd).toLocaleString()}</span> د.ع!
+                          </div>
                         )}
                       </div>
 
                       {/* Features checklist inside card */}
-                      <div className="space-y-3 mb-6">
-                        <p className="text-[11px] font-black text-[var(--text-muted)] uppercase tracking-wider">تشمل الباقة:</p>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px' }}>
+                        <p style={{ fontSize: '11px', fontWeight: 900, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>تشمل الباقة:</p>
                         {[
                           'تفعيل رسمي كامل على إيميلك الشخصي',
                           'الوصول لنموذج Gemini Advanced الأقوى',
@@ -899,9 +979,9 @@ export const Home: React.FC = () => {
                           'دمج الذكاء الاصطناعي في خدمات Google',
                           isRecommended ? 'أولوية قصوى للتنشيط والدعم الفني' : 'تنشيط سريع ودعم متواصل 24/7',
                         ].map((feature, fIdx) => (
-                          <div key={fIdx} className="flex items-start gap-2.5 text-xs text-[var(--text-secondary)] font-medium">
-                            <span className="text-emerald-500 shrink-0 mt-0.5">✓</span>
-                            <span className="leading-tight">{feature}</span>
+                          <div key={fIdx} style={{ display: 'flex', alignItems: 'start', gap: '8px', fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
+                            <Check size={14} style={{ color: '#10b981', flexShrink: 0, marginTop: '2px' }} />
+                            <span style={{ lineHeight: '1.4' }}>{feature}</span>
                           </div>
                         ))}
                       </div>
@@ -910,10 +990,18 @@ export const Home: React.FC = () => {
                     {/* Card CTA Button */}
                     <button
                       onClick={() => handleSelectPlan(p)}
-                      className={`w-full py-3.5 px-5 font-bold rounded-xl text-sm transition-all duration-300 transform active:scale-95 cursor-pointer shadow-md ${isRecommended
-                          ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white hover:opacity-95 hover:shadow-primary/30 hover:shadow-lg'
-                          : 'bg-black/5 dark:bg-white/5 border border-[var(--border)] text-[var(--text)] hover:bg-[var(--primary)] hover:text-white hover:border-[var(--primary)] hover:shadow-primary/10'
-                        }`}
+                      style={{
+                        width: '100%',
+                        padding: '14px 20px',
+                        fontWeight: 800,
+                        borderRadius: '14px',
+                        fontSize: '0.875rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        border: 'none',
+                        boxShadow: 'var(--shadow-sm)'
+                      }}
+                      className="bg-black/5 dark:bg-white/5 border border-[var(--border)] text-[var(--text)] hover:bg-[var(--primary)] hover:text-white hover:border-[var(--primary)] active:scale-[0.98]"
                     >
                       {isRecommended ? 'اشترك بأفضل قيمة' : isMid ? 'اشترك الآن' : '← اختر هذه المدة'}
                     </button>
