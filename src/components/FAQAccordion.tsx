@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -103,8 +103,24 @@ const defaultFaqs: FAQItem[] = [
 
 export const FAQAccordion: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'payment' | 'activation' | 'security' | 'general'>('all');
+  const [displayTab, setDisplayTab] = useState<'all' | 'payment' | 'activation' | 'security' | 'general'>('all');
   const [openQuestion, setOpenQuestion] = useState<string | null>('هل يجب الدفع قبل التفعيل؟');
   const [faqs, setFaqs] = useState<FAQItem[]>(defaultFaqs);
+  const [isFading, setIsFading] = useState(false);
+
+  const listRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState<number | 'auto'>('auto');
+
+  useEffect(() => {
+    if (!listRef.current) return;
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        setHeight(entry.contentRect.height);
+      }
+    });
+    resizeObserver.observe(listRef.current);
+    return () => resizeObserver.disconnect();
+  }, []);
 
   const getCategoryFromQuestion = (question: string): string => {
     const q = question.toLowerCase();
@@ -140,26 +156,33 @@ export const FAQAccordion: React.FC = () => {
   }, []);
 
   const filteredFaqs = faqs.filter(faq => {
-    if (activeTab === 'all') return true;
-    if (activeTab === 'payment') return faq.category === 'الدفع' || faq.category === 'الباقات';
-    if (activeTab === 'activation') return faq.category === 'التفعيل';
-    if (activeTab === 'security') return faq.category === 'الأمان';
-    if (activeTab === 'general') return faq.category === 'المزايا' || faq.category === 'الدعم' || faq.category === 'عام';
+    if (displayTab === 'all') return true;
+    if (displayTab === 'payment') return faq.category === 'الدفع' || faq.category === 'الباقات';
+    if (displayTab === 'activation') return faq.category === 'التفعيل';
+    if (displayTab === 'security') return faq.category === 'الأمان';
+    if (displayTab === 'general') return faq.category === 'المزايا' || faq.category === 'الدعم' || faq.category === 'عام';
     return true;
   });
 
   const handleTabChange = (tab: typeof activeTab) => {
+    if (tab === activeTab) return;
     setActiveTab(tab);
-    // Automatically open the first FAQ in the selected category
-    const firstMatch = faqs.find(faq => {
-      if (tab === 'all') return faq.question === 'هل يجب الدفع قبل التفعيل؟';
-      if (tab === 'payment') return faq.category === 'الدفع' || faq.category === 'الباقات';
-      if (tab === 'activation') return faq.category === 'التفعيل';
-      if (tab === 'security') return faq.category === 'الأمان';
-      if (tab === 'general') return faq.category === 'المزايا' || faq.category === 'الدعم' || faq.category === 'عام';
-      return true;
-    });
-    setOpenQuestion(firstMatch ? firstMatch.question : null);
+    setIsFading(true);
+    
+    setTimeout(() => {
+      setDisplayTab(tab);
+      // Automatically open the first FAQ in the selected category
+      const firstMatch = faqs.find(faq => {
+        if (tab === 'all') return faq.question === 'هل يجب الدفع قبل التفعيل؟';
+        if (tab === 'payment') return faq.category === 'الدفع' || faq.category === 'الباقات';
+        if (tab === 'activation') return faq.category === 'التفعيل';
+        if (tab === 'security') return faq.category === 'الأمان';
+        if (tab === 'general') return faq.category === 'المزايا' || faq.category === 'الدعم' || faq.category === 'عام';
+        return true;
+      });
+      setOpenQuestion(firstMatch ? firstMatch.question : null);
+      setIsFading(false);
+    }, 150);
   };
 
   const toggleFAQ = (question: string) => {
@@ -200,16 +223,27 @@ export const FAQAccordion: React.FC = () => {
         ))}
       </div>
 
-      {/* FAQs List */}
+      {/* FAQs List with height transition wrapper to prevent layout jumps */}
       <div
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '16px',
+          height: height === 'auto' ? 'auto' : `${height}px`,
+          overflow: 'hidden',
+          transition: 'height 0.3s cubic-bezier(0.25, 1, 0.5, 1)',
           maxWidth: '820px',
           margin: '0 auto',
         }}
       >
+        <div
+          ref={listRef}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
+            opacity: isFading ? 0 : 1,
+            transform: isFading ? 'translateY(8px)' : 'translateY(0)',
+            transition: 'opacity 0.18s ease, transform 0.18s ease',
+          }}
+        >
         {filteredFaqs.map((faq, index) => {
           const isOpen = openQuestion === faq.question;
           const catColor = categoryColors[faq.category ?? 'عام'] ?? '#6b7280';
@@ -327,6 +361,7 @@ export const FAQAccordion: React.FC = () => {
             </div>
           );
         })}
+        </div>
       </div>
 
     </div>
