@@ -165,11 +165,15 @@ export const Home: React.FC = () => {
               <Sparkles size={18} color="white" />
             </div>
             <span style={{ fontSize: '1.2rem', fontWeight: 900, letterSpacing: '-0.01em' }}>
-              NinuSoft <span style={{
-                background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+              <span style={{ color: 'var(--logo-blue)' }}>Ninu</span>
+              <span style={{
+                background: 'linear-gradient(to right, var(--logo-blue) 50%, var(--text) 50%)',
                 WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
-              }}>AI</span>
+                WebkitTextFillColor: 'transparent',
+                display: 'inline-block'
+              }}>S</span>
+              <span style={{ color: 'var(--text)' }}>oft</span>{' '}
+              <span style={{ color: 'var(--secondary)' }}>AI</span>
             </span>
           </div>
 
@@ -1234,7 +1238,17 @@ export const Home: React.FC = () => {
               <div style={{ background: 'linear-gradient(135deg, var(--primary), var(--secondary))', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Sparkles size={16} color="white" />
               </div>
-              <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text)' }}>NinuSoft AI</span>
+              <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text)' }}>
+                <span style={{ color: 'var(--logo-blue)' }}>Ninu</span>
+                <span style={{
+                  background: 'linear-gradient(to right, var(--logo-blue) 50%, var(--text) 50%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  display: 'inline-block'
+                }}>S</span>
+                <span style={{ color: 'var(--text)' }}>oft</span>{' '}
+                <span style={{ color: 'var(--secondary)' }}>AI</span>
+              </span>
             </div>
             <p style={{ fontSize: '0.85rem', lineHeight: '1.6' }}>
               المنصة الأولى الموثوقة في العراق لتوفير وتفعيل اشتراكات جوجل والذكاء الاصطناعي رسميًا وبأسهل طرق الدفع المحلية.

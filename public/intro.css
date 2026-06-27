@@ -22,6 +22,7 @@
   --dim: hsl(215, 20%, 45%);
   --dimmer: hsl(215, 20%, 80%);
   --text-main: #0f172a;
+  --ai-color: hsl(205, 100%, 50%);
   --glow-color-1: rgba(201, 163, 58, .13);
   --glow-color-2: rgba(201, 163, 58, .06);
   --grid-color: rgba(201, 163, 58, .06);
@@ -35,6 +36,7 @@
   --dim: hsl(218, 22%, 62%);
   --dimmer: hsl(228, 22%, 18%);
   --text-main: hsl(218, 50%, 96%);
+  --ai-color: hsl(205, 100%, 65%);
   --glow-color-1: rgba(201, 163, 58, .16);
   --glow-color-2: rgba(201, 163, 58, .08);
   --grid-color: rgba(201, 163, 58, .04);
@@ -243,7 +245,22 @@ body.ns-loading {
   }
 }
 
-.ns-brand h1 span {
+.ns-brand h1 .ns-ninu {
+  color: var(--ai-color);
+}
+
+.ns-brand h1 .ns-split-s {
+  background: linear-gradient(to right, var(--ai-color) 50%, var(--text-main) 50%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.ns-brand h1 .ns-soft {
+  color: var(--text-main);
+}
+
+.ns-brand h1 .ns-ai {
   color: var(--gold);
 }
 
