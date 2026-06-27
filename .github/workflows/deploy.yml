@@ -45,6 +45,9 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: pnpm build
 
+      - name: SPA Fallback (copy index.html → 404.html)
+        run: cp ./dist/public/index.html ./dist/public/404.html
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
