@@ -30,6 +30,21 @@
   <meta name="twitter:image" content="/hero-dashboard.png" />
   
   <link rel="icon" type="image/png" href="/logo.png" />
+  
+  <!-- Theme Detection & Non-blocking loader setup -->
+  <script>
+    (function () {
+      const savedTheme = localStorage.getItem('theme');
+      const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const isDark = savedTheme === 'dark' || (!savedTheme && systemPrefersDark);
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      }
+      const bgStyle = document.createElement('style');
+      bgStyle.innerHTML = `body.ns-loading { background: ${isDark ? 'hsl(230, 28%, 7%)' : '#f8fafc'} !important; }`;
+      document.head.appendChild(bgStyle);
+    })();
+  </script>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,7 +57,7 @@
   <link rel="stylesheet" href="/intro.css">
 </head>
 
-<body class="ns-loading" style="background: #f8fafc;">
+<body class="ns-loading">
 
   <!-- Intro overlay — rendered at byte 0 before React bundle loads -->
   <div id="ns-intro" role="dialog" aria-label="NinuSoft Loading" aria-live="polite" style="display: none;">
