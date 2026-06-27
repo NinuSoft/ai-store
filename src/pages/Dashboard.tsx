@@ -553,7 +553,7 @@ export const Dashboard: React.FC = () => {
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', maxWidth: '420px' }}>
                     ليس لديك أي اشتراك مفعّل حالياً. يرجى اختيار باقة وتأكيد طلبك أو انتظار موافقة المسؤول على طلباتك المعلقة.
                   </p>
-                  <Link to="/" className="btn btn-primary" style={{ padding: '10px 24px', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  <Link to="/#pricing" className="btn btn-primary" style={{ padding: '10px 24px', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                     <PlusCircle size={16} /> تصفح الباقات واشترك الآن
                   </Link>
                 </div>

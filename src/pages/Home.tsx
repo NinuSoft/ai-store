@@ -95,7 +95,19 @@ export const Home: React.FC = () => {
     fetchSettings();
   }, []);
 
-
+  // Handle hash scrolling on page load/navigate
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.replace('#', '');
+      const el = document.getElementById(id);
+      if (el) {
+        const timer = setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }, 150);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [location]);
 
   const handleSelectPlan = (plan: Plan) => {
     setSelectedPlan(plan);
