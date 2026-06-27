@@ -96,7 +96,7 @@ const defaultFaqs: FAQItem[] = [
   },
   {
     question: 'هل الخدمة مضمونة وموثوقة في العراق؟',
-    answer: 'نعم، نحن أول وأكبر متجر متخصص في العراق لاشتراكات الذكاء الاصطناعي. خدمنا أكثر من 2500 عميل عراقي وحصلنا على تقييم 98% بفضل تفعيلنا السريع وضماننا الكامل.',
+    answer: 'نعم، نحن أول وأكبر متجر متخصص في العراق لاشتراكات الذكاء الاصطناعي. خدمنا أكثر من 50 عميل عراقي وحصلنا على تقييم 98% بفضل تفعيلنا السريع وضماننا الكامل.',
     category: 'عام'
   }
 ];
@@ -168,7 +168,7 @@ export const FAQAccordion: React.FC = () => {
     if (tab === activeTab) return;
     setActiveTab(tab);
     setIsFading(true);
-    
+
     setTimeout(() => {
       setDisplayTab(tab);
       // Automatically open the first FAQ in the selected category
@@ -244,123 +244,123 @@ export const FAQAccordion: React.FC = () => {
             transition: 'opacity 0.18s ease, transform 0.18s ease',
           }}
         >
-        {filteredFaqs.map((faq, index) => {
-          const isOpen = openQuestion === faq.question;
-          const catColor = categoryColors[faq.category ?? 'عام'] ?? '#6b7280';
+          {filteredFaqs.map((faq, index) => {
+            const isOpen = openQuestion === faq.question;
+            const catColor = categoryColors[faq.category ?? 'عام'] ?? '#6b7280';
 
-          return (
-            <div
-              key={index}
-              style={{
-                borderRadius: '16px',
-                border: '1px solid var(--border)',
-                borderRight: isOpen ? `4px solid ${catColor}` : '1px solid var(--border)',
-                background: isOpen ? 'var(--surface-raised)' : 'var(--surface-glass)',
-                boxShadow: isOpen ? 'var(--shadow-lg)' : 'none',
-                transform: isOpen ? 'translateY(0)' : 'translateY(0)',
-                transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                overflow: 'hidden',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)'
-              }}
-              className="group"
-            >
-              {/* Header / Button */}
-              <button
-                onClick={() => toggleFAQ(faq.question)}
+            return (
+              <div
+                key={index}
                 style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '20px 24px',
-                  textAlign: 'right',
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  outline: 'none',
+                  borderRadius: '16px',
+                  border: '1px solid var(--border)',
+                  borderRight: isOpen ? `4px solid ${catColor}` : '1px solid var(--border)',
+                  background: isOpen ? 'var(--surface-raised)' : 'var(--surface-glass)',
+                  boxShadow: isOpen ? 'var(--shadow-lg)' : 'none',
+                  transform: isOpen ? 'translateY(0)' : 'translateY(0)',
+                  transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                  overflow: 'hidden',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)'
                 }}
+                className="group"
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  {faq.category && (
-                    <span
-                      style={{
-                        fontSize: '10px',
-                        fontWeight: 900,
-                        letterSpacing: '0.05em',
-                        padding: '4px 12px',
-                        borderRadius: '9999px',
-                        color: catColor,
-                        backgroundColor: `${catColor}12`,
-                        border: `1px solid ${catColor}20`,
-                        whiteSpace: 'nowrap',
-                        flexShrink: 0
-                      }}
-                    >
-                      {faq.category}
-                    </span>
-                  )}
-                  <span 
-                    style={{
-                      fontSize: '1rem',
-                      fontWeight: 700,
-                      color: isOpen ? 'var(--text)' : 'var(--text-secondary)',
-                      transition: 'color 0.2s ease',
-                      lineHeight: '1.4'
-                    }}
-                  >
-                    {faq.question}
-                  </span>
-                </div>
-
-                {/* Styled chevron button */}
-                <div
+                {/* Header / Button */}
+                <button
+                  onClick={() => toggleFAQ(faq.question)}
                   style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
+                    width: '100%',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    background: isOpen ? 'var(--primary-light)' : 'rgba(255, 255, 255, 0.02)',
-                    border: isOpen ? '1px solid hsla(237, 90%, 58%, 0.15)' : '1px solid var(--border)',
-                    color: isOpen ? 'var(--primary)' : 'var(--text-muted)',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    transform: isOpen ? 'rotate(-90deg)' : 'rotate(0deg)',
-                    marginLeft: '12px',
-                    flexShrink: 0
+                    justifyContent: 'space-between',
+                    padding: '20px 24px',
+                    textAlign: 'right',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    outline: 'none',
                   }}
                 >
-                  <ChevronLeft size={16} />
-                </div>
-              </button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    {faq.category && (
+                      <span
+                        style={{
+                          fontSize: '10px',
+                          fontWeight: 900,
+                          letterSpacing: '0.05em',
+                          padding: '4px 12px',
+                          borderRadius: '9999px',
+                          color: catColor,
+                          backgroundColor: `${catColor}12`,
+                          border: `1px solid ${catColor}20`,
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0
+                        }}
+                      >
+                        {faq.category}
+                      </span>
+                    )}
+                    <span
+                      style={{
+                        fontSize: '1rem',
+                        fontWeight: 700,
+                        color: isOpen ? 'var(--text)' : 'var(--text-secondary)',
+                        transition: 'color 0.2s ease',
+                        lineHeight: '1.4'
+                      }}
+                    >
+                      {faq.question}
+                    </span>
+                  </div>
 
-              {/* Answer body */}
-              <div
-                style={{
-                  maxHeight: isOpen ? '400px' : '0px',
-                  opacity: isOpen ? 1 : 0,
-                  overflow: 'hidden',
-                  transition: 'max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease',
-                }}
-              >
-                <div 
+                  {/* Styled chevron button */}
+                  <div
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: isOpen ? 'var(--primary-light)' : 'rgba(255, 255, 255, 0.02)',
+                      border: isOpen ? '1px solid hsla(237, 90%, 58%, 0.15)' : '1px solid var(--border)',
+                      color: isOpen ? 'var(--primary)' : 'var(--text-muted)',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      transform: isOpen ? 'rotate(-90deg)' : 'rotate(0deg)',
+                      marginLeft: '12px',
+                      flexShrink: 0
+                    }}
+                  >
+                    <ChevronLeft size={16} />
+                  </div>
+                </button>
+
+                {/* Answer body */}
+                <div
                   style={{
-                    padding: '16px 24px 24px 24px',
-                    fontSize: '0.925rem',
-                    color: 'var(--text-muted)',
-                    lineHeight: '1.8',
-                    fontWeight: 500,
-                    borderTop: '1px solid var(--border)',
-                    background: 'rgba(255, 255, 255, 0.005)'
+                    maxHeight: isOpen ? '400px' : '0px',
+                    opacity: isOpen ? 1 : 0,
+                    overflow: 'hidden',
+                    transition: 'max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease',
                   }}
                 >
-                  {faq.answer}
+                  <div
+                    style={{
+                      padding: '16px 24px 24px 24px',
+                      fontSize: '0.925rem',
+                      color: 'var(--text-muted)',
+                      lineHeight: '1.8',
+                      fontWeight: 500,
+                      borderTop: '1px solid var(--border)',
+                      background: 'rgba(255, 255, 255, 0.005)'
+                    }}
+                  >
+                    {faq.answer}
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
         </div>
       </div>
 

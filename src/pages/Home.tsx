@@ -3,7 +3,7 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
   Sparkles, CheckCircle2, ShieldCheck, MessageSquare,
   CreditCard, Laptop, Brain, FileText, Image as ImageIcon,
-  Code, PenTool, Search, Check
+  Code, PenTool, Search, Check, Phone
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -312,7 +312,7 @@ export const Home: React.FC = () => {
               </div>
               <div className="text-center">
                 <p style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text)' }}>
-                  ينصح به أكثر من 2,500 مشترك في العراق
+                  ينصح به أكثر من 50 مشترك في العراق
                 </p>
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                   تفعيل فوري ودعم فني متكامل ومستمر
@@ -335,7 +335,7 @@ export const Home: React.FC = () => {
         <div className="container grid grid-cols-4 gap-6 text-center">
           <div className="flex flex-col gap-2 animate-fade-in animate-delay-1">
             <span style={{ fontSize: '3rem', fontWeight: 900, background: 'linear-gradient(135deg, var(--primary), var(--secondary))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              +<StatsCounter target={2500} />
+              +<StatsCounter target={50} />
             </span>
             <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>اشتراك مفعل في العراق</span>
           </div>
@@ -349,7 +349,7 @@ export const Home: React.FC = () => {
 
           <div className="flex flex-col gap-2 animate-fade-in animate-delay-3">
             <span style={{ fontSize: '3rem', fontWeight: 900, background: 'linear-gradient(135deg, var(--success), var(--accent))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              +<StatsCounter target={1200} />
+              +<StatsCounter target={20} />
             </span>
             <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>عملية تجديد ناجحة</span>
           </div>
@@ -1008,7 +1008,7 @@ export const Home: React.FC = () => {
               { icon: <ShieldCheck size={16} className="text-emerald-500" />, text: 'لا نطلب كلمة مرورك أبداً' },
               { icon: <CheckCircle2 size={16} className="text-emerald-500" />, text: 'تفعيل أولاً — ادفع بعد التأكد' },
               { icon: <CreditCard size={16} className="text-emerald-500" />, text: 'دفع بالدينار العراقي' },
-              { icon: <Sparkles size={16} className="text-amber-500" />, text: 'تقييم 98% من أكثر من 2500 عميل' },
+              { icon: <Sparkles size={16} className="text-amber-500" />, text: 'تقييم 98% من أكثر من 50 عميل' },
             ].map(({ icon, text }) => (
               <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '7px', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>
                 <span>{icon}</span>
@@ -1264,8 +1264,17 @@ export const Home: React.FC = () => {
                 gap: '6px'
               }}
             >
-              <MessageSquare size={16} style={{ color: '#25d366' }} />
-              واتساب: <span className="number-latin">+{whatsappNum.slice(0, 3)} {whatsappNum.slice(3, 6)} {whatsappNum.slice(6, 9)} {whatsappNum.slice(9)}</span>
+              <Phone size={16} style={{ color: 'var(--primary)' }} />
+              <span className="number-latin">
+                {whatsappNum.startsWith('964')
+                  ? `+964 ${whatsappNum.slice(3, 5)} ${whatsappNum.slice(5, 8)} ${whatsappNum.slice(8, 10)} ${whatsappNum.slice(10)}`
+                  : whatsappNum.startsWith('0')
+                    ? `+964 ${whatsappNum.slice(1, 3)} ${whatsappNum.slice(3, 6)} ${whatsappNum.slice(6, 8)} ${whatsappNum.slice(8)}`
+                    : whatsappNum.length === 10
+                      ? `+964 ${whatsappNum.slice(0, 2)} ${whatsappNum.slice(2, 5)} ${whatsappNum.slice(5, 7)} ${whatsappNum.slice(7)}`
+                      : whatsappNum
+                }
+              </span>
             </a>
           </div>
         </div>
