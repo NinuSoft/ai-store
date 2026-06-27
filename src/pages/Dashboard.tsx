@@ -8,6 +8,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { ProfileCompletionModal } from '../components/ProfileCompletionModal';
 
 interface Plan {
   id: string;
@@ -675,6 +676,9 @@ export const Dashboard: React.FC = () => {
         </div>
       </main>
 
+      {profile && !profile.phone && (
+        <ProfileCompletionModal />
+      )}
     </div>
   );
 };

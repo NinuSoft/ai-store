@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { X, CheckCircle, AlertTriangle, ShieldCheck, Mail, Phone, User } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, CheckCircle, AlertTriangle, ShieldCheck, Mail, Phone, User, RotateCw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
@@ -17,9 +17,9 @@ interface OrderModalProps {
 }
 
 export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '9647750977509', onClose }) => {
-  const { user, profile, signInWithGoogle } = useAuth();
+  const { user, profile, signInWithGoogle, refreshProfile } = useAuth();
   
-  // Order inputs
+  // Profile / Order inputs
   const [name, setName] = useState('');
   const [gmail, setGmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -29,30 +29,78 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
   const [authLoading, setAuthLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [success, setSuccess] = useState(false);
+  const orderSubmitted = useRef(false);
 
-  // Pre-fill phone if user is already logged in
+  // Initialize inputs from user / profile
   useEffect(() => {
-    if (profile) {
-      setPhone(profile.phone || '');
+    if (user) {
+      setGmail(user.email || '');
     }
-  }, [profile]);
+    if (profile) {
+      setName(profile.full_name || '');
+      setPhone(profile.phone || '');
+    } else if (user) {
+      setName(user.user_metadata?.full_name || user.user_metadata?.name || '');
+    }
+  }, [user, profile]);
+
+  // Automatic order submission if user has a phone
+  useEffect(() => {
+    const autoSubmitOrder = async () => {
+      if (!user || !profile || !profile.phone || !plan || orderSubmitted.current) return;
+      
+      orderSubmitted.current = true;
+      setLoading(true);
+      setErrorMessage('');
+
+      try {
+        const orderEmail = user.email || profile.email || '';
+        
+        // 1. Prevent duplicate pending orders for the same Gmail
+        const { data: existingOrders, error: orderCheckError } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('gmail', orderEmail.trim().toLowerCase())
+          .eq('status', 'Pending');
+
+        if (orderCheckError) throw orderCheckError;
+
+        if (existingOrders && existingOrders.length > 0) {
+          throw new Error('يوجد بالفعل طلب قيد الانتظار لهذا البريد الإلكتروني. سنقوم بالتواصل معكم قريباً لتفعيله.');
+        }
+
+        // 2. Create the order
+        const { error: insertError } = await supabase
+          .from('orders')
+          .insert({
+            user_id: user.id,
+            plan_id: plan.id,
+            gmail: orderEmail.trim().toLowerCase(),
+            phone: profile.phone.trim(),
+            status: 'Pending'
+          });
+
+        if (insertError) throw insertError;
+
+        setSuccess(true);
+      } catch (err: any) {
+        console.error('Auto Order Submission Error:', err);
+        setErrorMessage(err.message || 'حدث خطأ غير متوقع أثناء إرسال طلبك. يرجى المحاولة لاحقاً.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user && profile && profile.phone && plan) {
+      autoSubmitOrder();
+    }
+  }, [user, profile, plan]);
 
   if (!plan) return null;
 
-  const validateInputs = () => {
-    if (!phone) return 'رقم الهاتف مطلوب للتواصل وتفعيل الاشتراك.';
-    
-    const cleanPhone = phone.replace(/[\s-]/g, '');
-    if (!/^(07\d{9}|\+9647\d{9})$/.test(cleanPhone)) {
-      return 'يرجى إدخال رقم هاتف عراقي صالح (مثال: 07701234567).';
-    }
-
-    if (!gmail) return 'يرجى إدخال حساب الـ Gmail المراد تفعيل الاشتراك عليه.';
-    if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(gmail.trim().toLowerCase())) {
-      return 'يجب أن يكون البريد الإلكتروني للتفعيل حساب Gmail رسمي ينتهي بـ @gmail.com.';
-    }
-
-    return null;
+  const validatePhone = (number: string) => {
+    const clean = number.replace(/[\s-]/g, '');
+    return /^(07\d{9}|\+9647\d{9})$/.test(clean);
   };
 
   const handleGoogleLogin = async () => {
@@ -75,9 +123,18 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
     e.preventDefault();
     setErrorMessage('');
     
-    const errorMsg = validateInputs();
-    if (errorMsg) {
-      setErrorMessage(errorMsg);
+    if (!name.trim()) {
+      setErrorMessage('يرجى إدخال اسمك الكامل.');
+      return;
+    }
+
+    if (!phone) {
+      setErrorMessage('رقم الهاتف مطلوب للتواصل وتفعيل الاشتراك.');
+      return;
+    }
+
+    if (!validatePhone(phone)) {
+      setErrorMessage('يرجى إدخال رقم هاتف عراقي صالح (مثال: 07701234567).');
       return;
     }
 
@@ -86,11 +143,26 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
     try {
       if (!user) throw new Error('يرجى تسجيل الدخول أولاً.');
 
-      // 1. Prevent duplicate pending orders for the same Gmail address
+      // 1. Update the user profile with the entered name and phone
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          full_name: name.trim(),
+          phone: phone.trim()
+        })
+        .eq('id', user.id);
+
+      if (profileError) throw profileError;
+
+      // Refresh the context state
+      await refreshProfile();
+
+      // 2. Prevent duplicate pending orders for the same Gmail
+      const orderEmail = user.email || '';
       const { data: existingOrders, error: orderCheckError } = await supabase
         .from('orders')
         .select('*')
-        .eq('gmail', gmail.trim().toLowerCase())
+        .eq('gmail', orderEmail.trim().toLowerCase())
         .eq('status', 'Pending');
 
       if (orderCheckError) throw orderCheckError;
@@ -99,13 +171,13 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
         throw new Error('يوجد بالفعل طلب قيد الانتظار لهذا البريد الإلكتروني. سنقوم بالتواصل معكم قريباً لتفعيله.');
       }
 
-      // 2. Create the order
+      // 3. Create the order
       const { error: insertError } = await supabase
         .from('orders')
         .insert({
           user_id: user.id,
           plan_id: plan.id,
-          gmail: gmail.trim().toLowerCase(),
+          gmail: orderEmail.trim().toLowerCase(),
           phone: phone.trim(),
           status: 'Pending'
         });
@@ -120,6 +192,8 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
       setLoading(false);
     }
   };
+
+  const hasPhone = !!(profile && profile.phone);
 
   return (
     <div 
@@ -137,71 +211,43 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
         className="modal-container glass-panel"
         style={{
           width: '100%',
-          maxWidth: '560px',
+          maxWidth: '520px',
           padding: '32px',
+          borderRadius: '24px',
           position: 'relative',
           overflowY: 'auto',
           maxHeight: '90vh',
-          animation: 'fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+          animation: 'fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+          border: '1px solid var(--border)',
+          background: 'var(--surface-glass)'
         }}
       >
-        <button 
-          onClick={onClose}
-          style={{
-            position: 'absolute',
-            top: '20px', left: '20px',
-            background: 'transparent',
-            border: 'none',
-            color: 'var(--text-muted)',
-            cursor: 'pointer'
-          }}
-        >
-          <X size={20} />
-        </button>
+        {/* Close Button */}
+        {(!loading || success) && (
+          <button 
+            onClick={onClose}
+            style={{
+              position: 'absolute',
+              top: '20px', left: '20px',
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-muted)',
+              cursor: 'pointer'
+            }}
+          >
+            <X size={20} />
+          </button>
+        )}
 
         {!success ? (
           <>
             {/* Header */}
-            <div style={{ marginBottom: '20px' }}>
-              <div className="badge badge-secondary mb-2" style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', border: '1px solid #10b981' }}>تفعيل أولاً - دفع لاحقاً</div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'white' }}>{plan.name}</h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                القيمة عند الدفع: <span style={{ color: 'var(--success)', fontWeight: 700, fontFamily: 'var(--font-latin)' }}>{plan.price_iqd.toLocaleString()} د.ع</span> (تسدد بعد التنشيط)
+            <div style={{ marginBottom: '24px', textAlign: 'center' }}>
+              <div className="badge badge-secondary mb-2" style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', border: '1px solid rgba(16,185,129,0.2)', fontSize: '0.75rem' }}>تفعيل رسمي - دفع بعد التأكد</div>
+              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text)' }}>طلب باقة {plan.name}</h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '4px' }}>
+                قيمة الاشتراك: <span style={{ color: 'var(--success)', fontWeight: 700 }}>{plan.price_iqd.toLocaleString()} د.ع</span>
               </p>
-            </div>
-
-            {/* Trust-First Flow Box */}
-            <div 
-              style={{
-                background: 'rgba(16, 185, 129, 0.04)',
-                border: '1px solid rgba(16, 185, 129, 0.15)',
-                borderRadius: 'var(--radius)',
-                padding: '16px',
-                marginBottom: '20px',
-                textAlign: 'right'
-              }}
-            >
-              <h4 style={{ color: '#10b981', fontSize: '0.9rem', fontWeight: 700, marginBottom: '8px' }}>
-                كيف تعمل العملية؟
-              </h4>
-              <ul style={{ listStyle: 'none', padding: 0, fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ background: 'var(--secondary)', width: '18px', height: '18px', borderRadius: '50%', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.7rem' }}>١</span>
-                  <span>أرسل بريد الـ Gmail ورقم هاتفك (لا يطلب أي دفع مسبق).</span>
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ background: 'var(--secondary)', width: '18px', height: '18px', borderRadius: '50%', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.7rem' }}>٢</span>
-                  <span>نقوم بتفعيل الباقة وإرسال دعوة التنشيط لحسابك مباشرة.</span>
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ background: 'var(--secondary)', width: '18px', height: '18px', borderRadius: '50%', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.7rem' }}>٣</span>
-                  <span>تتأكد بنفسك من تفعيل Gemini Advanced ومساحة الـ 2TB.</span>
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ background: '#10b981', width: '18px', height: '18px', borderRadius: '50%', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.7rem' }}>٤</span>
-                  <span>بعد نجاح التنشيط والتأكد التام، تقوم بتحويل قيمة الباقة محلياً.</span>
-                </li>
-              </ul>
             </div>
 
             {/* Error Message */}
@@ -209,13 +255,13 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
               <div 
                 className="flex items-start gap-3"
                 style={{
-                  background: 'rgba(239, 68, 68, 0.1)',
+                  background: 'rgba(239, 68, 68, 0.08)',
                   border: '1px solid var(--danger)',
-                  borderRadius: 'var(--radius-sm)',
+                  borderRadius: '12px',
                   padding: '12px 16px',
                   marginBottom: '20px',
                   color: '#f87171',
-                  fontSize: '0.9rem'
+                  fontSize: '0.85rem'
                 }}
               >
                 <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
@@ -225,178 +271,218 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
 
             {!user ? (
               /* Google Authentication segment if not logged in */
-              <div style={{ textAlign: 'center', padding: '16px 0' }} className="flex flex-col gap-4">
+              <div style={{ textAlign: 'center' }} className="flex flex-col gap-4">
                 <div 
                   style={{
-                    background: 'rgba(124, 58, 237, 0.05)',
-                    border: '1px dashed var(--secondary)',
-                    borderRadius: 'var(--radius)',
+                    background: 'rgba(124, 58, 237, 0.03)',
+                    border: '1px dashed var(--border)',
+                    borderRadius: '16px',
                     padding: '20px',
                     textAlign: 'right'
                   }}
                 >
-                  <h4 style={{ color: 'white', fontWeight: 700, marginBottom: '8px' }} className="flex items-center gap-2">
-                    <ShieldCheck size={18} style={{ color: 'var(--secondary)' }} />
-                    <span>تنبيه: يجب تسجيل الدخول للمتابعة</span>
+                  <h4 style={{ color: 'var(--text)', fontWeight: 700, marginBottom: '8px' }} className="flex items-center gap-2">
+                    <ShieldCheck size={18} style={{ color: 'var(--primary)' }} />
+                    <span>يجب تسجيل الدخول للمتابعة</span>
                   </h4>
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: '1.6' }}>
-                    لحفظ طلب تفعيل باقة الذكاء الاصطناعي ومتابعة حالة التنشيط مع فريق الدعم الفني، يرجى تسجيل الدخول السريع بـ Google أولاً.
+                    لتسجيل طلبك وحفظه على حسابك الشخصي، يرجى تسجيل الدخول باستخدام حساب Google.
                   </p>
                 </div>
 
                 <button 
                   onClick={handleGoogleLogin}
                   disabled={authLoading}
-                  className="btn"
                   style={{
                     width: '100%',
                     padding: '14px 20px',
-                    fontSize: '1rem',
-                    fontWeight: 700,
-                    display: 'inline-flex',
+                    fontWeight: 800,
+                    borderRadius: '12px',
+                    fontSize: '0.9rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    border: '1px solid var(--border)',
+                    background: 'var(--surface-raised)',
+                    color: 'var(--text)',
+                    display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '12px',
-                    backgroundColor: 'white',
-                    color: '#0f172a',
-                    border: 'none',
-                    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
-                    cursor: 'pointer',
-                    transition: 'var(--transition)',
-                    opacity: authLoading ? 0.7 : 1
+                    gap: '10px'
                   }}
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24">
-                    <path fill="#EA4335" d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.47 15.01.5 12 .5 7.37.5 3.4 3.17 1.5 7.08l3.9 3.02c.9-2.72 3.43-4.56 6.6-4.56z"/>
-                    <path fill="#4285F4" d="M23.49 12.27c0-.81-.07-1.59-.2-2.34H12v4.43h6.43c-.28 1.44-1.1 2.66-2.33 3.48l3.63 2.81c2.13-1.97 3.76-4.87 3.76-8.38z"/>
-                    <path fill="#FBBC05" d="M5.4 14.9a6.86 6.86 0 0 1 0-4.23L1.5 7.65a11.95 11.95 0 0 0 0 10.49l3.9-3.24z"/>
-                    <path fill="#34A853" d="M12 23.5c3.24 0 5.95-1.07 7.94-2.91l-3.63-2.81c-1.01.68-2.3 1.08-4.31 1.08-3.17 0-5.7-1.84-6.6-4.56L1.5 17.34c1.9 3.91 5.87 6.16 10.5 6.16z"/>
-                  </svg>
-                  {authLoading ? 'جاري الاتصال بـ Google...' : 'الدخول السريع باستخدام حساب Google'}
+                  {authLoading ? (
+                    <RotateCw size={18} className="animate-spin" />
+                  ) : (
+                    <>
+                      <svg width="18" height="18" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                        <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                      </svg>
+                      <span>الدخول باستخدام حساب Google</span>
+                    </>
+                  )}
                 </button>
               </div>
+            ) : hasPhone ? (
+              /* Automatic Loader if profile is already complete */
+              <div style={{ textAlign: 'center', padding: '40px 0' }} className="flex flex-col items-center gap-4">
+                <RotateCw size={36} className="animate-spin" style={{ color: 'var(--primary)' }} />
+                <h4 style={{ color: 'var(--text)', fontWeight: 700 }}>جاري تسجيل طلبك...</h4>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                  نقوم بتسجيل الباقة على حسابك الشخصي، يرجى الانتظار للحظة.
+                </p>
+              </div>
             ) : (
-              /* Order placement fields once logged in */
+              /* Form to complete profile (first login / missing phone) */
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <div className="flex flex-col gap-3">
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '4px' }}>
-                      الاسم بالكامل (اختياري)
-                    </label>
-                    <div style={{ position: 'relative' }}>
-                      <User size={16} style={{ position: 'absolute', top: '50%', right: '12px', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                      <input 
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="أدخل اسمك الكريم"
-                        style={{
-                          width: '100%', padding: '10px 36px 10px 12px',
-                          background: 'var(--background)', border: '1px solid var(--border)',
-                          borderRadius: 'var(--radius-sm)', color: 'white', fontSize: '0.9rem'
-                        }}
-                      />
-                    </div>
-                  </div>
+                <div 
+                  style={{
+                    background: 'rgba(16, 185, 129, 0.03)',
+                    border: '1px solid rgba(16, 185, 129, 0.1)',
+                    borderRadius: '16px',
+                    padding: '16px',
+                    textAlign: 'right'
+                  }}
+                >
+                  <h4 style={{ color: '#10b981', fontSize: '0.85rem', fontWeight: 800, marginBottom: '6px' }}>
+                    تأكيد معلومات الاتصال
+                  </h4>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', lineHeight: '1.5' }}>
+                    سنقوم بربط هذا الاشتراك ببياناتك الشخصية وتفعيل الباقة على الـ Gmail الخاص بك مباشرة.
+                  </p>
+                </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '4px' }}>
-                      رقم الهاتف للتواصل (زين كاش / واتساب) <span style={{ color: 'var(--danger)' }}>*</span>
-                    </label>
-                    <div style={{ position: 'relative' }}>
-                      <Phone size={16} style={{ position: 'absolute', top: '50%', right: '12px', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                      <input 
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="077XXXXXXXX"
-                        style={{
-                          width: '100%', padding: '10px 36px 10px 12px',
-                          background: 'var(--background)', border: '1px solid var(--border)',
-                          borderRadius: 'var(--radius-sm)', color: 'white', fontSize: '0.9rem',
-                          fontFamily: 'var(--font-latin)', direction: 'ltr', textAlign: 'right'
-                        }}
-                      />
-                    </div>
+                {/* Email (Disabled) */}
+                <div className="flex flex-col gap-2">
+                  <label style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)' }}>البريد الإلكتروني للتفعيل</label>
+                  <div style={{ position: 'relative' }}>
+                    <Mail size={16} style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                    <input 
+                      type="email" 
+                      value={gmail} 
+                      disabled
+                      style={{
+                        width: '100%', padding: '12px 42px 12px 16px',
+                        borderRadius: '12px', border: '1px solid var(--border)',
+                        background: 'rgba(255,255,255,0.02)', color: 'var(--text-muted)',
+                        fontSize: '0.9rem', fontFamily: 'var(--font-latin)', cursor: 'not-allowed'
+                      }}
+                    />
                   </div>
+                </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '4px' }}>
-                      بريد Gmail المراد تفعيل الاشتراك عليه <span style={{ color: 'var(--danger)' }}>*</span>
-                    </label>
-                    <div style={{ position: 'relative' }}>
-                      <Mail size={16} style={{ position: 'absolute', top: '50%', right: '12px', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                      <input 
-                        type="text"
-                        value={gmail}
-                        onChange={(e) => setGmail(e.target.value)}
-                        placeholder="username@gmail.com"
-                        style={{
-                          width: '100%', padding: '10px 36px 10px 12px',
-                          background: 'var(--background)', border: '1px solid var(--border)',
-                          borderRadius: 'var(--radius-sm)', color: 'white', fontSize: '0.9rem',
-                          fontFamily: 'var(--font-latin)', direction: 'ltr', textAlign: 'right'
-                        }}
-                      />
-                    </div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
-                      ✓ سنقوم بتنشيط الاشتراك مباشرة على هذا الحساب الرسمي.
-                    </span>
+                {/* Name */}
+                <div className="flex flex-col gap-2">
+                  <label style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)' }}>الاسم الكامل (قابل للتعديل)</label>
+                  <div style={{ position: 'relative' }}>
+                    <User size={16} style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+                    <input 
+                      type="text" 
+                      value={name} 
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="الاسم الكامل"
+                      required
+                      style={{
+                        width: '100%', padding: '12px 42px 12px 16px',
+                        borderRadius: '12px', border: '1px solid var(--border)',
+                        background: 'rgba(255,255,255,0.01)', color: 'var(--text)',
+                        fontSize: '0.9rem'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Phone */}
+                <div className="flex flex-col gap-2">
+                  <label style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)' }}>رقم الهاتف (زين كاش أو اتصال)</label>
+                  <div style={{ position: 'relative' }}>
+                    <Phone size={16} style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+                    <input 
+                      type="tel" 
+                      value={phone} 
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="مثال: 07701234567"
+                      required
+                      style={{
+                        width: '100%', padding: '12px 42px 12px 16px',
+                        borderRadius: '12px', border: '1px solid var(--border)',
+                        background: 'rgba(255,255,255,0.01)', color: 'var(--text)',
+                        fontSize: '0.9rem', fontFamily: 'var(--font-latin)'
+                      }}
+                    />
                   </div>
                 </div>
 
                 <button 
                   type="submit"
                   disabled={loading}
-                  className="btn btn-primary"
                   style={{
                     width: '100%',
                     padding: '14px 20px',
-                    fontSize: '1.05rem',
-                    marginTop: '12px',
-                    opacity: loading ? 0.7 : 1
+                    fontWeight: 800,
+                    borderRadius: '12px',
+                    fontSize: '0.9rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    border: 'none',
+                    background: 'var(--primary)',
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    marginTop: '12px'
                   }}
                 >
-                  {loading ? 'جاري معالجة الطلب...' : 'تأكيد وحفظ الطلب الآن'}
+                  {loading ? <RotateCw size={18} className="animate-spin" /> : 'تأكيد وحفظ الطلب الآن'}
                 </button>
-                
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>
-                  طلبك آمن 100%، ولن يتم خصم أي مبالغ حتى يتم التواصل وتأكيد التفعيل معك.
-                </p>
               </form>
             )}
           </>
         ) : (
           /* Success Screen */
-          <div style={{ textAlign: 'center', padding: '20px 0' }}>
+          <div style={{ textAlign: 'center', padding: '10px 0' }}>
             <div className="flex justify-center mb-6">
-              <CheckCircle size={72} style={{ color: 'var(--success)' }} />
+              <CheckCircle size={64} style={{ color: 'var(--success)' }} />
             </div>
             
-            <h3 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'white', marginBottom: '16px' }}>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text)', marginBottom: '12px' }}>
               تم استلام طلبك بنجاح!
             </h3>
             
-            <p style={{ color: 'var(--text-muted)', fontSize: '1rem', lineHeight: '1.8', marginBottom: '32px' }}>
-              شكراً لثقتك بنا. لقد تم تسجيل طلبك لتفعيل باقة <strong style={{ color: 'white' }}>{plan.name}</strong> على حساب Gmail التالي:
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: '1.7', marginBottom: '28px' }}>
+              لقد سجلنا طلبك لتنشيط باقة <strong style={{ color: 'var(--text)' }}>{plan.name}</strong> على بريدك الإلكتروني:
               <br />
-              <strong style={{ color: 'var(--secondary)', fontFamily: 'var(--font-latin)' }}>{gmail}</strong>.
+              <strong style={{ color: 'var(--primary)', fontFamily: 'var(--font-latin)', fontSize: '0.95rem' }}>{gmail || user?.email}</strong>.
               <br /><br />
-              سيقوم فريق الدعم بالتواصل معك فوراً على الرقم <strong style={{ color: 'white', fontFamily: 'var(--font-latin)' }}>{phone}</strong> لتزويدك بتفاصيل الدفع وتأكيد تفعيل الاشتراك خلال دقائق معدودة.
+              سيقوم فريق تفعيل <strong style={{ color: 'var(--text)' }}>نينوسوفت للذكاء الاصطناعي</strong> بالتواصل معك فوراً لتأكيد التنشيط على الرقم التالي:
+              <br />
+              <strong style={{ color: 'var(--text)', fontFamily: 'var(--font-latin)', fontSize: '1rem' }}>{phone || (profile && profile.phone)}</strong>.
             </p>
 
             <div className="flex flex-col gap-3">
               <a 
-                href={`https://wa.me/${whatsappNum}?text=${encodeURIComponent(`مرحباً، قمت بتقديم طلب تفعيل باقة ${plan.name} على بريد ${gmail} وأود تسريع عملية التفعيل.`)}`}
+                href={`https://wa.me/${whatsappNum}?text=${encodeURIComponent(`مرحباً، قمت بتقديم طلب تفعيل باقة ${plan.name} على بريد ${gmail || user?.email} وأود تسريع عملية التفعيل.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-primary"
                 style={{
-                  backgroundColor: '#25d366',
-                  backgroundImage: 'none',
-                  boxShadow: '0 4px 15px rgba(37, 211, 102, 0.3)',
                   width: '100%',
-                  padding: '14px 20px'
+                  padding: '14px 20px',
+                  fontWeight: 800,
+                  borderRadius: '12px',
+                  fontSize: '0.9rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  border: 'none',
+                  background: '#25d366',
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  boxShadow: '0 4px 15px rgba(37, 211, 102, 0.2)'
                 }}
               >
                 تواصل معنا لتسريع التفعيل عبر واتساب
@@ -404,8 +490,18 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
               
               <button 
                 onClick={onClose}
-                className="btn btn-outline"
-                style={{ width: '100%', padding: '12px 20px' }}
+                style={{
+                  width: '100%',
+                  padding: '12px 20px',
+                  fontWeight: 800,
+                  borderRadius: '12px',
+                  fontSize: '0.9rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  border: '1px solid var(--border)',
+                  background: 'transparent',
+                  color: 'var(--text)'
+                }}
               >
                 إغلاق النافذة
               </button>
