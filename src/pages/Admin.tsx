@@ -4,7 +4,7 @@ import {
   ShieldCheck, ArrowLeft, Users, ShoppingBag,
   DollarSign, Activity, Check, X, Search, PlusCircle,
   RotateCw, MessageSquare, Settings, Sparkles, Clock, User, Shield,
-  Edit2, Trash2, Star
+  Edit2, Trash2, Star, Ban, Play
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -40,7 +40,7 @@ interface Subscription {
   plan_id: string;
   start_date: string;
   end_date: string;
-  status: 'active' | 'expired';
+  status: 'active' | 'expired' | 'suspended';
   gmail?: string;
   phone?: string;
 }
@@ -105,6 +105,7 @@ export const Admin: React.FC = () => {
 
   // Snackbar State
   const [snackbar, setSnackbar] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [suspendingSub, setSuspendingSub] = useState<string | null>(null);
 
   const showSnackbar = (message: string, type: 'success' | 'error' = 'success') => {
     setSnackbar({ message, type });
@@ -196,7 +197,7 @@ export const Admin: React.FC = () => {
           plan_id: s.plan_id,
           start_date: s.activated_at,
           end_date: s.expires_at,
-          status: s.status.toLowerCase() as 'active' | 'expired'
+          status: s.status.toLowerCase() as 'active' | 'expired' | 'suspended'
         }));
         setSubscriptions(mappedSubs);
       }
@@ -512,6 +513,25 @@ export const Admin: React.FC = () => {
       await loadAdminData(true);
     } catch (err: any) {
       showSnackbar('حدث خطأ: ' + err.message, 'error');
+    }
+  };
+
+  const handleToggleSuspendSubscription = async (sub: Subscription) => {
+    setSuspendingSub(sub.id);
+    const newStatus = sub.status === 'suspended' ? 'Active' : 'Suspended';
+    try {
+      const { error } = await supabase
+        .from('subscriptions')
+        .update({ status: newStatus })
+        .eq('id', sub.id);
+
+      if (error) throw error;
+      showSnackbar(newStatus === 'Suspended' ? 'تم تعليق الاشتراك بنجاح.' : 'تم إلغاء تعليق الاشتراك بنجاح.');
+      await loadAdminData(true);
+    } catch (err: any) {
+      showSnackbar('حدث خطأ أثناء تعديل حالة الاشتراك: ' + err.message, 'error');
+    } finally {
+      setSuspendingSub(null);
     }
   };
 
@@ -961,10 +981,15 @@ export const Admin: React.FC = () => {
           color: #f87171;
           border-color: rgba(239, 68, 68, 0.25);
         }
-        .status-pill.expired {
+         .status-pill.expired {
           background: rgba(156, 163, 175, 0.08);
           color: #9ca3af;
           border-color: rgba(156, 163, 175, 0.25);
+        }
+        .status-pill.suspended {
+          background: rgba(239, 68, 68, 0.08);
+          color: #f87171;
+          border-color: rgba(239, 68, 68, 0.25);
         }
 
         /* Admin action items buttons */
@@ -1633,6 +1658,7 @@ export const Admin: React.FC = () => {
                         <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ البدء</th>
                         <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ الانتهاء</th>
                         <th style={{ padding: '16px', color: 'var(--text)' }}>حالة الاشتراك</th>
+                        <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1644,16 +1670,46 @@ export const Admin: React.FC = () => {
                             <td style={{ padding: '16px' }} className="number-latin">{new Date(s.start_date).toLocaleDateString('en-GB')}</td>
                             <td style={{ padding: '16px' }} className="number-latin">{new Date(s.end_date).toLocaleDateString('en-GB')}</td>
                             <td style={{ padding: '16px' }}>
-                              <span className={`status-pill ${s.status === 'active' ? 'paid' : 'expired'}`}>
-                                {s.status === 'active' ? <Check size={12} /> : <Clock size={12} />}
-                                <span>{s.status === 'active' ? 'نشط' : 'منتهي'}</span>
+                              <span className={`status-pill ${s.status === 'active' ? 'paid' : s.status === 'suspended' ? 'suspended' : 'expired'}`}>
+                                {s.status === 'active' ? <Check size={12} /> : s.status === 'suspended' ? <Ban size={12} /> : <Clock size={12} />}
+                                <span>{s.status === 'active' ? 'نشط' : s.status === 'suspended' ? 'معلّق' : 'منتهي'}</span>
                               </span>
+                            </td>
+                            <td style={{ padding: '16px', textAlign: 'center' }}>
+                              {(s.status === 'active' || s.status === 'suspended') && (
+                                <button
+                                  onClick={() => handleToggleSuspendSubscription(s)}
+                                  disabled={suspendingSub === s.id}
+                                  className="admin-table-action-btn"
+                                  style={{
+                                    color: s.status === 'suspended' ? 'var(--success)' : 'var(--danger)',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    padding: '8px',
+                                    borderRadius: '8px',
+                                    border: '1px solid var(--border)',
+                                    background: 'transparent',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s'
+                                  }}
+                                  title={s.status === 'suspended' ? 'تنشيط الاشتراك' : 'تعليق الاشتراك'}
+                                >
+                                  {suspendingSub === s.id ? (
+                                    <RotateCw size={14} className="animate-spin" />
+                                  ) : s.status === 'suspended' ? (
+                                    <Play size={14} />
+                                  ) : (
+                                    <Ban size={14} />
+                                  )}
+                                </button>
+                              )}
                             </td>
                           </tr>
                         ))
                       ) : (
                         <tr>
-                          <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد اشتراكات نشطة تطابق معايير البحث.</td>
+                          <td colSpan={6} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد اشتراكات نشطة تطابق معايير البحث.</td>
                         </tr>
                       )}
                     </tbody>

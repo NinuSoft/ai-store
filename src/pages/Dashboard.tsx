@@ -38,7 +38,7 @@ interface Subscription {
   product_id?: string;
   start_date: string;
   end_date: string;
-  status: 'active' | 'expired';
+  status: 'active' | 'expired' | 'suspended';
   gmail?: string;
   phone?: string;
 }
@@ -141,7 +141,7 @@ export const Dashboard: React.FC = () => {
           product_id: s.product_id,
           start_date: s.activated_at,
           end_date: s.expires_at,
-          status: s.status.toLowerCase() as 'active' | 'expired'
+          status: s.status.toLowerCase() as 'active' | 'expired' | 'suspended'
         }));
         setSubscriptions(mappedSubs);
       }
@@ -253,7 +253,7 @@ export const Dashboard: React.FC = () => {
     return diffDays > 0 ? diffDays : 0;
   };
 
-  const activeSub = subscriptions.find(s => s.status === 'active') || subscriptions.find(s => s.status === 'expired');
+  const activeSub = subscriptions.find(s => s.status === 'active') || subscriptions.find(s => s.status === 'suspended') || subscriptions.find(s => s.status === 'expired');
   const daysRemaining = activeSub ? calculateDaysRemaining(activeSub.end_date) : 0;
   
   // Total subscription length in days for the progress bar
@@ -270,6 +270,9 @@ export const Dashboard: React.FC = () => {
     );
     if (hasPendingRenewal) {
       return { label: 'مطلوب التجديد', badgeClass: 'badge-warning' };
+    }
+    if (sub.status === 'suspended') {
+      return { label: 'معلّق / موقوف مؤقتاً', badgeClass: 'badge-danger' };
     }
     if (sub.status === 'active') {
       return { label: 'نشط ومفعّل', badgeClass: 'badge-success' };
@@ -515,7 +518,12 @@ export const Dashboard: React.FC = () => {
                         }} 
                       />
                     </div>
-                    {activeSub.status === 'expired' ? (
+                    {activeSub.status === 'suspended' ? (
+                      <div className="flex items-center gap-2 mt-3 text-rose-500" style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--danger)' }}>
+                        <AlertCircle size={16} className="animate-pulse" style={{ color: 'var(--danger)', flexShrink: 0 }} />
+                        <span>تنبيه: تم تعليق اشتراكك مؤقتاً من قبل الإدارة. يرجى التواصل مع الدعم الفني للاستفسار.</span>
+                      </div>
+                    ) : activeSub.status === 'expired' ? (
                       <div className="flex items-center gap-2 mt-3 text-rose-500" style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--danger)' }}>
                         <AlertCircle size={16} className="animate-pulse" style={{ color: 'var(--danger)', flexShrink: 0 }} />
                         <span>تنبيه: انتهت صلاحية اشتراكك. يرجى طلب تجديد الباقة لتجنب انقطاع الخدمة.</span>
