@@ -53,4 +53,3 @@ attached_assets/
 .env.local
 .env.*.local
 
-supabase/
