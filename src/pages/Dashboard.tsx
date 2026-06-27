@@ -65,6 +65,7 @@ export const Dashboard: React.FC = () => {
   const [actionMessage, setActionMessage] = useState({ text: '', type: '' });
   const [whatsappNum, setWhatsappNum] = useState('9647750977509');
   const [cancellingOrder, setCancellingOrder] = useState<string | null>(null);
+  const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -219,8 +220,6 @@ export const Dashboard: React.FC = () => {
   };
 
   const handleCancelOrder = async (orderId: string) => {
-    if (!window.confirm('هل أنت متأكد من إلغاء هذا الطلب؟')) return;
-
     setCancellingOrder(orderId);
     setActionMessage({ text: '', type: '' });
 
@@ -605,32 +604,70 @@ export const Dashboard: React.FC = () => {
                         </span>
 
                         {o.status === 'pending' && (
-                          <button
-                            onClick={() => handleCancelOrder(o.id)}
-                            disabled={cancellingOrder === o.id}
-                            style={{
-                              padding: '4px 10px',
-                              fontSize: '0.72rem',
-                              borderRadius: '6px',
-                              border: '1px solid var(--border)',
-                              background: 'transparent',
-                              color: 'var(--danger)',
-                              cursor: 'pointer',
-                              fontWeight: 700,
-                              transition: 'all 0.2s ease',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '4px',
-                              marginTop: '2px'
-                            }}
-                            className="hover:bg-red-500/10 hover:border-red-500/20"
-                          >
-                            {cancellingOrder === o.id ? (
-                              <RotateCw size={12} className="animate-spin" />
+                          <div style={{ marginTop: '4px' }}>
+                            {confirmCancelId === o.id ? (
+                              <div className="flex items-center gap-2 animate-fade-in" style={{ fontSize: '0.72rem' }}>
+                                <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>تأكيد الإلغاء؟</span>
+                                <button
+                                  onClick={() => {
+                                    handleCancelOrder(o.id);
+                                    setConfirmCancelId(null);
+                                  }}
+                                  style={{
+                                    padding: '3px 8px',
+                                    borderRadius: '4px',
+                                    background: 'var(--danger)',
+                                    color: 'white',
+                                    border: 'none',
+                                    fontWeight: 700,
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  نعم
+                                </button>
+                                <button
+                                  onClick={() => setConfirmCancelId(null)}
+                                  style={{
+                                    padding: '3px 8px',
+                                    borderRadius: '4px',
+                                    background: 'transparent',
+                                    color: 'var(--text-muted)',
+                                    border: '1px solid var(--border)',
+                                    fontWeight: 600,
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  تراجع
+                                </button>
+                              </div>
                             ) : (
-                              'إلغاء الطلب'
+                              <button
+                                onClick={() => setConfirmCancelId(o.id)}
+                                disabled={cancellingOrder === o.id}
+                                style={{
+                                  padding: '4px 10px',
+                                  fontSize: '0.72rem',
+                                  borderRadius: '6px',
+                                  border: '1px solid var(--border)',
+                                  background: 'transparent',
+                                  color: 'var(--danger)',
+                                  cursor: 'pointer',
+                                  fontWeight: 700,
+                                  transition: 'all 0.2s ease',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px'
+                                }}
+                                className="hover:bg-red-500/10 hover:border-red-500/20"
+                              >
+                                {cancellingOrder === o.id ? (
+                                  <RotateCw size={12} className="animate-spin" />
+                                ) : (
+                                  'إلغاء الطلب'
+                                )}
+                              </button>
                             )}
-                          </button>
+                          </div>
                         )}
                       </div>
                     </div>
