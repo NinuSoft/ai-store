@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, CheckCircle, AlertTriangle, ShieldCheck, Mail, Phone, User, RotateCw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface Plan {
   id: string;
@@ -18,6 +19,7 @@ interface OrderModalProps {
 
 export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '9647750977509', onClose }) => {
   const { user, profile, signInWithGoogle, refreshProfile } = useAuth();
+  const navigate = useNavigate();
 
   // Profile / Order inputs
   const [name, setName] = useState('');
@@ -505,10 +507,11 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
             </p>
 
             <div className="flex flex-col gap-3">
-              <a
-                href={`https://wa.me/${whatsappNum}?text=${encodeURIComponent(`مرحباً، قمت بتقديم طلب تفعيل باقة ${plan.name} على بريد ${gmail || user?.email} وأود تسريع عملية التفعيل.`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => {
+                  onClose();
+                  navigate('/dashboard');
+                }}
                 style={{
                   width: '100%',
                   padding: '14px 20px',
@@ -518,17 +521,17 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
                   border: 'none',
-                  background: '#25d366',
+                  background: 'var(--primary)',
                   color: 'white',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px',
-                  boxShadow: '0 4px 15px rgba(37, 211, 102, 0.2)'
+                  boxShadow: 'var(--shadow-md)'
                 }}
               >
-                تواصل معنا لتسريع التفعيل عبر واتساب
-              </a>
+                الانتقال إلى لوحة التحكم
+              </button>
 
               <button
                 onClick={onClose}

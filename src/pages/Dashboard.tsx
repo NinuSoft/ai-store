@@ -67,9 +67,9 @@ export const Dashboard: React.FC = () => {
   const [cancellingOrder, setCancellingOrder] = useState<string | null>(null);
   const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null);
 
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (silent = false) => {
     if (!user) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     try {
       // 1. Fetch plans
       const { data: plansData } = await supabase.from('plans').select('*');
@@ -210,7 +210,7 @@ export const Dashboard: React.FC = () => {
       if (error) throw error;
 
       setActionMessage({ text: 'تم إرسال طلب التجديد بنجاح! سيقوم الدعم الفني بمراجعته وتفعيله قريباً.', type: 'success' });
-      await loadData(); // Reload
+      await loadData(true); // Reload
     } catch (err: any) {
       console.error('Error requesting renewal:', err);
       setActionMessage({ text: 'حدث خطأ أثناء تقديم طلب التجديد. يرجى المحاولة لاحقاً.', type: 'danger' });
@@ -232,7 +232,7 @@ export const Dashboard: React.FC = () => {
       if (error) throw error;
 
       setActionMessage({ text: 'تم إلغاء الطلب بنجاح.', type: 'success' });
-      await loadData();
+      await loadData(true);
     } catch (err: any) {
       console.error('Error cancelling order:', err);
       setActionMessage({
@@ -253,7 +253,7 @@ export const Dashboard: React.FC = () => {
     return diffDays > 0 ? diffDays : 0;
   };
 
-  const activeSub = subscriptions.find(s => s.status === 'active');
+  const activeSub = subscriptions.find(s => s.status === 'active') || subscriptions.find(s => s.status === 'expired');
   const daysRemaining = activeSub ? calculateDaysRemaining(activeSub.end_date) : 0;
   
   // Total subscription length in days for the progress bar
@@ -515,34 +515,53 @@ export const Dashboard: React.FC = () => {
                         }} 
                       />
                     </div>
-                    {daysRemaining <= 7 && (
-                      <div className="flex items-center gap-2 mt-3 text-amber-500" style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>
+                    {activeSub.status === 'expired' ? (
+                      <div className="flex items-center gap-2 mt-3 text-rose-500" style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--danger)' }}>
+                        <AlertCircle size={16} className="animate-pulse" style={{ color: 'var(--danger)', flexShrink: 0 }} />
+                        <span>تنبيه: انتهت صلاحية اشتراكك. يرجى طلب تجديد الباقة لتجنب انقطاع الخدمة.</span>
+                      </div>
+                    ) : daysRemaining <= 7 ? (
+                      <div className="flex items-center gap-2 mt-3 text-amber-500" style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--warning)' }}>
                         <AlertCircle size={16} className="animate-pulse" style={{ color: 'var(--warning)', flexShrink: 0 }} />
                         <span>تنبيه: قارب اشتراكك على الانتهاء. يرجى طلب تجديد الباقة لتجنب انقطاع الخدمة.</span>
                       </div>
-                    )}
+                    ) : null}
                   </div>
 
                   {/* Action row */}
                   <div className="flex gap-4 mt-2">
-                    <button 
-                      onClick={() => handleRequestRenewal(activeSub)}
-                      disabled={submittingRenewal === activeSub.id}
-                      className="btn btn-primary"
-                      style={{ padding: '10px 24px', fontSize: '0.9rem' }}
-                    >
-                      {submittingRenewal === activeSub.id ? 'جاري إرسال الطلب...' : 'طلب تجديد الاشتراك'}
-                    </button>
-                    
-                    <a 
-                      href={`https://wa.me/${whatsappNum}?text=${encodeURIComponent(`مرحباً، أود الاستفسار حول اشتراكي الحالي المفعّل على حسابي.`)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn btn-outline"
-                      style={{ padding: '10px 24px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}
-                    >
-                      <MessageSquare size={16} style={{ color: '#25d366' }} /> تواصل مع الدعم
-                    </a>
+                    {activeSub.status === 'expired' ? (
+                      <>
+                        <button 
+                          onClick={() => handleRequestRenewal(activeSub)}
+                          disabled={submittingRenewal === activeSub.id}
+                          className="btn btn-primary"
+                          style={{ padding: '10px 24px', fontSize: '0.9rem' }}
+                        >
+                          {submittingRenewal === activeSub.id ? 'جاري إرسال الطلب...' : 'طلب تجديد الاشتراك'}
+                        </button>
+                        
+                        <a 
+                          href={`https://wa.me/${whatsappNum}?text=${encodeURIComponent(`مرحباً، انتهى اشتراكي وأود تجديده وتفعيل الباقة مجدداً.`)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-outline"
+                          style={{ padding: '10px 24px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+                        >
+                          <MessageSquare size={16} style={{ color: '#25d366' }} /> تواصل مع الدعم
+                        </a>
+                      </>
+                    ) : (
+                      <a 
+                        href={`https://wa.me/${whatsappNum}?text=${encodeURIComponent(`مرحباً، أود الاستفسار حول اشتراكي الحالي المفعّل على حسابي.`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-primary"
+                        style={{ padding: '10px 24px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+                      >
+                        <MessageSquare size={16} style={{ color: '#25d366' }} /> تواصل مع الدعم
+                      </a>
+                    )}
                   </div>
                 </div>
               ) : (
