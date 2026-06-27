@@ -927,14 +927,14 @@ export const Home: React.FC = () => {
                         {/* Original Google Price */}
                         {p.official_price_iqd && p.official_price_iqd > p.price_iqd && (
                           <div style={{ fontSize: '11px', color: 'var(--text-muted)', textDecoration: 'line-through', marginBottom: '4px', fontWeight: 600 }}>
-                            السعر الرسمي: <span className="number-latin">{p.official_price_iqd.toLocaleString()}</span> د.ع
+                            السعر الرسمي: <span className="number-latin">{p.official_price_iqd.toLocaleString('en-US')}</span> د.ع
                           </div>
                         )}
 
                         {/* Price tag */}
                         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: '4px', marginBottom: '8px' }}>
                           <span className="number-latin text-gradient" style={{ fontSize: '2.6rem', fontWeight: 900, color: 'var(--text)', letterSpacing: '-0.02em' }}>
-                            {p.price_iqd.toLocaleString()}
+                            {p.price_iqd.toLocaleString('en-US')}
                           </span>
                           <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 700 }}>د.ع</span>
                         </div>
@@ -953,7 +953,7 @@ export const Home: React.FC = () => {
                         >
                           <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>يعادل:</span>
                           <span className="number-latin" style={{ fontWeight: 800, fontSize: '12px', color: '#059669' }}>
-                            {monthlyPrice.toLocaleString()}
+                            {monthlyPrice.toLocaleString('en-US')}
                           </span>
                           <span style={{ fontSize: '10px', color: '#059669', fontWeight: 700 }}>د.ع / شهر</span>
                         </div>
@@ -961,7 +961,7 @@ export const Home: React.FC = () => {
                         {/* Absolute savings label */}
                         {p.official_price_iqd && p.official_price_iqd > p.price_iqd && (
                           <div style={{ fontSize: '10px', color: 'var(--success)', fontWeight: 800, marginTop: '12px' }}>
-                            توفير حقيقي بقيمة <span className="number-latin">{(p.official_price_iqd - p.price_iqd).toLocaleString()}</span> د.ع!
+                            توفير حقيقي بقيمة <span className="number-latin">{(p.official_price_iqd - p.price_iqd).toLocaleString('en-US')}</span> د.ع!
                           </div>
                         )}
                       </div>

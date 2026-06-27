@@ -363,7 +363,7 @@ export const Admin: React.FC = () => {
     const plan = plans[order.plan_id];
     const planName = plan ? plan.name : 'Google AI Pro';
     const price = plan ? plan.price_iqd : 0;
-    const text = `مرحباً، تم تفعيل اشتراكك بـ ${planName} بنجاح على حسابك الشخصي. نود تذكيرك بتحويل مبلغ الاشتراك (${price.toLocaleString()} د.ع) لتأكيد حسابك بشكل نهائي عبر الرقم 07750977509. شكراً لثقتك بنا!`;
+    const text = `مرحباً، تم تفعيل اشتراكك بـ ${planName} بنجاح على حسابك الشخصي. نود تذكيرك بتحويل مبلغ الاشتراك (${price.toLocaleString('en-US')} د.ع) لتأكيد حسابك بشكل نهائي عبر الرقم 07750977509. شكراً لثقتك بنا!`;
     const phoneFormatted = formatIraqiPhoneForWhatsapp(order.phone);
     const url = `https://wa.me/${phoneFormatted}?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
@@ -1270,7 +1270,7 @@ export const Admin: React.FC = () => {
                   <DollarSign size={20} style={{ color: 'var(--success)' }} />
                 </div>
                 <strong style={{ fontSize: '1.8rem', color: 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
-                  {stats.totalRevenue.toLocaleString()}
+                  {stats.totalRevenue.toLocaleString('en-US')}
                 </strong>
                 <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', display: 'block', marginTop: '2px' }}>د.ع (الطلبات المقبولة)</span>
               </div>
@@ -1441,9 +1441,9 @@ export const Admin: React.FC = () => {
                             <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }} className="number-latin">{o.gmail}</td>
                             <td style={{ padding: '16px' }} className="number-latin">{o.phone}</td>
                             <td style={{ padding: '16px' }}>{plans[o.plan_id]?.name || 'غير معروف'}</td>
-                            <td style={{ padding: '16px' }} className="number-latin">{new Date(o.created_at).toLocaleDateString('ar-IQ')}</td>
-                            <td style={{ padding: '16px' }} className="number-latin">{o.activation_date ? new Date(o.activation_date).toLocaleDateString('ar-IQ') : '—'}</td>
-                            <td style={{ padding: '16px' }} className="number-latin">{o.payment_date ? new Date(o.payment_date).toLocaleDateString('ar-IQ') : '—'}</td>
+                            <td style={{ padding: '16px' }} className="number-latin">{new Date(o.created_at).toLocaleDateString('en-GB')}</td>
+                            <td style={{ padding: '16px' }} className="number-latin">{o.activation_date ? new Date(o.activation_date).toLocaleDateString('en-GB') : '—'}</td>
+                            <td style={{ padding: '16px' }} className="number-latin">{o.payment_date ? new Date(o.payment_date).toLocaleDateString('en-GB') : '—'}</td>
                             <td style={{ padding: '16px' }}>
                               <span className={getOrderStatusDetails(o.status).badgeClass}>
                                 {getOrderStatusDetails(o.status).icon}
@@ -1470,7 +1470,7 @@ export const Admin: React.FC = () => {
                               />
                             </td>
                             <td style={{ padding: '16px' }}>
-                              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                                 {o.status === 'pending' && (
                                   <button
                                     onClick={() => handleProcessOrder(o.id)}
@@ -1550,7 +1550,7 @@ export const Admin: React.FC = () => {
                             <tr key={r.id} style={{ borderBottom: '1px solid var(--border)', background: r.status === 'pending' ? 'rgba(245, 158, 11, 0.02)' : 'none' }}>
                               <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{getUserDisplayName(r.user_id)}</td>
                               <td style={{ padding: '16px' }} className="number-latin">{userPhone}</td>
-                              <td style={{ padding: '16px' }} className="number-latin">{new Date(r.created_at).toLocaleString('ar-IQ')}</td>
+                              <td style={{ padding: '16px' }} className="number-latin">{new Date(r.created_at).toLocaleString('en-GB')}</td>
                               <td style={{ padding: '16px' }}>
                                 <span className={`status-pill ${r.status === 'approved' ? 'paid' : r.status === 'pending' ? 'pending' : 'rejected'}`}>
                                   {r.status === 'approved' ? <Check size={12} /> : r.status === 'pending' ? <Clock size={12} /> : <X size={12} />}
@@ -1609,8 +1609,8 @@ export const Admin: React.FC = () => {
                           <tr key={s.id} style={{ borderBottom: '1px solid var(--border)' }}>
                             <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{getUserDisplayName(s.user_id)}</td>
                             <td style={{ padding: '16px' }}>{plans[s.plan_id]?.name || 'غير معروف'}</td>
-                            <td style={{ padding: '16px' }} className="number-latin">{new Date(s.start_date).toLocaleDateString('ar-IQ')}</td>
-                            <td style={{ padding: '16px' }} className="number-latin">{new Date(s.end_date).toLocaleDateString('ar-IQ')}</td>
+                            <td style={{ padding: '16px' }} className="number-latin">{new Date(s.start_date).toLocaleDateString('en-GB')}</td>
+                            <td style={{ padding: '16px' }} className="number-latin">{new Date(s.end_date).toLocaleDateString('en-GB')}</td>
                             <td style={{ padding: '16px' }}>
                               <span className={`status-pill ${s.status === 'active' ? 'paid' : 'expired'}`}>
                                 {s.status === 'active' ? <Check size={12} /> : <Clock size={12} />}
@@ -1657,7 +1657,7 @@ export const Admin: React.FC = () => {
                               </div>
                             </td>
                             <td style={{ padding: '16px' }} className="number-latin">{u.phone || 'غير متوفر'}</td>
-                            <td style={{ padding: '16px' }} className="number-latin">{new Date(u.created_at).toLocaleDateString('ar-IQ')}</td>
+                            <td style={{ padding: '16px' }} className="number-latin">{new Date(u.created_at).toLocaleDateString('en-GB')}</td>
                             <td style={{ padding: '16px' }}>
                               <span className={`status-pill ${u.is_admin ? 'awaiting_payment' : 'expired'}`}>
                                 {u.is_admin ? <Shield size={12} /> : <User size={12} />}
@@ -1768,7 +1768,7 @@ export const Admin: React.FC = () => {
                                 <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{p.name} {p.is_featured && <span style={{ fontSize: '0.75rem', color: 'var(--primary)' }}>(مميزة)</span>}</td>
                                 <td style={{ padding: '16px' }}>{prod?.name || 'غير معروف'}</td>
                                 <td style={{ padding: '16px' }} className="number-latin">{p.duration_months} شهر</td>
-                                <td style={{ padding: '16px' }} className="number-latin">{p.price_iqd.toLocaleString()} د.ع</td>
+                                <td style={{ padding: '16px' }} className="number-latin">{p.price_iqd.toLocaleString('en-US')} د.ع</td>
                                 <td style={{ padding: '16px' }}>{p.badge || '-'}</td>
                                 <td style={{ padding: '16px' }}>
                                   <span className={`status-pill ${p.is_active ? 'paid' : 'rejected'}`}>
@@ -2277,32 +2277,80 @@ export const Admin: React.FC = () => {
 
       {snackbar && (
         <div
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl transition-all duration-300 border animate-slide-in"
+          dir="rtl"
           style={{
-            background: 'var(--card-bg)',
-            backdropFilter: 'blur(16px)',
-            borderColor: snackbar.type === 'success' ? 'rgba(34, 197, 94, 0.4)' : 'rgba(239, 68, 68, 0.4)',
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '12px 18px',
+            borderRadius: '16px',
+            background: 'var(--surface-glass)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: '1px solid',
+            borderColor: snackbar.type === 'success' ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)',
             boxShadow: snackbar.type === 'success'
-              ? '0 0 20px rgba(34, 197, 94, 0.15), var(--shadow)'
-              : '0 0 20px rgba(239, 68, 68, 0.15), var(--shadow)',
+              ? '0 10px 30px rgba(0, 0, 0, 0.25), 0 0 20px rgba(34, 197, 94, 0.1)'
+              : '0 10px 30px rgba(0, 0, 0, 0.25), 0 0 20px rgba(239, 68, 68, 0.1)',
+            animation: 'slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            minWidth: '280px',
+            justifyContent: 'space-between'
           }}
         >
-          <div className="p-1 rounded-lg" style={{ background: snackbar.type === 'success' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)' }}>
-            {snackbar.type === 'success' ? (
-              <Check className="h-5 w-5 text-green-500" />
-            ) : (
-              <X className="h-5 w-5 text-red-500" />
-            )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div 
+              style={{ 
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                background: snackbar.type === 'success' ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                color: snackbar.type === 'success' ? '#4ade80' : '#f87171',
+                flexShrink: 0
+              }}
+            >
+              {snackbar.type === 'success' ? (
+                <Check size={18} />
+              ) : (
+                <X size={18} />
+              )}
+            </div>
+            <span style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text)' }}>
+              {snackbar.message}
+            </span>
           </div>
-          <span className="text-sm font-medium" style={{ color: 'var(--text)' }}>
-            {snackbar.message}
-          </span>
+          
           <button
             onClick={() => setSnackbar(null)}
-            className="ml-2 hover:opacity-75 transition-opacity"
-            style={{ color: 'var(--text-muted)' }}
+            style={{ 
+              background: 'none',
+              border: 'none',
+              padding: '4px',
+              cursor: 'pointer',
+              color: 'var(--text-muted)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '50%',
+              transition: 'background 0.2s, color 0.2s',
+              marginRight: '8px'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+              e.currentTarget.style.color = 'var(--text)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'none';
+              e.currentTarget.style.color = 'var(--text-muted)';
+            }}
           >
-            <X className="h-4 w-4" />
+            <X size={16} />
           </button>
         </div>
       )}

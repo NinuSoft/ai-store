@@ -340,7 +340,7 @@ export const Dashboard: React.FC = () => {
           const plan = plans[order.plan_id];
           const planName = plan ? plan.name : 'Google AI Pro';
           const price = plan ? plan.price_iqd : 0;
-          const whatsappText = `مرحباً، قمت بتحويل مبلغ ${price.toLocaleString()} د.ع لتفعيل باقة ${planName} على الحساب ${order.gmail}. يرجى تأكيد الدفع.`;
+          const whatsappText = `مرحباً، قمت بتحويل مبلغ ${price.toLocaleString('en-US')} د.ع لتفعيل باقة ${planName} على الحساب ${order.gmail}. يرجى تأكيد الدفع.`;
           
           return (
             <div 
@@ -378,7 +378,7 @@ export const Dashboard: React.FC = () => {
                     <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px 20px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>المبلغ المطلوب</span>
                       <strong style={{ fontSize: '1.2rem', color: 'var(--success)' }} className="number-latin">
-                        {price.toLocaleString()} د.ع
+                        {price.toLocaleString('en-US')} د.ع
                       </strong>
                     </div>
                   </div>
@@ -462,7 +462,7 @@ export const Dashboard: React.FC = () => {
                       <div>
                         <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>تاريخ انتهاء الصلاحية</span>
                         <strong style={{ fontSize: '0.95rem', color: 'var(--text)' }} className="number-latin">
-                          {new Date(activeSub.end_date).toLocaleDateString('ar-IQ')}
+                          {new Date(activeSub.end_date).toLocaleDateString('en-GB')}
                         </strong>
                       </div>
                     </div>
@@ -557,7 +557,7 @@ export const Dashboard: React.FC = () => {
                         <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                           تاريخ الطلب:{' '}
                           <span className="number-latin">
-                            {new Date(o.created_at).toLocaleDateString('ar-IQ')}
+                            {new Date(o.created_at).toLocaleDateString('en-GB')}
                           </span>
                         </span>
                       </div>
@@ -571,7 +571,7 @@ export const Dashboard: React.FC = () => {
                         </span>
 
                         <span style={{ fontSize: '0.85rem', color: 'var(--success)', fontWeight: 700, fontFamily: 'var(--font-latin)' }}>
-                          {plans[o.plan_id]?.price_iqd.toLocaleString()} د.ع
+                          {plans[o.plan_id]?.price_iqd.toLocaleString('en-US')} د.ع
                         </span>
                       </div>
                     </div>
@@ -611,7 +611,7 @@ export const Dashboard: React.FC = () => {
                       <div className="flex flex-col">
                         <span style={{ fontSize: '0.8rem', color: 'var(--text)' }}>طلب تجديد اشتراك</span>
                         <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }} className="number-latin">
-                          {new Date(r.created_at).toLocaleDateString('ar-IQ')}
+                          {new Date(r.created_at).toLocaleDateString('en-GB')}
                         </span>
                       </div>
                       

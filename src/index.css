@@ -873,6 +873,9 @@ textarea::placeholder {
   direction: ltr;
   display: inline-block;
 }
+td.number-latin {
+  display: table-cell;
+}
 
 /* ── FAQ ACCORDION ─────────────────────────────────────────────────── */
 .faq-container {

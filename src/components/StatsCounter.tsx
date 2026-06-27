@@ -43,7 +43,7 @@ export const StatsCounter: React.FC<StatsCounterProps> = ({
   return (
     <span className="number-latin">
       {prefix}
-      {count.toLocaleString()}
+      {count.toLocaleString('en-US')}
       {suffix}
     </span>
   );

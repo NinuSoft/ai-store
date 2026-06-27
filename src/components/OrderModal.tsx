@@ -246,7 +246,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '964
               <div className="badge badge-secondary mb-2" style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', border: '1px solid rgba(16,185,129,0.2)', fontSize: '0.75rem' }}>تفعيل رسمي - دفع بعد التأكد</div>
               <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text)' }}>طلب باقة {plan.name}</h3>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '4px' }}>
-                قيمة الاشتراك: <span style={{ color: 'var(--success)', fontWeight: 700 }}>{plan.price_iqd.toLocaleString()} د.ع</span>
+                قيمة الاشتراك: <span style={{ color: 'var(--success)', fontWeight: 700 }} className="number-latin">{plan.price_iqd.toLocaleString('en-US')} د.ع</span>
               </p>
             </div>
 
