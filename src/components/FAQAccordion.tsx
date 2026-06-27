@@ -217,39 +217,88 @@ export const FAQAccordion: React.FC = () => {
           return (
             <div
               key={index}
-              className={`border rounded-2xl backdrop-blur-md overflow-hidden transition-all duration-300 ${isOpen
-                  ? 'border-[var(--secondary-glow-border)] bg-[var(--surface-raised)] shadow-lg shadow-black/5 dark:shadow-black/20'
-                  : 'border-[var(--border)] bg-[var(--surface-glass)] hover:border-[var(--primary)]/30 hover:translate-y-[-1px]'
-                }`}
+              style={{
+                borderRadius: '16px',
+                border: '1px solid var(--border)',
+                borderRight: isOpen ? `4px solid ${catColor}` : '1px solid var(--border)',
+                background: isOpen ? 'var(--surface-raised)' : 'var(--surface-glass)',
+                boxShadow: isOpen ? 'var(--shadow-lg)' : 'none',
+                transform: isOpen ? 'translateY(0)' : 'translateY(0)',
+                transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                overflow: 'hidden',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)'
+              }}
+              className="group"
             >
               {/* Header / Button */}
               <button
                 onClick={() => toggleFAQ(faq.question)}
-                className="w-full flex items-center justify-between p-4 md:p-5 text-right font-bold text-base md:text-lg hover:text-[var(--primary)] transition-colors focus:outline-none cursor-pointer"
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '20px 24px',
+                  textAlign: 'right',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  outline: 'none',
+                }}
               >
-                <div className="flex items-center gap-3">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                   {faq.category && (
                     <span
-                      className="text-[10px] font-black tracking-wide px-2.5 py-0.5 rounded-full uppercase shrink-0"
                       style={{
+                        fontSize: '10px',
+                        fontWeight: 900,
+                        letterSpacing: '0.05em',
+                        padding: '4px 12px',
+                        borderRadius: '9999px',
                         color: catColor,
-                        backgroundColor: `${catColor}15`,
-                        border: `1px solid ${catColor}25`
+                        backgroundColor: `${catColor}12`,
+                        border: `1px solid ${catColor}20`,
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0
                       }}
                     >
                       {faq.category}
                     </span>
                   )}
-                  <span className={`transition-colors duration-200 ${isOpen ? 'text-[var(--text)]' : 'text-[var(--text-secondary)]'}`}>
+                  <span 
+                    style={{
+                      fontSize: '1rem',
+                      fontWeight: 700,
+                      color: isOpen ? 'var(--text)' : 'var(--text-secondary)',
+                      transition: 'color 0.2s ease',
+                      lineHeight: '1.4'
+                    }}
+                  >
                     {faq.question}
                   </span>
                 </div>
-                <span
-                  className={`text-muted-foreground shrink-0 mr-4 transition-transform duration-300 ${isOpen ? '-rotate-90 text-[var(--primary)]' : 'rotate-0'
-                    }`}
+
+                {/* Styled chevron button */}
+                <div
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: isOpen ? 'var(--primary-light)' : 'rgba(255, 255, 255, 0.02)',
+                    border: isOpen ? '1px solid hsla(237, 90%, 58%, 0.15)' : '1px solid var(--border)',
+                    color: isOpen ? 'var(--primary)' : 'var(--text-muted)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transform: isOpen ? 'rotate(-90deg)' : 'rotate(0deg)',
+                    marginLeft: '12px',
+                    flexShrink: 0
+                  }}
                 >
-                  <ChevronLeft size={20} />
-                </span>
+                  <ChevronLeft size={16} />
+                </div>
               </button>
 
               {/* Answer body */}
@@ -261,7 +310,17 @@ export const FAQAccordion: React.FC = () => {
                   transition: 'max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease',
                 }}
               >
-                <div className="px-5 pb-5 pt-4 text-sm md:text-base text-muted-foreground leading-relaxed border-t border-[var(--border)]/50">
+                <div 
+                  style={{
+                    padding: '16px 24px 24px 24px',
+                    fontSize: '0.925rem',
+                    color: 'var(--text-muted)',
+                    lineHeight: '1.8',
+                    fontWeight: 500,
+                    borderTop: '1px solid var(--border)',
+                    background: 'rgba(255, 255, 255, 0.005)'
+                  }}
+                >
                   {faq.answer}
                 </div>
               </div>
