@@ -465,7 +465,7 @@ export const Admin: React.FC = () => {
 
   // 5. Toggle Admin Permission
   const handleToggleAdmin = async (u: UserProfile) => {
-    if (u.id === user.id) {
+    if (u.id === user?.id) {
       showSnackbar('لا يمكنك إزالة صلاحيات المدير عن نفسك!', 'error');
       return;
     }
@@ -738,8 +738,11 @@ export const Admin: React.FC = () => {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--background)', color: 'var(--text)' }}>
+    <div className="admin-page-wrapper" style={{ minHeight: '100vh', background: 'var(--background)', color: 'var(--text)' }}>
       <style>{`
+        .admin-page-wrapper .container {
+          max-width: 1600px;
+        }
         @keyframes slide-in {
           from {
             transform: translateY(20px);
@@ -1365,7 +1368,7 @@ export const Admin: React.FC = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="ابحث بالـ Gmail، الاسم، أو رقم الهاتف..."
-                  dir="auto"
+                  dir={searchTerm ? 'auto' : 'rtl'}
                   style={{
                     width: '100%', padding: '12px 42px 12px 16px',
                     background: 'var(--background-alt)', border: '1px solid var(--border)',

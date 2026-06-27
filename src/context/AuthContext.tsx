@@ -65,16 +65,74 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const checkLocalhostMock = async () => {
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (isLocalhost) {
+      try {
+        const { data } = await supabase.from('profiles').select('*').limit(1);
+        if (data && data.length > 0) {
+          const p = data[0];
+          setUser({
+            id: p.id,
+            email: p.email || 'test@gmail.com',
+            user_metadata: {
+              full_name: p.full_name || 'مستخدم تجريبي',
+              avatar_url: p.avatar_url || ''
+            }
+          });
+          setProfile({
+            id: p.id,
+            phone: p.phone || '',
+            email: p.email || 'test@gmail.com',
+            full_name: p.full_name || 'مستخدم تجريبي',
+            avatar_url: p.avatar_url || '',
+            is_admin: p.role === 'admin',
+            created_at: p.created_at
+          });
+          setLoading(false);
+          return true;
+        }
+      } catch (e) {
+        console.error('Error fetching mock profile:', e);
+      }
+      // Fallback mock profile
+      const mockId = '00000000-0000-0000-0000-000000000000';
+      setUser({
+        id: mockId,
+        email: 'test@gmail.com',
+        user_metadata: {
+          full_name: 'مستخدم تجريبي',
+          avatar_url: ''
+        }
+      });
+      setProfile({
+        id: mockId,
+        phone: '07701234567',
+        email: 'test@gmail.com',
+        full_name: 'مستخدم تجريبي',
+        avatar_url: '',
+        is_admin: true,
+        created_at: new Date().toISOString()
+      });
+      setLoading(false);
+      return true;
+    }
+    return false;
+  };
+
   useEffect(() => {
     // 1. Get initial session
-    supabase.auth.getSession().then(({ data: { session } }: any) => {
+    supabase.auth.getSession().then(async ({ data: { session } }: any) => {
       if (session) {
         setUser(session.user);
-        fetchProfile(session.user.id);
+        await fetchProfile(session.user.id);
       } else {
-        setUser(null);
-        setProfile(null);
-        setLoading(false);
+        const mocked = await checkLocalhostMock();
+        if (!mocked) {
+          setUser(null);
+          setProfile(null);
+          setLoading(false);
+        }
       }
     });
 
@@ -85,9 +143,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUser(session.user);
           await fetchProfile(session.user.id);
         } else {
-          setUser(null);
-          setProfile(null);
-          setLoading(false);
+          const mocked = await checkLocalhostMock();
+          if (!mocked) {
+            setUser(null);
+            setProfile(null);
+            setLoading(false);
+          }
         }
       }
     );
