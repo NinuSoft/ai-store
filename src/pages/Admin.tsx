@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { 
   ShieldCheck, ArrowLeft, Users, ShoppingBag, 
   DollarSign, Activity, Check, X, Search, PlusCircle,
-  RotateCw, MessageSquare, Settings, Sparkles
+  RotateCw, MessageSquare, Settings, Sparkles, Clock, User, Shield
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -677,19 +677,19 @@ export const Admin: React.FC = () => {
   const getOrderStatusDetails = (status: Order['status']) => {
     switch (status) {
       case 'pending':
-        return { label: 'قيد المراجعة', badgeClass: 'badge-warning' };
+        return { label: 'قيد المراجعة', badgeClass: 'status-pill pending', icon: <Clock size={12} /> };
       case 'processing':
-        return { label: 'جاري التفعيل', badgeClass: 'badge-primary' };
+        return { label: 'جاري التفعيل', badgeClass: 'status-pill processing', icon: <RotateCw size={12} className="animate-spin" /> };
       case 'awaiting_payment':
-        return { label: 'مفعّل - بانتظار الدفع', badgeClass: 'badge-secondary' };
+        return { label: 'بانتظار الدفع', badgeClass: 'status-pill awaiting_payment', icon: <DollarSign size={12} /> };
       case 'paid':
-        return { label: 'تم الدفع', badgeClass: 'badge-success' };
+        return { label: 'تم الدفع', badgeClass: 'status-pill paid', icon: <Check size={12} /> };
       case 'expired':
-        return { label: 'منتهي الصلاحية', badgeClass: 'badge-danger' };
+        return { label: 'منتهي الصلاحية', badgeClass: 'status-pill expired', icon: <Clock size={12} /> };
       case 'rejected':
-        return { label: 'مرفوض', badgeClass: 'badge-danger' };
+        return { label: 'مرفوض', badgeClass: 'status-pill rejected', icon: <X size={12} /> };
       default:
-        return { label: status, badgeClass: 'badge-primary' };
+        return { label: status, badgeClass: 'status-pill', icon: null };
     }
   };
 
@@ -759,7 +759,7 @@ export const Admin: React.FC = () => {
         }
         @media (min-width: 1024px) {
           .admin-layout {
-            flex-direction: row-reverse;
+            flex-direction: row;
             align-items: start;
           }
           .admin-sidebar {
@@ -786,64 +786,78 @@ export const Admin: React.FC = () => {
           font-size: 0.88rem;
           font-weight: 700;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
           text-align: right;
           gap: 12px;
         }
-        .admin-tab-item:hover {
-          background: rgba(255, 255, 255, 0.02);
+        .admin-tab-item:hover:not(.active) {
+          background: rgba(255, 255, 255, 0.03);
           color: var(--text);
+          transform: translateX(-4px);
         }
         .admin-tab-item.active {
-          background: var(--primary-light);
-          border: 1px solid hsla(237, 90%, 58%, 0.15);
-          color: var(--primary);
-        }
-        .dark .admin-tab-item.active {
-          background: rgba(99, 102, 241, 0.15);
-          border-color: rgba(99, 102, 241, 0.3);
+          background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.06) 100%);
+          border: 1px solid rgba(99, 102, 241, 0.25);
           color: #818cf8;
+          box-shadow: 0 4px 20px rgba(99, 102, 241, 0.08);
         }
         
         .metric-card {
           position: relative;
-          border-radius: 20px;
+          border-radius: 24px;
           border: 1px solid var(--border);
-          background: var(--surface-glass);
+          background: linear-gradient(135deg, rgba(255, 255, 255, 0.015) 0%, rgba(255, 255, 255, 0.005) 100%);
           padding: 24px;
           overflow: hidden;
-          backdrop-filter: blur(24px);
-          WebkitBackdropFilter: blur(24px);
-          transition: transform 0.3s ease, border-color 0.3s ease;
+          backdrop-filter: blur(30px);
+          -webkit-backdrop-filter: blur(30px);
+          transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+          box-shadow: var(--shadow);
         }
         .metric-card:hover {
-          transform: translateY(-4px);
-          border-color: rgba(99, 102, 241, 0.25);
+          transform: translateY(-6px);
+          border-color: rgba(99, 102, 241, 0.35);
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25), 0 0 24px rgba(99, 102, 241, 0.08);
         }
         .metric-glow {
           position: absolute;
-          top: -50px; right: -50px;
-          width: 120px; height: 120px;
+          top: -60px; right: -60px;
+          width: 140px; height: 140px;
           border-radius: 50%;
-          filter: blur(40px);
-          opacity: 0.08;
+          filter: blur(50px);
+          opacity: 0.12;
           pointer-events: none;
         }
         
+        .admin-table-container {
+          border-radius: 20px;
+          overflow: hidden;
+          border: 1px solid var(--border);
+          background: rgba(255, 255, 255, 0.005);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          box-shadow: var(--shadow-sm);
+        }
+        .admin-table-wrapper {
+          overflow-x: auto;
+          width: 100%;
+        }
         .admin-table {
           width: 100%;
           border-collapse: collapse;
           text-align: right;
-          font-size: 0.875rem;
+          font-size: 0.85rem;
+          white-space: nowrap;
         }
         .admin-table th {
-          padding: 16px;
+          padding: 18px 16px;
           font-weight: 800;
           color: var(--text-secondary);
           border-bottom: 2px solid var(--border);
-          background: rgba(255, 255, 255, 0.005);
+          background: rgba(255, 255, 255, 0.012);
           font-size: 0.8rem;
           text-transform: uppercase;
+          letter-spacing: 0.02em;
         }
         .admin-table td {
           padding: 16px;
@@ -853,8 +867,108 @@ export const Admin: React.FC = () => {
           vertical-align: middle;
         }
         .admin-table tr:hover td {
-          background: rgba(255, 255, 255, 0.005);
+          background: rgba(255, 255, 255, 0.015);
         }
+        .admin-table tr:last-child td {
+          border-bottom: none;
+        }
+        
+        /* Scrollbars */
+        .admin-table-wrapper::-webkit-scrollbar {
+          height: 6px;
+          width: 6px;
+        }
+        .admin-table-wrapper::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .admin-table-wrapper::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.08);
+          border-radius: 99px;
+        }
+        .admin-table-wrapper::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Status Pills */
+        .status-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 5px 12px;
+          border-radius: 9999px;
+          font-size: 0.75rem;
+          font-weight: 800;
+          border: 1px solid transparent;
+        }
+        .status-pill.pending {
+          background: rgba(245, 158, 11, 0.08);
+          color: #fbbf24;
+          border-color: rgba(245, 158, 11, 0.25);
+        }
+        .status-pill.processing {
+          background: rgba(59, 130, 246, 0.08);
+          color: #60a5fa;
+          border-color: rgba(59, 130, 246, 0.25);
+        }
+        .status-pill.paid {
+          background: rgba(34, 197, 94, 0.08);
+          color: #4ade80;
+          border-color: rgba(34, 197, 94, 0.25);
+        }
+        .status-pill.awaiting_payment {
+          background: rgba(139, 92, 246, 0.08);
+          color: #a78bfa;
+          border-color: rgba(139, 92, 246, 0.25);
+        }
+        .status-pill.rejected {
+          background: rgba(239, 68, 68, 0.08);
+          color: #f87171;
+          border-color: rgba(239, 68, 68, 0.25);
+        }
+        .status-pill.expired {
+          background: rgba(156, 163, 175, 0.08);
+          color: #9ca3af;
+          border-color: rgba(156, 163, 175, 0.25);
+        }
+
+        /* Admin action items buttons */
+        .admin-action-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 8px 14px;
+          font-size: 0.78rem;
+          font-weight: 700;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          gap: 6px;
+          border: 1px solid transparent;
+        }
+        .admin-action-btn:hover {
+          transform: scale(1.03);
+        }
+        .admin-action-btn:active {
+          transform: scale(0.97);
+        }
+        
+        .admin-input-select {
+          padding: 12px 16px;
+          background: var(--background-alt);
+          border: 1px solid var(--border);
+          border-radius: 12px;
+          color: var(--text);
+          font-size: 0.85rem;
+          outline: none;
+          min-width: 150px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .admin-input-select:focus {
+          border-color: var(--primary);
+          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+      
       `}</style>
       
       {/* HEADER */}
@@ -879,17 +993,17 @@ export const Admin: React.FC = () => {
         {/* 1. METRICS DASHBOARD */}
         <section className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 text-right">
           
-          {/* Revenue */}
+          {/* Total Registrations */}
           <div className="metric-card">
-            <div className="metric-glow" style={{ background: 'var(--success)' }} />
+            <div className="metric-glow" style={{ background: 'var(--secondary)' }} />
             <div className="flex items-center justify-between mb-2">
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>إجمالي الإيرادات</span>
-              <DollarSign size={20} style={{ color: 'var(--success)' }} />
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>إجمالي المسجلين</span>
+              <Users size={20} style={{ color: 'var(--secondary)' }} />
             </div>
             <strong style={{ fontSize: '1.8rem', color: 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
-              {stats.totalRevenue.toLocaleString()}
+              {stats.totalUsers}
             </strong>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', display: 'block', marginTop: '2px' }}>د.ع (الطلبات المقبولة)</span>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', display: 'block', marginTop: '2px' }}>حساب مستخدم مسجل</span>
           </div>
 
           {/* Active Subscriptions */}
@@ -918,17 +1032,17 @@ export const Admin: React.FC = () => {
             <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', display: 'block', marginTop: '2px' }}>بانتظار التنشيط والتفعيل</span>
           </div>
 
-          {/* Total Registrations */}
+          {/* Revenue */}
           <div className="metric-card">
-            <div className="metric-glow" style={{ background: 'var(--secondary)' }} />
+            <div className="metric-glow" style={{ background: 'var(--success)' }} />
             <div className="flex items-center justify-between mb-2">
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>إجمالي المسجلين</span>
-              <Users size={20} style={{ color: 'var(--secondary)' }} />
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>إجمالي الإيرادات</span>
+              <DollarSign size={20} style={{ color: 'var(--success)' }} />
             </div>
             <strong style={{ fontSize: '1.8rem', color: 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
-              {stats.totalUsers}
+              {stats.totalRevenue.toLocaleString()}
             </strong>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', display: 'block', marginTop: '2px' }}>حساب مستخدم مسجل</span>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', display: 'block', marginTop: '2px' }}>د.ع (الطلبات المقبولة)</span>
           </div>
 
         </section>
@@ -1157,23 +1271,23 @@ export const Admin: React.FC = () => {
                   <option value="all">جميع الحالات</option>
                   {activeTab === 'orders' ? (
                     <>
-                      <option value="pending">قيد المراجعة ⏳</option>
-                      <option value="processing">جاري التفعيل ⚙️</option>
-                      <option value="awaiting_payment">بانتظار الدفع 💰</option>
-                      <option value="paid">تم الدفع ونشط ✅</option>
-                      <option value="rejected">مرفوض ❌</option>
-                      <option value="expired">منتهي الصلاحية ⏱️</option>
+                      <option value="pending">قيد المراجعة</option>
+                      <option value="processing">جاري التفعيل</option>
+                      <option value="awaiting_payment">بانتظار الدفع</option>
+                      <option value="paid">تم الدفع ونشط</option>
+                      <option value="rejected">مرفوض</option>
+                      <option value="expired">منتهي الصلاحية</option>
                     </>
                   ) : activeTab === 'renewals' ? (
                     <>
-                      <option value="pending">معلق ⏳</option>
-                      <option value="approved">تم التجديد ✅</option>
-                      <option value="rejected">مرفوض ❌</option>
+                      <option value="pending">معلق</option>
+                      <option value="approved">تم التجديد</option>
+                      <option value="rejected">مرفوض</option>
                     </>
                   ) : (
                     <>
-                      <option value="active">نشط ✅</option>
-                      <option value="expired">منتهي الصلاحية ⏱️</option>
+                      <option value="active">نشط</option>
+                      <option value="expired">منتهي الصلاحية</option>
                     </>
                   )}
                 </select>
@@ -1181,7 +1295,8 @@ export const Admin: React.FC = () => {
             </div>
 
             {/* DYNAMIC DATA TABLE PANEL */}
-            <div className="glass-panel" style={{ padding: '0', overflowX: 'auto', borderRadius: '16px', border: '1px solid var(--border)', background: 'var(--surface-glass)' }}>
+            <div className="admin-table-container">
+              <div className="admin-table-wrapper">
           
           {/* TAB 1: ORDERS */}
           {activeTab === 'orders' && (
@@ -1210,8 +1325,9 @@ export const Admin: React.FC = () => {
                       <td style={{ padding: '16px' }} className="number-latin">{o.activation_date ? new Date(o.activation_date).toLocaleDateString('ar-IQ') : '—'}</td>
                       <td style={{ padding: '16px' }} className="number-latin">{o.payment_date ? new Date(o.payment_date).toLocaleDateString('ar-IQ') : '—'}</td>
                       <td style={{ padding: '16px' }}>
-                        <span className={`badge ${getOrderStatusDetails(o.status).badgeClass}`}>
-                          {getOrderStatusDetails(o.status).label}
+                        <span className={getOrderStatusDetails(o.status).badgeClass}>
+                          {getOrderStatusDetails(o.status).icon}
+                          <span>{getOrderStatusDetails(o.status).label}</span>
                         </span>
                       </td>
                       <td style={{ padding: '16px' }}>
@@ -1312,8 +1428,9 @@ export const Admin: React.FC = () => {
                         <td style={{ padding: '16px' }} className="number-latin">{userPhone}</td>
                         <td style={{ padding: '16px' }} className="number-latin">{new Date(r.created_at).toLocaleString('ar-IQ')}</td>
                         <td style={{ padding: '16px' }}>
-                          <span className={`badge ${r.status === 'approved' ? 'badge-success' : r.status === 'pending' ? 'badge-warning' : 'badge-danger'}`}>
-                            {r.status === 'approved' ? 'تم التجديد' : r.status === 'pending' ? 'معلق' : 'مرفوض'}
+                          <span className={`status-pill ${r.status === 'approved' ? 'paid' : r.status === 'pending' ? 'pending' : 'rejected'}`}>
+                            {r.status === 'approved' ? <Check size={12} /> : r.status === 'pending' ? <Clock size={12} /> : <X size={12} />}
+                            <span>{r.status === 'approved' ? 'تم التجديد' : r.status === 'pending' ? 'معلق' : 'مرفوض'}</span>
                           </span>
                         </td>
                         <td style={{ padding: '16px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
@@ -1369,8 +1486,9 @@ export const Admin: React.FC = () => {
                       <td style={{ padding: '16px' }} className="number-latin">{new Date(s.start_date).toLocaleDateString('ar-IQ')}</td>
                       <td style={{ padding: '16px' }} className="number-latin">{new Date(s.end_date).toLocaleDateString('ar-IQ')}</td>
                       <td style={{ padding: '16px' }}>
-                        <span className={`badge ${s.status === 'active' ? 'badge-success' : 'badge-danger'}`}>
-                          {s.status === 'active' ? 'نشط' : 'منتهي'}
+                        <span className={`status-pill ${s.status === 'active' ? 'paid' : 'expired'}`}>
+                          {s.status === 'active' ? <Check size={12} /> : <Clock size={12} />}
+                          <span>{s.status === 'active' ? 'نشط' : 'منتهي'}</span>
                         </span>
                       </td>
                     </tr>
@@ -1415,8 +1533,9 @@ export const Admin: React.FC = () => {
                       <td style={{ padding: '16px' }} className="number-latin">{u.phone || 'غير متوفر'}</td>
                       <td style={{ padding: '16px' }} className="number-latin">{new Date(u.created_at).toLocaleDateString('ar-IQ')}</td>
                       <td style={{ padding: '16px' }}>
-                        <span className={`badge ${u.is_admin ? 'badge-secondary' : 'badge-primary'}`}>
-                          {u.is_admin ? 'مدير النظام' : 'عميل'}
+                        <span className={`status-pill ${u.is_admin ? 'awaiting_payment' : 'expired'}`}>
+                          {u.is_admin ? <Shield size={12} /> : <User size={12} />}
+                          <span>{u.is_admin ? 'مدير النظام' : 'عميل'}</span>
                         </span>
                       </td>
                       <td style={{ padding: '16px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
@@ -1710,8 +1829,9 @@ export const Admin: React.FC = () => {
                         <td style={{ padding: '16px' }} className="number-latin">{p.slug}</td>
                         <td style={{ padding: '16px', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.description}</td>
                         <td style={{ padding: '16px' }}>
-                          <span className={`badge ${p.is_active ? 'badge-success' : 'badge-danger'}`}>
-                            {p.is_active ? 'نشط' : 'معطل'}
+                          <span className={`status-pill ${p.is_active ? 'paid' : 'rejected'}`}>
+                            {p.is_active ? <Check size={12} /> : <X size={12} />}
+                            <span>{p.is_active ? 'نشط' : 'معطل'}</span>
                           </span>
                         </td>
                         <td style={{ padding: '16px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
@@ -1769,8 +1889,9 @@ export const Admin: React.FC = () => {
                           <td style={{ padding: '16px' }} className="number-latin">{p.price_iqd.toLocaleString()} د.ع</td>
                           <td style={{ padding: '16px' }}>{p.badge || '-'}</td>
                           <td style={{ padding: '16px' }}>
-                            <span className={`badge ${p.is_active ? 'badge-success' : 'badge-danger'}`}>
-                              {p.is_active ? 'نشطة' : 'معطلة'}
+                            <span className={`status-pill ${p.is_active ? 'paid' : 'rejected'}`}>
+                              {p.is_active ? <Check size={12} /> : <X size={12} />}
+                              <span>{p.is_active ? 'نشطة' : 'معطلة'}</span>
                             </span>
                           </td>
                           <td style={{ padding: '16px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
@@ -1812,8 +1933,9 @@ export const Admin: React.FC = () => {
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '10px', marginBottom: '10px' }}>
                         <span style={{ fontWeight: 600, color: 'white' }}>{f.question}</span>
                         <div style={{ display: 'flex', gap: '8px' }}>
-                          <span className={`badge ${f.is_active ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '0.7rem' }}>
-                            {f.is_active ? 'نشط' : 'معطل'}
+                          <span className={`status-pill ${f.is_active ? 'paid' : 'rejected'}`}>
+                            {f.is_active ? <Check size={12} /> : <X size={12} />}
+                            <span>{f.is_active ? 'نشط' : 'معطل'}</span>
                           </span>
                           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>الترتيب: {f.display_order}</span>
                         </div>
@@ -1934,7 +2056,8 @@ export const Admin: React.FC = () => {
               })}
             </div>
           )}
-            </div> {/* Close glass-panel */}
+              </div> {/* Close admin-table-wrapper */}
+            </div> {/* Close admin-table-container */}
           </div> {/* Close admin-content */}
         </div> {/* Close admin-layout */}
 
