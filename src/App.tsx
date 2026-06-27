@@ -58,31 +58,31 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 export const App: React.FC = () => {
   return (
     <AuthProvider>
-      <IntroScreen onComplete={() => {}} />
+      <IntroScreen onComplete={() => { }} />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
-          
-          <Route 
-            path="/dashboard" 
+
+          <Route
+            path="/dashboard"
             element={
               <ProtectedRoute>
                 <Dashboard />
               </ProtectedRoute>
-            } 
+            }
           />
-          
-          <Route 
-            path="/admin" 
+
+          <Route
+            path="/admin"
             element={
               <AdminRoute>
                 <Admin />
               </AdminRoute>
-            } 
+            }
           />
-          
+
           {/* Wildcard Catchall redirects back to home */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

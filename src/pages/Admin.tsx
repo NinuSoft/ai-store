@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   ShieldCheck, ArrowLeft, Users, ShoppingBag, 
-  DollarSign, Activity, Check, X, Search, PlusCircle
+  DollarSign, Activity, Check, X, Search, PlusCircle,
+  RotateCw, MessageSquare, Settings, Sparkles
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -720,7 +721,112 @@ export const Admin: React.FC = () => {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--background)' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--background)', color: 'var(--text)' }}>
+      <style>{`
+        .admin-layout {
+          display: flex;
+          flex-direction: column;
+          gap: 28px;
+        }
+        @media (min-width: 1024px) {
+          .admin-layout {
+            flex-direction: row-reverse;
+            align-items: start;
+          }
+          .admin-sidebar {
+            width: 280px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 24px;
+          }
+          .admin-content {
+            flex-grow: 1;
+            min-width: 0;
+          }
+        }
+        .admin-tab-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          width: 100%;
+          padding: 12px 16px;
+          border-radius: 12px;
+          border: 1px solid transparent;
+          background: transparent;
+          color: var(--text-secondary);
+          font-size: 0.88rem;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          text-align: right;
+          gap: 12px;
+        }
+        .admin-tab-item:hover {
+          background: rgba(255, 255, 255, 0.02);
+          color: var(--text);
+        }
+        .admin-tab-item.active {
+          background: var(--primary-light);
+          border: 1px solid hsla(237, 90%, 58%, 0.15);
+          color: var(--primary);
+        }
+        .dark .admin-tab-item.active {
+          background: rgba(99, 102, 241, 0.15);
+          border-color: rgba(99, 102, 241, 0.3);
+          color: #818cf8;
+        }
+        
+        .metric-card {
+          position: relative;
+          border-radius: 20px;
+          border: 1px solid var(--border);
+          background: var(--surface-glass);
+          padding: 24px;
+          overflow: hidden;
+          backdrop-filter: blur(24px);
+          WebkitBackdropFilter: blur(24px);
+          transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        .metric-card:hover {
+          transform: translateY(-4px);
+          border-color: rgba(99, 102, 241, 0.25);
+        }
+        .metric-glow {
+          position: absolute;
+          top: -50px; right: -50px;
+          width: 120px; height: 120px;
+          border-radius: 50%;
+          filter: blur(40px);
+          opacity: 0.08;
+          pointer-events: none;
+        }
+        
+        .admin-table {
+          width: 100%;
+          border-collapse: collapse;
+          text-align: right;
+          font-size: 0.875rem;
+        }
+        .admin-table th {
+          padding: 16px;
+          font-weight: 800;
+          color: var(--text-secondary);
+          border-bottom: 2px solid var(--border);
+          background: rgba(255, 255, 255, 0.005);
+          font-size: 0.8rem;
+          text-transform: uppercase;
+        }
+        .admin-table td {
+          padding: 16px;
+          border-bottom: 1px solid var(--border);
+          color: var(--text);
+          transition: background 0.2s ease;
+          vertical-align: middle;
+        }
+        .admin-table tr:hover td {
+          background: rgba(255, 255, 255, 0.005);
+        }
+      `}</style>
       
       {/* HEADER */}
       <header style={{ borderBottom: '1px solid var(--border)', background: 'var(--background-alt)', padding: '16px 0' }}>
@@ -742,10 +848,11 @@ export const Admin: React.FC = () => {
       <main className="container" style={{ padding: '40px 20px' }}>
         
         {/* 1. METRICS DASHBOARD */}
-        <section className="grid grid-cols-4 gap-6 mb-8 text-right">
+        <section className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 text-right">
           
           {/* Revenue */}
-          <div className="glass-panel" style={{ padding: '24px' }}>
+          <div className="metric-card">
+            <div className="metric-glow" style={{ background: 'var(--success)' }} />
             <div className="flex items-center justify-between mb-2">
               <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>إجمالي الإيرادات</span>
               <DollarSign size={20} style={{ color: 'var(--success)' }} />
@@ -757,7 +864,8 @@ export const Admin: React.FC = () => {
           </div>
 
           {/* Active Subscriptions */}
-          <div className="glass-panel" style={{ padding: '24px' }}>
+          <div className="metric-card">
+            <div className="metric-glow" style={{ background: 'var(--primary)' }} />
             <div className="flex items-center justify-between mb-2">
               <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>الاشتراكات النشطة</span>
               <Activity size={20} style={{ color: 'var(--primary)' }} />
@@ -769,7 +877,8 @@ export const Admin: React.FC = () => {
           </div>
 
           {/* Pending Orders */}
-          <div className="glass-panel" style={{ padding: '24px', border: stats.pendingOrders > 0 ? '1px solid rgba(245, 158, 11, 0.3)' : '1px solid var(--border)' }}>
+          <div className="metric-card" style={{ border: stats.pendingOrders > 0 ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid var(--border)' }}>
+            <div className="metric-glow" style={{ background: 'var(--warning)' }} />
             <div className="flex items-center justify-between mb-2">
               <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>طلبات معلقة</span>
               <ShoppingBag size={20} style={{ color: 'var(--warning)' }} />
@@ -781,10 +890,11 @@ export const Admin: React.FC = () => {
           </div>
 
           {/* Total Registrations */}
-          <div className="glass-panel" style={{ padding: '24px' }}>
+          <div className="metric-card">
+            <div className="metric-glow" style={{ background: 'var(--secondary)' }} />
             <div className="flex items-center justify-between mb-2">
               <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>إجمالي المسجلين</span>
-              <Users size={20} style={{ color: 'var(--text)' }} />
+              <Users size={20} style={{ color: 'var(--secondary)' }} />
             </div>
             <strong style={{ fontSize: '1.8rem', color: 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
               {stats.totalUsers}
@@ -794,181 +904,259 @@ export const Admin: React.FC = () => {
 
         </section>
 
-        {/* 2. LIVE CONTROLS & FILTERING */}
-        <section 
-          className="flex justify-between items-center gap-4 mb-6"
-          style={{
-            background: 'var(--background-alt)',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius)',
-            padding: '16px 20px',
-            flexWrap: 'wrap'
-          }}
-        >
-          {/* Tabs Toggles */}
-          <div className="flex flex-wrap gap-2">
+        {/* 2. MAIN LAYOUT SPLIT */}
+        <div className="admin-layout">
+          
+          {/* RIGHT COLUMN: Sidebar Navigation */}
+          <aside className="admin-sidebar glass-panel" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ padding: '0 8px 12px 8px', borderBottom: '1px solid var(--border)', marginBottom: '8px' }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 900, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>لوحات التحكم</span>
+            </div>
+            
             <button 
               onClick={() => { setActiveTab('orders'); setStatusFilter('all'); }}
-              className="btn"
-              style={{
-                fontSize: '0.85rem', padding: '8px 16px',
-                background: activeTab === 'orders' ? 'var(--secondary)' : 'transparent',
-                color: activeTab === 'orders' ? 'white' : 'var(--text)', border: activeTab === 'orders' ? 'none' : '1px solid var(--border)'
-              }}
+              className={`admin-tab-item ${activeTab === 'orders' ? 'active' : ''}`}
             >
-              الطلبات ({orders.length})
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <ShoppingBag size={18} />
+                <span>الطلبات الواردة</span>
+              </div>
+              <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{orders.length}</span>
             </button>
+
             <button 
               onClick={() => { setActiveTab('renewals'); setStatusFilter('all'); }}
-              className="btn"
-              style={{
-                fontSize: '0.85rem', padding: '8px 16px',
-                background: activeTab === 'renewals' ? 'var(--secondary)' : 'transparent',
-                color: activeTab === 'renewals' ? 'white' : 'var(--text)', border: activeTab === 'renewals' ? 'none' : '1px solid var(--border)'
-              }}
+              className={`admin-tab-item ${activeTab === 'renewals' ? 'active' : ''}`}
             >
-              طلبات التجديد ({renewals.length})
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <RotateCw size={18} />
+                <span>طلبات التجديد</span>
+              </div>
+              <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{renewals.length}</span>
             </button>
+
             <button 
               onClick={() => { setActiveTab('subscriptions'); setStatusFilter('all'); }}
-              className="btn"
-              style={{
-                fontSize: '0.85rem', padding: '8px 16px',
-                background: activeTab === 'subscriptions' ? 'var(--secondary)' : 'transparent',
-                color: activeTab === 'subscriptions' ? 'white' : 'var(--text)', border: activeTab === 'subscriptions' ? 'none' : '1px solid var(--border)'
-              }}
+              className={`admin-tab-item ${activeTab === 'subscriptions' ? 'active' : ''}`}
             >
-              الاشتراكات ({subscriptions.length})
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <ShieldCheck size={18} />
+                <span>الاشتراكات</span>
+              </div>
+              <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{subscriptions.length}</span>
             </button>
+
             <button 
               onClick={() => { setActiveTab('users'); setStatusFilter('all'); }}
-              className="btn"
-              style={{
-                fontSize: '0.85rem', padding: '8px 16px',
-                background: activeTab === 'users' ? 'var(--secondary)' : 'transparent',
-                color: activeTab === 'users' ? 'white' : 'var(--text)', border: activeTab === 'users' ? 'none' : '1px solid var(--border)'
-              }}
+              className={`admin-tab-item ${activeTab === 'users' ? 'active' : ''}`}
             >
-              المستخدمين ({users.length})
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Users size={18} />
+                <span>المستخدمين</span>
+              </div>
+              <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{users.length}</span>
             </button>
+
             <button 
               onClick={() => { setActiveTab('products'); setStatusFilter('all'); }}
-              className="btn"
-              style={{
-                fontSize: '0.85rem', padding: '8px 16px',
-                background: activeTab === 'products' ? 'var(--secondary)' : 'transparent',
-                color: activeTab === 'products' ? 'white' : 'var(--text)', border: activeTab === 'products' ? 'none' : '1px solid var(--border)'
-              }}
+              className={`admin-tab-item ${activeTab === 'products' ? 'active' : ''}`}
             >
-              المنتجات ({productsList.length})
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <DollarSign size={18} />
+                <span>المنتجات</span>
+              </div>
+              <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{productsList.length}</span>
             </button>
+
             <button 
               onClick={() => { setActiveTab('plans'); setStatusFilter('all'); }}
-              className="btn"
-              style={{
-                fontSize: '0.85rem', padding: '8px 16px',
-                background: activeTab === 'plans' ? 'var(--secondary)' : 'transparent',
-                color: activeTab === 'plans' ? 'white' : 'var(--text)', border: activeTab === 'plans' ? 'none' : '1px solid var(--border)'
-              }}
+              className={`admin-tab-item ${activeTab === 'plans' ? 'active' : ''}`}
             >
-              الباقات ({Object.keys(plans).length})
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <PlusCircle size={18} />
+                <span>الباقات</span>
+              </div>
+              <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{Object.keys(plans).length}</span>
             </button>
+
             <button 
               onClick={() => { setActiveTab('faqs'); setStatusFilter('all'); }}
-              className="btn"
-              style={{
-                fontSize: '0.85rem', padding: '8px 16px',
-                background: activeTab === 'faqs' ? 'var(--secondary)' : 'transparent',
-                color: activeTab === 'faqs' ? 'white' : 'var(--text)', border: activeTab === 'faqs' ? 'none' : '1px solid var(--border)'
-              }}
+              className={`admin-tab-item ${activeTab === 'faqs' ? 'active' : ''}`}
             >
-              الأسئلة الشائعة ({faqsList.length})
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <MessageSquare size={18} />
+                <span>الأسئلة الشائعة</span>
+              </div>
+              <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{faqsList.length}</span>
             </button>
+
             <button 
               onClick={() => { setActiveTab('testimonials'); setStatusFilter('all'); }}
-              className="btn"
-              style={{
-                fontSize: '0.85rem', padding: '8px 16px',
-                background: activeTab === 'testimonials' ? 'var(--secondary)' : 'transparent',
-                color: activeTab === 'testimonials' ? 'white' : 'var(--text)', border: activeTab === 'testimonials' ? 'none' : '1px solid var(--border)'
-              }}
+              className={`admin-tab-item ${activeTab === 'testimonials' ? 'active' : ''}`}
             >
-              الآراء ({testimonialsList.length})
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Sparkles size={18} />
+                <span>الآراء والتقييمات</span>
+              </div>
+              <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{testimonialsList.length}</span>
             </button>
+
             <button 
               onClick={() => { setActiveTab('settings'); setStatusFilter('all'); }}
-              className="btn"
-              style={{
-                fontSize: '0.85rem', padding: '8px 16px',
-                background: activeTab === 'settings' ? 'var(--secondary)' : 'transparent',
-                color: activeTab === 'settings' ? 'white' : 'var(--text)', border: activeTab === 'settings' ? 'none' : '1px solid var(--border)'
-              }}
+              className={`admin-tab-item ${activeTab === 'settings' ? 'active' : ''}`}
             >
-              الإعدادات
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Settings size={18} />
+                <span>إعدادات المتجر</span>
+              </div>
             </button>
-          </div>
+          </aside>
 
-          {/* Search box & filter status dropdown */}
-          <div className="flex items-center gap-4" style={{ flexGrow: 1, justifySelf: 'flex-end', maxWidth: '500px' }}>
-            <div style={{ position: 'relative', flexGrow: 1 }}>
-              <Search size={16} style={{ position: 'absolute', top: '50%', right: '12px', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              <input 
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="ابحث بالـ Gmail أو رقم الهاتف..."
-                style={{
-                  width: '100%', padding: '8px 36px 8px 12px',
-                  background: 'var(--background)', border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius-sm)', color: 'var(--text)', fontSize: '0.85rem'
-                }}
-              />
+          {/* LEFT COLUMN: Main content area */}
+          <div className="admin-content" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            
+            {/* Header for dynamic section */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap', background: 'var(--background-alt)', padding: '20px 24px', borderRadius: '16px', border: '1px solid var(--border)' }}>
+              <div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text)' }}>
+                  {activeTab === 'orders' ? 'إدارة الطلبات الواردة' :
+                   activeTab === 'renewals' ? 'طلبات تجديد الاشتراكات' :
+                   activeTab === 'subscriptions' ? 'الاشتراكات النشطة' :
+                   activeTab === 'users' ? 'قائمة حسابات المستخدمين' :
+                   activeTab === 'products' ? 'المنتجات المعروضة' :
+                   activeTab === 'plans' ? 'باقات تفعيل Google AI Pro' :
+                   activeTab === 'faqs' ? 'الأسئلة الشائعة للزوار' :
+                   activeTab === 'testimonials' ? 'تقييمات وآراء العملاء' :
+                   'إعدادات وثوابت متجر نينوسوفت'}
+                </h3>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                  {activeTab === 'orders' ? 'تتبع وتنشيط وتعديل حالة طلبات العملاء الجدد.' :
+                   activeTab === 'renewals' ? 'مراجعة وتأكيد طلبات العملاء الراغبين بتجديد باقاتهم.' :
+                   activeTab === 'subscriptions' ? 'عرض فترات الضمان والاشتراكات المفعلة للعملاء.' :
+                   activeTab === 'users' ? 'متابعة تفاصيل المستخدمين المسجلين وصلاحياتهم.' :
+                   activeTab === 'products' ? 'إضافة وتعديل وحذف المنتجات وخصائصها.' :
+                   activeTab === 'plans' ? 'التحكم بالمدد الزمنية للأسعار والتخفيضات الفعلية.' :
+                   activeTab === 'faqs' ? 'تعديل أو ترتيب الأسئلة الشائعة وأجوبتها.' :
+                   activeTab === 'testimonials' ? 'إدارة التقييمات المعروضة في الصفحة الرئيسية.' :
+                   'تعديل المتغيرات الأساسية للمنصة مثل رقم الهاتف للدعم.'}
+                </p>
+              </div>
+
+              {/* Dynamic CTA button for additions */}
+              {activeTab === 'products' && (
+                <button 
+                  onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ name: '', slug: '', description: '', is_active: true }); }}
+                  style={{
+                    padding: '10px 18px', fontWeight: 800, borderRadius: '12px', fontSize: '0.8rem', cursor: 'pointer',
+                    transition: 'all 0.3s ease', border: 'none', background: 'var(--primary)', color: 'white',
+                    display: 'flex', alignItems: 'center', gap: '8px'
+                  }}
+                >
+                  <PlusCircle size={16} />
+                  <span>إضافة منتج</span>
+                </button>
+              )}
+              {activeTab === 'plans' && (
+                <button 
+                  onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ name: '', product_id: productsList[0]?.id || '', duration_months: 1, price_iqd: 15000, official_price_iqd: null, badge: '', is_featured: false, display_order: 0, is_active: true }); }}
+                  style={{
+                    padding: '10px 18px', fontWeight: 800, borderRadius: '12px', fontSize: '0.8rem', cursor: 'pointer',
+                    transition: 'all 0.3s ease', border: 'none', background: 'var(--primary)', color: 'white',
+                    display: 'flex', alignItems: 'center', gap: '8px'
+                  }}
+                >
+                  <PlusCircle size={16} />
+                  <span>إضافة باقة جديدة</span>
+                </button>
+              )}
+              {activeTab === 'faqs' && (
+                <button 
+                  onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ question: '', answer: '', display_order: 0, is_active: true }); }}
+                  style={{
+                    padding: '10px 18px', fontWeight: 800, borderRadius: '12px', fontSize: '0.8rem', cursor: 'pointer',
+                    transition: 'all 0.3s ease', border: 'none', background: 'var(--primary)', color: 'white',
+                    display: 'flex', alignItems: 'center', gap: '8px'
+                  }}
+                >
+                  <PlusCircle size={16} />
+                  <span>إضافة سؤال</span>
+                </button>
+              )}
+              {activeTab === 'testimonials' && (
+                <button 
+                  onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ name: '', rating: 5, comment: '', display_order: 0, is_active: true }); }}
+                  style={{
+                    padding: '10px 18px', fontWeight: 800, borderRadius: '12px', fontSize: '0.8rem', cursor: 'pointer',
+                    transition: 'all 0.3s ease', border: 'none', background: 'var(--primary)', color: 'white',
+                    display: 'flex', alignItems: 'center', gap: '8px'
+                  }}
+                >
+                  <PlusCircle size={16} />
+                  <span>إضافة رأي عميل</span>
+                </button>
+              )}
             </div>
 
-            {['orders', 'renewals', 'subscriptions'].includes(activeTab) && (
-              <select 
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                style={{
-                  padding: '8px 12px',
-                  background: 'var(--background)', border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius-sm)', color: 'var(--text)', fontSize: '0.85rem',
-                  outline: 'none'
-                }}
-              >
-                <option value="all">كل الحالات</option>
-                {activeTab === 'orders' ? (
-                  <>
-                    <option value="pending">قيد المراجعة</option>
-                    <option value="processing">جاري التفعيل</option>
-                    <option value="awaiting_payment">مفعّل - بانتظار الدفع</option>
-                    <option value="paid">تم الدفع</option>
-                    <option value="rejected">مرفوض</option>
-                    <option value="expired">منتهي الصلاحية</option>
-                  </>
-                ) : activeTab === 'renewals' ? (
-                  <>
-                    <option value="pending">قيد المراجعة</option>
-                    <option value="approved">تم القبول</option>
-                    <option value="rejected">مرفوض</option>
-                  </>
-                ) : (
-                  <>
-                    <option value="active">نشط</option>
-                    <option value="expired">منتهي الصلاحية</option>
-                  </>
-                )}
-              </select>
-            )}
-          </div>
-        </section>
+            {/* Filter and Search controls bar */}
+            <div style={{ display: 'flex', gap: '12px', width: '100%', flexWrap: 'wrap' }}>
+              <div style={{ position: 'relative', flex: '1', minWidth: '240px' }}>
+                <Search size={16} style={{ position: 'absolute', top: '50%', right: '14px', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                <input 
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="ابحث بالـ Gmail، الاسم، أو رقم الهاتف..."
+                  style={{
+                    width: '100%', padding: '12px 42px 12px 16px',
+                    background: 'var(--background-alt)', border: '1px solid var(--border)',
+                    borderRadius: '12px', color: 'var(--text)', fontSize: '0.85rem'
+                  }}
+                />
+              </div>
 
-        {/* 3. DYNAMIC DATA TABLE PANEL */}
-        <section className="glass-panel" style={{ padding: '0', overflowX: 'auto' }}>
+              {['orders', 'renewals', 'subscriptions'].includes(activeTab) && (
+                <select 
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  style={{
+                    padding: '12px 16px',
+                    background: 'var(--background-alt)', border: '1px solid var(--border)',
+                    borderRadius: '12px', color: 'var(--text)', fontSize: '0.85rem',
+                    outline: 'none', minWidth: '150px', cursor: 'pointer'
+                  }}
+                >
+                  <option value="all">جميع الحالات</option>
+                  {activeTab === 'orders' ? (
+                    <>
+                      <option value="pending">قيد المراجعة ⏳</option>
+                      <option value="processing">جاري التفعيل ⚙️</option>
+                      <option value="awaiting_payment">بانتظار الدفع 💰</option>
+                      <option value="paid">تم الدفع ونشط ✅</option>
+                      <option value="rejected">مرفوض ❌</option>
+                      <option value="expired">منتهي الصلاحية ⏱️</option>
+                    </>
+                  ) : activeTab === 'renewals' ? (
+                    <>
+                      <option value="pending">معلق ⏳</option>
+                      <option value="approved">تم التجديد ✅</option>
+                      <option value="rejected">مرفوض ❌</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="active">نشط ✅</option>
+                      <option value="expired">منتهي الصلاحية ⏱️</option>
+                    </>
+                  )}
+                </select>
+              )}
+            </div>
+
+            {/* DYNAMIC DATA TABLE PANEL */}
+            <div className="glass-panel" style={{ padding: '0', overflowX: 'auto', borderRadius: '16px', border: '1px solid var(--border)', background: 'var(--surface-glass)' }}>
           
           {/* TAB 1: ORDERS */}
           {activeTab === 'orders' && (
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', fontSize: '0.9rem' }}>
+            <table className="admin-table">
               <thead>
                 <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
                   <th style={{ padding: '16px', color: 'var(--text)' }}>بريد التفعيل (Gmail)</th>
@@ -1075,7 +1263,7 @@ export const Admin: React.FC = () => {
 
           {/* TAB 2: RENEWALS */}
           {activeTab === 'renewals' && (
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', fontSize: '0.9rem' }}>
+            <table className="admin-table">
               <thead>
                 <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
                   <th style={{ padding: '16px', color: 'var(--text)' }}>حساب العميل</th>
@@ -1133,7 +1321,7 @@ export const Admin: React.FC = () => {
 
           {/* TAB 3: SUBSCRIPTIONS */}
           {activeTab === 'subscriptions' && (
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', fontSize: '0.9rem' }}>
+            <table className="admin-table">
               <thead>
                 <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
                   <th style={{ padding: '16px', color: 'var(--text)' }}>حساب العميل</th>
@@ -1168,7 +1356,7 @@ export const Admin: React.FC = () => {
           )}
 
           {activeTab === 'users' && (
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', fontSize: '0.9rem' }}>
+            <table className="admin-table">
               <thead>
                 <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
                   <th style={{ padding: '16px', color: 'var(--text)' }}>المستخدم</th>
@@ -1475,16 +1663,7 @@ export const Admin: React.FC = () => {
           {/* TAB 5: PRODUCTS */}
           {activeTab === 'products' && (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-                <button 
-                  onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ name: '', slug: '', description: '', is_active: true }); }}
-                  className="btn btn-primary"
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                  <PlusCircle size={16} /> إضافة منتج جديد
-                </button>
-              </div>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', fontSize: '0.9rem' }}>
+              <table className="admin-table">
                 <thead>
                   <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
                     <th style={{ padding: '16px', color: 'var(--text)' }}>الاسم</th>
@@ -1537,16 +1716,7 @@ export const Admin: React.FC = () => {
           {/* TAB 6: PLANS */}
           {activeTab === 'plans' && (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-                <button 
-                  onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ name: '', product_id: productsList[0]?.id || '', duration_months: 1, price_iqd: 15000, official_price_iqd: null, badge: '', is_featured: false, display_order: 0, is_active: true }); }}
-                  className="btn btn-primary"
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                  <PlusCircle size={16} /> إضافة باقة جديدة
-                </button>
-              </div>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', fontSize: '0.9rem' }}>
+              <table className="admin-table">
                 <thead>
                   <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
                     <th style={{ padding: '16px', color: 'var(--text)' }}>الباقة</th>
@@ -1606,15 +1776,6 @@ export const Admin: React.FC = () => {
           {/* TAB 7: FAQS */}
           {activeTab === 'faqs' && (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-                <button 
-                  onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ question: '', answer: '', display_order: 0, is_active: true }); }}
-                  className="btn btn-primary"
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                  <PlusCircle size={16} /> إضافة سؤال شائع
-                </button>
-              </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {faqsList.length > 0 ? (
                   faqsList.map((f) => (
@@ -1657,16 +1818,7 @@ export const Admin: React.FC = () => {
           {/* TAB 8: TESTIMONIALS */}
           {activeTab === 'testimonials' && (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-                <button 
-                  onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ name: '', rating: 5, comment: '', display_order: 0, is_active: true }); }}
-                  className="btn btn-primary"
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                  <PlusCircle size={16} /> إضافة رأي عميل
-                </button>
-              </div>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', fontSize: '0.9rem' }}>
+              <table className="admin-table">
                 <thead>
                   <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
                     <th style={{ padding: '16px', color: 'var(--text)' }}>العميل</th>
@@ -1753,8 +1905,9 @@ export const Admin: React.FC = () => {
               })}
             </div>
           )}
-
-        </section>
+            </div> {/* Close glass-panel */}
+          </div> {/* Close admin-content */}
+        </div> {/* Close admin-layout */}
 
       </main>
 
