@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { 
-  ShieldCheck, ArrowLeft, Users, ShoppingBag, 
+import {
+  ShieldCheck, ArrowLeft, Users, ShoppingBag,
   DollarSign, Activity, Check, X, Search, PlusCircle,
-  RotateCw, MessageSquare, Settings, Sparkles, Clock, User, Shield
+  RotateCw, MessageSquare, Settings, Sparkles, Clock, User, Shield,
+  Edit2, Trash2, Star
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -78,7 +79,7 @@ export const Admin: React.FC = () => {
 
   // Tab State
   const [activeTab, setActiveTab] = useState<'orders' | 'users' | 'renewals' | 'subscriptions' | 'products' | 'plans' | 'faqs' | 'testimonials' | 'settings'>('orders');
-  
+
   // Data States
   const [loading, setLoading] = useState(true);
   const [plans, setPlans] = useState<Record<string, Plan>>({});
@@ -224,7 +225,7 @@ export const Admin: React.FC = () => {
       const oCount = mappedOrders.length;
       const pCount = mappedOrders.filter((o: Order) => o.status === 'pending').length;
       const sCount = mappedSubs.filter((s: Subscription) => s.status === 'active').length;
-      
+
       // Calculate revenue from paid orders
       let rev = 0;
       mappedOrders.forEach((o: Order) => {
@@ -312,7 +313,7 @@ export const Admin: React.FC = () => {
       // B. Update Order Status
       const { error: orderError } = await supabase
         .from('orders')
-        .update({ 
+        .update({
           status: 'Activated',
           payment_status: 'AwaitingPayment',
           notes: ''
@@ -334,7 +335,7 @@ export const Admin: React.FC = () => {
     try {
       const { error } = await supabase
         .from('orders')
-        .update({ 
+        .update({
           status: 'Activated',
           payment_status: 'Paid',
           notes: ''
@@ -705,8 +706,8 @@ export const Admin: React.FC = () => {
   });
 
   const filteredUsers = users.filter(u => {
-    return u.email.toLowerCase().includes(searchTerm.toLowerCase()) || 
-           (u.phone && u.phone.includes(searchTerm));
+    return u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (u.phone && u.phone.includes(searchTerm));
   });
 
   const filteredRenewals = renewals.filter(r => {
@@ -968,9 +969,117 @@ export const Admin: React.FC = () => {
           border-color: var(--primary);
           box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
         }
+
+        /* Modals & Forms UI/UX */
+        .admin-modal-overlay {
+          position: fixed;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: rgba(15, 23, 42, 0.6);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          padding: 16px;
+        }
+        .admin-modal-card {
+          background: var(--surface-raised);
+          border: 1px solid var(--border);
+          border-radius: 24px;
+          padding: 32px;
+          width: 100%;
+          max-width: 600px;
+          max-height: 90vh;
+          overflow-y: auto;
+          box-shadow: var(--shadow-lg);
+          color: var(--text);
+          animation: modal-fade-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes modal-fade-in {
+          from {
+            transform: scale(0.95) translateY(10px);
+            opacity: 0;
+          }
+          to {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+          }
+        }
+        .admin-form-group {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          margin-bottom: 16px;
+        }
+        .admin-form-label {
+          display: block;
+          font-size: 0.82rem;
+          font-weight: 800;
+          color: var(--text-secondary);
+          margin-bottom: 4px;
+        }
+        .admin-input-text {
+          width: 100%;
+          padding: 12px 16px;
+          background: var(--background-alt);
+          border: 1px solid var(--border);
+          border-radius: 12px;
+          color: var(--text);
+          font-size: 0.88rem;
+          outline: none;
+          transition: all 0.3s ease;
+          unicode-bidi: plaintext;
+          text-align: start;
+        }
+        .admin-input-text:focus {
+          border-color: var(--primary);
+          background: var(--background);
+          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+        
+        /* Table Action Buttons */
+        .admin-table-action-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px 14px;
+          border-radius: 10px;
+          font-size: 0.75rem;
+          font-weight: 800;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          border: 1px solid var(--border);
+          background: rgba(255, 255, 255, 0.02);
+          color: var(--text-secondary);
+        }
+        .admin-table-action-btn:hover {
+          background: var(--primary);
+          border-color: var(--primary);
+          color: white;
+          transform: translateY(-1px);
+        }
+        .admin-table-action-btn.delete {
+          color: #f87171;
+          border-color: rgba(239, 68, 68, 0.2);
+        }
+        .admin-table-action-btn.delete:hover {
+          background: #ef4444;
+          border-color: #ef4444;
+          color: white;
+        }
+        .admin-table-action-btn.success {
+          color: #4ade80;
+          border-color: rgba(34, 197, 94, 0.2);
+        }
+        .admin-table-action-btn.success:hover {
+          background: #22c55e;
+          border-color: #22c55e;
+          color: white;
+        }
       
       `}</style>
-      
+
       {/* HEADER */}
       <header style={{ borderBottom: '1px solid var(--border)', background: 'var(--background-alt)', padding: '16px 0' }}>
         <div className="container flex justify-between items-center">
@@ -989,74 +1098,36 @@ export const Admin: React.FC = () => {
       </header>
 
       <main className="container" style={{ padding: '40px 20px' }}>
-        
-        {/* 1. METRICS DASHBOARD */}
-        <section className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 text-right">
-          
-          {/* Total Registrations */}
-          <div className="metric-card">
-            <div className="metric-glow" style={{ background: 'var(--secondary)' }} />
-            <div className="flex items-center justify-between mb-2">
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>إجمالي المسجلين</span>
-              <Users size={20} style={{ color: 'var(--secondary)' }} />
-            </div>
-            <strong style={{ fontSize: '1.8rem', color: 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
-              {stats.totalUsers}
-            </strong>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', display: 'block', marginTop: '2px' }}>حساب مستخدم مسجل</span>
-          </div>
-
-          {/* Active Subscriptions */}
-          <div className="metric-card">
-            <div className="metric-glow" style={{ background: 'var(--primary)' }} />
-            <div className="flex items-center justify-between mb-2">
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>الاشتراكات النشطة</span>
-              <Activity size={20} style={{ color: 'var(--primary)' }} />
-            </div>
-            <strong style={{ fontSize: '1.8rem', color: 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
-              {stats.activeSubs}
-            </strong>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', display: 'block', marginTop: '2px' }}>اشتراك مفعل الآن</span>
-          </div>
-
-          {/* Pending Orders */}
-          <div className="metric-card" style={{ border: stats.pendingOrders > 0 ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid var(--border)' }}>
-            <div className="metric-glow" style={{ background: 'var(--warning)' }} />
-            <div className="flex items-center justify-between mb-2">
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>طلبات معلقة</span>
-              <ShoppingBag size={20} style={{ color: 'var(--warning)' }} />
-            </div>
-            <strong style={{ fontSize: '1.8rem', color: stats.pendingOrders > 0 ? 'var(--warning)' : 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
-              {stats.pendingOrders}
-            </strong>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', display: 'block', marginTop: '2px' }}>بانتظار التنشيط والتفعيل</span>
-          </div>
-
-          {/* Revenue */}
-          <div className="metric-card">
-            <div className="metric-glow" style={{ background: 'var(--success)' }} />
-            <div className="flex items-center justify-between mb-2">
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>إجمالي الإيرادات</span>
-              <DollarSign size={20} style={{ color: 'var(--success)' }} />
-            </div>
-            <strong style={{ fontSize: '1.8rem', color: 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
-              {stats.totalRevenue.toLocaleString()}
-            </strong>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', display: 'block', marginTop: '2px' }}>د.ع (الطلبات المقبولة)</span>
-          </div>
-
-        </section>
 
         {/* 2. MAIN LAYOUT SPLIT */}
         <div className="admin-layout">
-          
-          {/* RIGHT COLUMN: Sidebar Navigation */}
-          <aside className="admin-sidebar glass-panel" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <div style={{ padding: '0 8px 12px 8px', borderBottom: '1px solid var(--border)', marginBottom: '8px' }}>
+
+          {/* RIGHT COLUMN: Sidebar (Metrics + Navigation) */}
+          <aside className="admin-sidebar" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            
+            {/* METRICS STACK */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }} className="text-right">
+              {/* Total Registrations */}
+              <div className="metric-card">
+                <div className="metric-glow" style={{ background: 'var(--secondary)' }} />
+                <div className="flex items-center justify-between mb-2">
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>إجمالي المسجلين</span>
+                  <Users size={20} style={{ color: 'var(--secondary)' }} />
+                </div>
+                <strong style={{ fontSize: '1.8rem', color: 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
+                  {stats.totalUsers}
+                </strong>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', display: 'block', marginTop: '2px' }}>حساب مستخدم مسجل</span>
+              </div>
+            </div>
+
+            {/* NAVIGATION PANEL */}
+            <div className="glass-panel" style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ padding: '0 8px 12px 8px', borderBottom: '1px solid var(--border)', marginBottom: '8px' }}>
               <span style={{ fontSize: '0.78rem', fontWeight: 900, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>لوحات التحكم</span>
             </div>
-            
-            <button 
+
+            <button
               onClick={() => { setActiveTab('orders'); setStatusFilter('all'); }}
               className={`admin-tab-item ${activeTab === 'orders' ? 'active' : ''}`}
             >
@@ -1067,7 +1138,7 @@ export const Admin: React.FC = () => {
               <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{orders.length}</span>
             </button>
 
-            <button 
+            <button
               onClick={() => { setActiveTab('renewals'); setStatusFilter('all'); }}
               className={`admin-tab-item ${activeTab === 'renewals' ? 'active' : ''}`}
             >
@@ -1078,7 +1149,7 @@ export const Admin: React.FC = () => {
               <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{renewals.length}</span>
             </button>
 
-            <button 
+            <button
               onClick={() => { setActiveTab('subscriptions'); setStatusFilter('all'); }}
               className={`admin-tab-item ${activeTab === 'subscriptions' ? 'active' : ''}`}
             >
@@ -1089,7 +1160,7 @@ export const Admin: React.FC = () => {
               <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{subscriptions.length}</span>
             </button>
 
-            <button 
+            <button
               onClick={() => { setActiveTab('users'); setStatusFilter('all'); }}
               className={`admin-tab-item ${activeTab === 'users' ? 'active' : ''}`}
             >
@@ -1100,7 +1171,7 @@ export const Admin: React.FC = () => {
               <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{users.length}</span>
             </button>
 
-            <button 
+            <button
               onClick={() => { setActiveTab('products'); setStatusFilter('all'); }}
               className={`admin-tab-item ${activeTab === 'products' ? 'active' : ''}`}
             >
@@ -1111,7 +1182,7 @@ export const Admin: React.FC = () => {
               <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{productsList.length}</span>
             </button>
 
-            <button 
+            <button
               onClick={() => { setActiveTab('plans'); setStatusFilter('all'); }}
               className={`admin-tab-item ${activeTab === 'plans' ? 'active' : ''}`}
             >
@@ -1122,7 +1193,7 @@ export const Admin: React.FC = () => {
               <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{Object.keys(plans).length}</span>
             </button>
 
-            <button 
+            <button
               onClick={() => { setActiveTab('faqs'); setStatusFilter('all'); }}
               className={`admin-tab-item ${activeTab === 'faqs' ? 'active' : ''}`}
             >
@@ -1133,7 +1204,7 @@ export const Admin: React.FC = () => {
               <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{faqsList.length}</span>
             </button>
 
-            <button 
+            <button
               onClick={() => { setActiveTab('testimonials'); setStatusFilter('all'); }}
               className={`admin-tab-item ${activeTab === 'testimonials' ? 'active' : ''}`}
             >
@@ -1144,7 +1215,7 @@ export const Admin: React.FC = () => {
               <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{testimonialsList.length}</span>
             </button>
 
-            <button 
+            <button
               onClick={() => { setActiveTab('settings'); setStatusFilter('all'); }}
               className={`admin-tab-item ${activeTab === 'settings' ? 'active' : ''}`}
             >
@@ -1153,41 +1224,86 @@ export const Admin: React.FC = () => {
                 <span>إعدادات المتجر</span>
               </div>
             </button>
+            </div>
           </aside>
 
           {/* LEFT COLUMN: Main content area */}
           <div className="admin-content" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            
+
+            {/* 1. METRICS DASHBOARD */}
+            <section className="grid grid-cols-1 md:grid-cols-3 gap-6 text-right">
+
+              {/* Active Subscriptions */}
+              <div className="metric-card">
+                <div className="metric-glow" style={{ background: 'var(--primary)' }} />
+                <div className="flex items-center justify-between mb-2">
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>الاشتراكات النشطة</span>
+                  <Activity size={20} style={{ color: 'var(--primary)' }} />
+                </div>
+                <strong style={{ fontSize: '1.8rem', color: 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
+                  {stats.activeSubs}
+                </strong>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', display: 'block', marginTop: '2px' }}>اشتراك مفعل الآن</span>
+              </div>
+
+              {/* Pending Orders */}
+              <div className="metric-card" style={{ border: stats.pendingOrders > 0 ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid var(--border)' }}>
+                <div className="metric-glow" style={{ background: 'var(--warning)' }} />
+                <div className="flex items-center justify-between mb-2">
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>طلبات معلقة</span>
+                  <ShoppingBag size={20} style={{ color: 'var(--warning)' }} />
+                </div>
+                <strong style={{ fontSize: '1.8rem', color: stats.pendingOrders > 0 ? 'var(--warning)' : 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
+                  {stats.pendingOrders}
+                </strong>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', display: 'block', marginTop: '2px' }}>بانتظار التنشيط والتفعيل</span>
+              </div>
+
+              {/* Revenue */}
+              <div className="metric-card">
+                <div className="metric-glow" style={{ background: 'var(--success)' }} />
+                <div className="flex items-center justify-between mb-2">
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>إجمالي الإيرادات</span>
+                  <DollarSign size={20} style={{ color: 'var(--success)' }} />
+                </div>
+                <strong style={{ fontSize: '1.8rem', color: 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
+                  {stats.totalRevenue.toLocaleString()}
+                </strong>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', display: 'block', marginTop: '2px' }}>د.ع (الطلبات المقبولة)</span>
+              </div>
+
+            </section>
+
             {/* Header for dynamic section */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap', background: 'var(--background-alt)', padding: '20px 24px', borderRadius: '16px', border: '1px solid var(--border)' }}>
               <div>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text)' }}>
                   {activeTab === 'orders' ? 'إدارة الطلبات الواردة' :
-                   activeTab === 'renewals' ? 'طلبات تجديد الاشتراكات' :
-                   activeTab === 'subscriptions' ? 'الاشتراكات النشطة' :
-                   activeTab === 'users' ? 'قائمة حسابات المستخدمين' :
-                   activeTab === 'products' ? 'المنتجات المعروضة' :
-                   activeTab === 'plans' ? 'باقات تفعيل Google AI Pro' :
-                   activeTab === 'faqs' ? 'الأسئلة الشائعة للزوار' :
-                   activeTab === 'testimonials' ? 'تقييمات وآراء العملاء' :
-                   'إعدادات وثوابت متجر نينوسوفت'}
+                    activeTab === 'renewals' ? 'طلبات تجديد الاشتراكات' :
+                      activeTab === 'subscriptions' ? 'الاشتراكات النشطة' :
+                        activeTab === 'users' ? 'قائمة حسابات المستخدمين' :
+                          activeTab === 'products' ? 'المنتجات المعروضة' :
+                            activeTab === 'plans' ? 'باقات تفعيل Google AI Pro' :
+                              activeTab === 'faqs' ? 'الأسئلة الشائعة للزوار' :
+                                activeTab === 'testimonials' ? 'تقييمات وآراء العملاء' :
+                                  'إعدادات وثوابت متجر نينوسوفت'}
                 </h3>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px' }}>
                   {activeTab === 'orders' ? 'تتبع وتنشيط وتعديل حالة طلبات العملاء الجدد.' :
-                   activeTab === 'renewals' ? 'مراجعة وتأكيد طلبات العملاء الراغبين بتجديد باقاتهم.' :
-                   activeTab === 'subscriptions' ? 'عرض فترات الضمان والاشتراكات المفعلة للعملاء.' :
-                   activeTab === 'users' ? 'متابعة تفاصيل المستخدمين المسجلين وصلاحياتهم.' :
-                   activeTab === 'products' ? 'إضافة وتعديل وحذف المنتجات وخصائصها.' :
-                   activeTab === 'plans' ? 'التحكم بالمدد الزمنية للأسعار والتخفيضات الفعلية.' :
-                   activeTab === 'faqs' ? 'تعديل أو ترتيب الأسئلة الشائعة وأجوبتها.' :
-                   activeTab === 'testimonials' ? 'إدارة التقييمات المعروضة في الصفحة الرئيسية.' :
-                   'تعديل المتغيرات الأساسية للمنصة مثل رقم الهاتف للدعم.'}
+                    activeTab === 'renewals' ? 'مراجعة وتأكيد طلبات العملاء الراغبين بتجديد باقاتهم.' :
+                      activeTab === 'subscriptions' ? 'عرض فترات الضمان والاشتراكات المفعلة للعملاء.' :
+                        activeTab === 'users' ? 'متابعة تفاصيل المستخدمين المسجلين وصلاحياتهم.' :
+                          activeTab === 'products' ? 'إضافة وتعديل وحذف المنتجات وخصائصها.' :
+                            activeTab === 'plans' ? 'التحكم بالمدد الزمنية للأسعار والتخفيضات الفعلية.' :
+                              activeTab === 'faqs' ? 'تعديل أو ترتيب الأسئلة الشائعة وأجوبتها.' :
+                                activeTab === 'testimonials' ? 'إدارة التقييمات المعروضة في الصفحة الرئيسية.' :
+                                  'تعديل المتغيرات الأساسية للمنصة مثل رقم الهاتف للدعم.'}
                 </p>
               </div>
 
               {/* Dynamic CTA button for additions */}
               {activeTab === 'products' && (
-                <button 
+                <button
                   onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ name: '', slug: '', description: '', is_active: true }); }}
                   style={{
                     padding: '10px 18px', fontWeight: 800, borderRadius: '12px', fontSize: '0.8rem', cursor: 'pointer',
@@ -1200,7 +1316,7 @@ export const Admin: React.FC = () => {
                 </button>
               )}
               {activeTab === 'plans' && (
-                <button 
+                <button
                   onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ name: '', product_id: productsList[0]?.id || '', duration_months: 1, price_iqd: 15000, official_price_iqd: null, badge: '', is_featured: false, display_order: 0, is_active: true }); }}
                   style={{
                     padding: '10px 18px', fontWeight: 800, borderRadius: '12px', fontSize: '0.8rem', cursor: 'pointer',
@@ -1213,7 +1329,7 @@ export const Admin: React.FC = () => {
                 </button>
               )}
               {activeTab === 'faqs' && (
-                <button 
+                <button
                   onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ question: '', answer: '', display_order: 0, is_active: true }); }}
                   style={{
                     padding: '10px 18px', fontWeight: 800, borderRadius: '12px', fontSize: '0.8rem', cursor: 'pointer',
@@ -1226,7 +1342,7 @@ export const Admin: React.FC = () => {
                 </button>
               )}
               {activeTab === 'testimonials' && (
-                <button 
+                <button
                   onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ name: '', rating: 5, comment: '', display_order: 0, is_active: true }); }}
                   style={{
                     padding: '10px 18px', fontWeight: 800, borderRadius: '12px', fontSize: '0.8rem', cursor: 'pointer',
@@ -1244,11 +1360,12 @@ export const Admin: React.FC = () => {
             <div style={{ display: 'flex', gap: '12px', width: '100%', flexWrap: 'wrap' }}>
               <div style={{ position: 'relative', flex: '1', minWidth: '240px' }}>
                 <Search size={16} style={{ position: 'absolute', top: '50%', right: '14px', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input 
+                <input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="ابحث بالـ Gmail، الاسم، أو رقم الهاتف..."
+                  dir="auto"
                   style={{
                     width: '100%', padding: '12px 42px 12px 16px',
                     background: 'var(--background-alt)', border: '1px solid var(--border)',
@@ -1258,7 +1375,7 @@ export const Admin: React.FC = () => {
               </div>
 
               {['orders', 'renewals', 'subscriptions'].includes(activeTab) && (
-                <select 
+                <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
                   style={{
@@ -1297,765 +1414,552 @@ export const Admin: React.FC = () => {
             {/* DYNAMIC DATA TABLE PANEL */}
             <div className="admin-table-container">
               <div className="admin-table-wrapper">
-          
-          {/* TAB 1: ORDERS */}
-          {activeTab === 'orders' && (
-            <table className="admin-table">
-              <thead>
-                <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
-                  <th style={{ padding: '16px', color: 'var(--text)' }}>بريد التفعيل (Gmail)</th>
-                  <th style={{ padding: '16px', color: 'var(--text)' }}>رقم الهاتف</th>
-                  <th style={{ padding: '16px', color: 'var(--text)' }}>الباقة المطلوبة</th>
-                  <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ الطلب</th>
-                  <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ التفعيل</th>
-                  <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ الدفع</th>
-                  <th style={{ padding: '16px', color: 'var(--text)' }}>الحالة</th>
-                  <th style={{ padding: '16px', color: 'white', minWidth: '130px' }}>ملاحظات المسؤول</th>
-                  <th style={{ padding: '16px', color: 'white', textAlign: 'center' }}>العمليات</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredOrders.length > 0 ? (
-                  filteredOrders.map((o) => (
-                    <tr key={o.id} style={{ borderBottom: '1px solid var(--border)', background: o.status === 'pending' ? 'rgba(245, 158, 11, 0.02)' : 'none' }}>
-                      <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }} className="number-latin">{o.gmail}</td>
-                      <td style={{ padding: '16px' }} className="number-latin">{o.phone}</td>
-                      <td style={{ padding: '16px' }}>{plans[o.plan_id]?.name || 'غير معروف'}</td>
-                      <td style={{ padding: '16px' }} className="number-latin">{new Date(o.created_at).toLocaleDateString('ar-IQ')}</td>
-                      <td style={{ padding: '16px' }} className="number-latin">{o.activation_date ? new Date(o.activation_date).toLocaleDateString('ar-IQ') : '—'}</td>
-                      <td style={{ padding: '16px' }} className="number-latin">{o.payment_date ? new Date(o.payment_date).toLocaleDateString('ar-IQ') : '—'}</td>
-                      <td style={{ padding: '16px' }}>
-                        <span className={getOrderStatusDetails(o.status).badgeClass}>
-                          {getOrderStatusDetails(o.status).icon}
-                          <span>{getOrderStatusDetails(o.status).label}</span>
-                        </span>
-                      </td>
-                      <td style={{ padding: '16px' }}>
-                        <input 
-                          type="text"
-                          defaultValue={o.notes || ''}
-                          placeholder="أضف ملاحظة..."
-                          onBlur={(e) => handleSaveNotes(o.id, e.target.value)}
-                          style={{
-                            width: '120px',
-                            padding: '6px 10px',
-                            background: 'var(--background)',
-                            border: '1px solid var(--border)',
-                            borderRadius: 'var(--radius-sm)',
-                            color: 'var(--text)',
-                            fontSize: '0.8rem',
-                            outline: 'none'
-                          }}
-                        />
-                      </td>
-                      <td style={{ padding: '16px', display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                        {o.status === 'pending' && (
-                          <button 
-                            onClick={() => handleProcessOrder(o.id)}
-                            className="btn btn-secondary"
-                            style={{ padding: '6px 12px', fontSize: '0.75rem' }}
-                          >
-                            بدء المعالجة
-                          </button>
-                        )}
-                        {(o.status === 'pending' || o.status === 'processing') && (
-                          <button 
-                            onClick={() => handleApproveOrder(o)}
-                            className="btn btn-primary"
-                            style={{ padding: '6px 12px', fontSize: '0.75rem', backgroundColor: 'var(--success)', backgroundImage: 'none' }}
-                          >
-                            <Check size={12} /> تنشيط
-                          </button>
-                        )}
-                        {o.status === 'awaiting_payment' && (
-                          <>
-                            <button 
-                              onClick={() => handleMarkPaid(o.id)}
-                              className="btn btn-primary"
-                              style={{ padding: '6px 12px', fontSize: '0.75rem', backgroundColor: 'var(--success)', backgroundImage: 'none' }}
-                            >
-                              <Check size={12} /> تأكيد الدفع
-                            </button>
-                            <button 
-                              onClick={() => handleSendReminder(o)}
-                              className="btn btn-outline"
-                              style={{ padding: '6px 12px', fontSize: '0.75rem', borderColor: '#25d366', color: '#25d366' }}
-                            >
-                              تذكير بالدفع
-                            </button>
-                          </>
-                        )}
-                        {o.status !== 'paid' && o.status !== 'rejected' && (
-                          <button 
-                            onClick={() => handleRejectOrder(o.id)}
-                            className="btn btn-outline"
-                            style={{ padding: '6px 12px', fontSize: '0.75rem', borderColor: 'var(--danger)', color: '#f87171' }}
-                          >
-                            <X size={12} /> رفض
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={9} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد طلبات تطابق معايير البحث.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          )}
 
-          {/* TAB 2: RENEWALS */}
-          {activeTab === 'renewals' && (
-            <table className="admin-table">
-              <thead>
-                <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
-                  <th style={{ padding: '16px', color: 'var(--text)' }}>حساب العميل</th>
-                  <th style={{ padding: '16px', color: 'var(--text)' }}>رقم الهاتف للعميل</th>
-                  <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ الطلب</th>
-                  <th style={{ padding: '16px', color: 'var(--text)' }}>الحالة</th>
-                  <th style={{ padding: '16px', color: 'white', textAlign: 'center' }}>العمليات</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRenewals.length > 0 ? (
-                  filteredRenewals.map((r) => {
-                    const userPhone = users.find(u => u.id === r.user_id)?.phone || 'غير مسجل';
-                    return (
-                      <tr key={r.id} style={{ borderBottom: '1px solid var(--border)', background: r.status === 'pending' ? 'rgba(245, 158, 11, 0.02)' : 'none' }}>
-                        <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{getUserDisplayName(r.user_id)}</td>
-                        <td style={{ padding: '16px' }} className="number-latin">{userPhone}</td>
-                        <td style={{ padding: '16px' }} className="number-latin">{new Date(r.created_at).toLocaleString('ar-IQ')}</td>
-                        <td style={{ padding: '16px' }}>
-                          <span className={`status-pill ${r.status === 'approved' ? 'paid' : r.status === 'pending' ? 'pending' : 'rejected'}`}>
-                            {r.status === 'approved' ? <Check size={12} /> : r.status === 'pending' ? <Clock size={12} /> : <X size={12} />}
-                            <span>{r.status === 'approved' ? 'تم التجديد' : r.status === 'pending' ? 'معلق' : 'مرفوض'}</span>
-                          </span>
-                        </td>
-                        <td style={{ padding: '16px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                          {r.status === 'pending' && (
-                            <>
-                              <button 
-                                onClick={() => handleApproveRenewal(r)}
-                                className="btn btn-primary"
-                                style={{ padding: '6px 12px', fontSize: '0.75rem', backgroundColor: 'var(--success)', backgroundImage: 'none' }}
-                              >
-                                <Check size={12} /> تمديد وتجديد
-                              </button>
-                              <button 
-                                onClick={() => handleRejectRenewal(r.id)}
-                                className="btn btn-outline"
-                                style={{ padding: '6px 12px', fontSize: '0.75rem', borderColor: 'var(--danger)', color: '#f87171' }}
-                              >
-                                <X size={12} /> رفض
-                              </button>
-                            </>
-                          )}
-                        </td>
+                {/* TAB 1: ORDERS */}
+                {activeTab === 'orders' && (
+                  <table className="admin-table">
+                    <thead>
+                      <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
+                        <th style={{ padding: '16px', color: 'var(--text)' }}>بريد التفعيل (Gmail)</th>
+                        <th style={{ padding: '16px', color: 'var(--text)' }}>رقم الهاتف</th>
+                        <th style={{ padding: '16px', color: 'var(--text)' }}>الباقة المطلوبة</th>
+                        <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ الطلب</th>
+                        <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ التفعيل</th>
+                        <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ الدفع</th>
+                        <th style={{ padding: '16px', color: 'var(--text)' }}>الحالة</th>
+                         <th style={{ padding: '16px', color: 'var(--text)', minWidth: '130px' }}>ملاحظات المسؤول</th>
+                         <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
                       </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد طلبات تجديد تطابق معايير البحث.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          )}
-
-          {/* TAB 3: SUBSCRIPTIONS */}
-          {activeTab === 'subscriptions' && (
-            <table className="admin-table">
-              <thead>
-                <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
-                  <th style={{ padding: '16px', color: 'var(--text)' }}>حساب العميل</th>
-                  <th style={{ padding: '16px', color: 'var(--text)' }}>الباقة المفعلة</th>
-                  <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ البدء</th>
-                  <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ الانتهاء</th>
-                  <th style={{ padding: '16px', color: 'var(--text)' }}>حالة الاشتراك</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredSubscriptions.length > 0 ? (
-                  filteredSubscriptions.map((s) => (
-                    <tr key={s.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{getUserDisplayName(s.user_id)}</td>
-                      <td style={{ padding: '16px' }}>{plans[s.plan_id]?.name || 'غير معروف'}</td>
-                      <td style={{ padding: '16px' }} className="number-latin">{new Date(s.start_date).toLocaleDateString('ar-IQ')}</td>
-                      <td style={{ padding: '16px' }} className="number-latin">{new Date(s.end_date).toLocaleDateString('ar-IQ')}</td>
-                      <td style={{ padding: '16px' }}>
-                        <span className={`status-pill ${s.status === 'active' ? 'paid' : 'expired'}`}>
-                          {s.status === 'active' ? <Check size={12} /> : <Clock size={12} />}
-                          <span>{s.status === 'active' ? 'نشط' : 'منتهي'}</span>
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد اشتراكات نشطة تطابق معايير البحث.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          )}
-
-          {activeTab === 'users' && (
-            <table className="admin-table">
-              <thead>
-                <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
-                  <th style={{ padding: '16px', color: 'var(--text)' }}>المستخدم</th>
-                  <th style={{ padding: '16px', color: 'var(--text)' }}>رقم الهاتف المسجل</th>
-                  <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ التسجيل</th>
-                  <th style={{ padding: '16px', color: 'var(--text)' }}>الرتبة</th>
-                  <th style={{ padding: '16px', color: 'white', textAlign: 'center' }}>العمليات</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.length > 0 ? (
-                  filteredUsers.map((u) => (
-                    <tr key={u.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        {u.avatar_url ? (
-                          <img src={u.avatar_url} alt="" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
-                        ) : (
-                          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--primary-light)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
-                            {(u.full_name || u.email || '?')[0].toUpperCase()}
-                          </div>
-                        )}
-                        <div>
-                          <div style={{ fontWeight: 700, color: 'var(--text)' }}>{u.full_name || 'بدون اسم'}</div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{u.email}</div>
-                        </div>
-                      </td>
-                      <td style={{ padding: '16px' }} className="number-latin">{u.phone || 'غير متوفر'}</td>
-                      <td style={{ padding: '16px' }} className="number-latin">{new Date(u.created_at).toLocaleDateString('ar-IQ')}</td>
-                      <td style={{ padding: '16px' }}>
-                        <span className={`status-pill ${u.is_admin ? 'awaiting_payment' : 'expired'}`}>
-                          {u.is_admin ? <Shield size={12} /> : <User size={12} />}
-                          <span>{u.is_admin ? 'مدير النظام' : 'عميل'}</span>
-                        </span>
-                      </td>
-                      <td style={{ padding: '16px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                        <button 
-                          onClick={() => handleToggleAdmin(u)}
-                          className="btn btn-outline"
-                          style={{ padding: '6px 12px', fontSize: '0.75rem' }}
-                        >
-                          {u.is_admin ? 'إلغاء صلاحية مدير' : 'جعل كمدير للنظام'}
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا يوجد مستخدمون يطابقون معايير البحث.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          )}
-
-          {/* CRUD Form Modal */}
-          {(isAdding || editingItem) && (
-            <div style={{
-              position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-              backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex',
-              alignItems: 'center', justifyContent: 'center', zIndex: 1000,
-              padding: '16px'
-            }}>
-              <div style={{
-                background: 'var(--card)', border: '1px solid var(--border)',
-                borderRadius: 'var(--radius)', padding: '24px', width: '100%',
-                maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto'
-              }}>
-                <h3 style={{ marginBottom: '20px', color: 'white', fontWeight: 600 }}>
-                  {editingItem ? 'تعديل البيانات' : 'إضافة سجل جديد'}
-                </h3>
-                
-                {activeTab === 'products' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>اسم المنتج</label>
-                      <input 
-                        type="text" value={formFields.name || ''} 
-                        onChange={e => setFormFields({...formFields, name: e.target.value})}
-                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
-                      />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>المعرف الفريد (Slug)</label>
-                      <input 
-                        type="text" value={formFields.slug || ''} 
-                        onChange={e => setFormFields({...formFields, slug: e.target.value})}
-                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
-                      />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>الوصف</label>
-                      <textarea 
-                        value={formFields.description || ''} 
-                        onChange={e => setFormFields({...formFields, description: e.target.value})}
-                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white', minHeight: '80px' }}
-                      />
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <input 
-                        type="checkbox" checked={formFields.is_active ?? true} 
-                        onChange={e => setFormFields({...formFields, is_active: e.target.checked})}
-                        id="prod-active"
-                      />
-                      <label htmlFor="prod-active" style={{ fontSize: '0.85rem' }}>نشط ومتاح للعامة</label>
-                    </div>
-                    <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
-                      <button onClick={handleSaveProduct} className="btn btn-primary" style={{ padding: '8px 20px' }}>حفظ</button>
-                      <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="btn btn-outline" style={{ padding: '8px 20px' }}>إلغاء</button>
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'plans' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>المنتج التابع له</label>
-                      <select 
-                        value={formFields.product_id || ''} 
-                        onChange={e => setFormFields({...formFields, product_id: e.target.value})}
-                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
-                      >
-                        <option value="">اختر المنتج...</option>
-                        {productsList.map(p => (
-                          <option key={p.id} value={p.id}>{p.name}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>اسم الباقة (مثال: 12 شهراً)</label>
-                      <input 
-                        type="text" value={formFields.name || ''} 
-                        onChange={e => setFormFields({...formFields, name: e.target.value})}
-                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
-                      />
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                      <div>
-                        <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>المدة بالأشهر</label>
-                        <input 
-                          type="number" value={formFields.duration_months || ''} 
-                          onChange={e => setFormFields({...formFields, duration_months: e.target.value})}
-                          style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>الترتيب في العرض</label>
-                        <input 
-                          type="number" value={formFields.display_order ?? 0} 
-                          onChange={e => setFormFields({...formFields, display_order: e.target.value})}
-                          style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
-                        />
-                      </div>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                      <div>
-                        <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>السعر المحلي (د.ع)</label>
-                        <input 
-                          type="number" value={formFields.price_iqd || ''} 
-                          onChange={e => setFormFields({...formFields, price_iqd: e.target.value})}
-                          style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>السعر الرسمي (د.ع - اختياري)</label>
-                        <input 
-                          type="number" value={formFields.official_price_iqd || ''} 
-                          onChange={e => setFormFields({...formFields, official_price_iqd: e.target.value})}
-                          style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>شارة العرض (مثل: العرض الأفضل - اختياري)</label>
-                      <input 
-                        type="text" value={formFields.badge || ''} 
-                        onChange={e => setFormFields({...formFields, badge: e.target.value})}
-                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
-                      />
-                    </div>
-                    <div style={{ display: 'flex', gap: '16px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <input 
-                          type="checkbox" checked={formFields.is_featured ?? false} 
-                          onChange={e => setFormFields({...formFields, is_featured: e.target.checked})}
-                          id="plan-featured"
-                        />
-                        <label htmlFor="plan-featured" style={{ fontSize: '0.85rem' }}>باقة مميزة وممتازة</label>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <input 
-                          type="checkbox" checked={formFields.is_active ?? true} 
-                          onChange={e => setFormFields({...formFields, is_active: e.target.checked})}
-                          id="plan-active"
-                        />
-                        <label htmlFor="plan-active" style={{ fontSize: '0.85rem' }}>نشطة ومتاحة</label>
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
-                      <button onClick={handleSavePlan} className="btn btn-primary" style={{ padding: '8px 20px' }}>حفظ</button>
-                      <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="btn btn-outline" style={{ padding: '8px 20px' }}>إلغاء</button>
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'faqs' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>السؤال (باللغة العربية)</label>
-                      <input 
-                        type="text" value={formFields.question || ''} 
-                        onChange={e => setFormFields({...formFields, question: e.target.value})}
-                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
-                      />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>الإجابة (باللغة العربية)</label>
-                      <textarea 
-                        value={formFields.answer || ''} 
-                        onChange={e => setFormFields({...formFields, answer: e.target.value})}
-                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white', minHeight: '120px' }}
-                      />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>ترتيب العرض</label>
-                      <input 
-                        type="number" value={formFields.display_order ?? 0} 
-                        onChange={e => setFormFields({...formFields, display_order: e.target.value})}
-                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
-                      />
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <input 
-                        type="checkbox" checked={formFields.is_active ?? true} 
-                        onChange={e => setFormFields({...formFields, is_active: e.target.checked})}
-                        id="faq-active"
-                      />
-                      <label htmlFor="faq-active" style={{ fontSize: '0.85rem' }}>نشط ويعرض بالموقع</label>
-                    </div>
-                    <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
-                      <button onClick={handleSaveFaq} className="btn btn-primary" style={{ padding: '8px 20px' }}>حفظ</button>
-                      <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="btn btn-outline" style={{ padding: '8px 20px' }}>إلغاء</button>
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'testimonials' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>اسم العميل</label>
-                      <input 
-                        type="text" value={formFields.name || ''} 
-                        onChange={e => setFormFields({...formFields, name: e.target.value})}
-                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
-                      />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>التقييم (عدد النجوم)</label>
-                      <select 
-                        value={formFields.rating ?? 5} 
-                        onChange={e => setFormFields({...formFields, rating: e.target.value})}
-                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
-                      >
-                        <option value="5">5 نجوم</option>
-                        <option value="4">4 نجوم</option>
-                        <option value="3">3 نجوم</option>
-                        <option value="2">2 نجوم</option>
-                        <option value="1">نجمة واحدة</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>التعليق والريادة</label>
-                      <textarea 
-                        value={formFields.comment || ''} 
-                        onChange={e => setFormFields({...formFields, comment: e.target.value})}
-                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white', minHeight: '100px' }}
-                      />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>ترتيب العرض</label>
-                      <input 
-                        type="number" value={formFields.display_order ?? 0} 
-                        onChange={e => setFormFields({...formFields, display_order: e.target.value})}
-                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
-                      />
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <input 
-                        type="checkbox" checked={formFields.is_active ?? true} 
-                        onChange={e => setFormFields({...formFields, is_active: e.target.checked})}
-                        id="test-active"
-                      />
-                      <label htmlFor="test-active" style={{ fontSize: '0.85rem' }}>نشط ويعرض بالموقع</label>
-                    </div>
-                    <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
-                      <button onClick={handleSaveTestimonial} className="btn btn-primary" style={{ padding: '8px 20px' }}>حفظ</button>
-                      <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="btn btn-outline" style={{ padding: '8px 20px' }}>إلغاء</button>
-                    </div>
-                  </div>
-                )}
-
-              </div>
-            </div>
-          )}
-
-          {/* TAB 5: PRODUCTS */}
-          {activeTab === 'products' && (
-            <div>
-              <table className="admin-table">
-                <thead>
-                  <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
-                    <th style={{ padding: '16px', color: 'var(--text)' }}>الاسم</th>
-                    <th style={{ padding: '16px', color: 'var(--text)' }}>المعرف (Slug)</th>
-                    <th style={{ padding: '16px', color: 'var(--text)' }}>الوصف</th>
-                    <th style={{ padding: '16px', color: 'var(--text)' }}>الحالة</th>
-                    <th style={{ padding: '16px', color: 'white', textAlign: 'center' }}>العمليات</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {productsList.length > 0 ? (
-                    productsList.map((p) => (
-                      <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                        <td style={{ padding: '16px', fontWeight: 600, color: 'white' }}>{p.name}</td>
-                        <td style={{ padding: '16px' }} className="number-latin">{p.slug}</td>
-                        <td style={{ padding: '16px', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.description}</td>
-                        <td style={{ padding: '16px' }}>
-                          <span className={`status-pill ${p.is_active ? 'paid' : 'rejected'}`}>
-                            {p.is_active ? <Check size={12} /> : <X size={12} />}
-                            <span>{p.is_active ? 'نشط' : 'معطل'}</span>
-                          </span>
-                        </td>
-                        <td style={{ padding: '16px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                          <button 
-                            onClick={() => { setEditingItem(p); setIsAdding(false); setFormFields(p); }}
-                            className="btn btn-outline"
-                            style={{ padding: '6px 12px', fontSize: '0.75rem' }}
-                          >
-                            تعديل
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteProduct(p.id)}
-                            className="btn btn-outline"
-                            style={{ padding: '6px 12px', fontSize: '0.75rem', borderColor: 'var(--danger)', color: '#f87171' }}
-                          >
-                            حذف
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد منتجات مسجلة.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* TAB 6: PLANS */}
-          {activeTab === 'plans' && (
-            <div>
-              <table className="admin-table">
-                <thead>
-                  <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
-                    <th style={{ padding: '16px', color: 'var(--text)' }}>الباقة</th>
-                    <th style={{ padding: '16px', color: 'var(--text)' }}>المنتج</th>
-                    <th style={{ padding: '16px', color: 'var(--text)' }}>المدة</th>
-                    <th style={{ padding: '16px', color: 'var(--text)' }}>السعر المحلي</th>
-                    <th style={{ padding: '16px', color: 'var(--text)' }}>شارة الباقة</th>
-                    <th style={{ padding: '16px', color: 'var(--text)' }}>الحالة</th>
-                    <th style={{ padding: '16px', color: 'white', textAlign: 'center' }}>العمليات</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.values(plans).length > 0 ? (
-                    Object.values(plans).map((p: any) => {
-                      const prod = productsList.find(pr => pr.id === p.product_id);
-                      return (
-                        <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                          <td style={{ padding: '16px', fontWeight: 600, color: 'white' }}>{p.name} {p.is_featured && <span style={{ fontSize: '0.75rem', color: 'var(--primary)' }}>(مميزة)</span>}</td>
-                          <td style={{ padding: '16px' }}>{prod?.name || 'غير معروف'}</td>
-                          <td style={{ padding: '16px' }} className="number-latin">{p.duration_months} شهر</td>
-                          <td style={{ padding: '16px' }} className="number-latin">{p.price_iqd.toLocaleString()} د.ع</td>
-                          <td style={{ padding: '16px' }}>{p.badge || '-'}</td>
-                          <td style={{ padding: '16px' }}>
-                            <span className={`status-pill ${p.is_active ? 'paid' : 'rejected'}`}>
-                              {p.is_active ? <Check size={12} /> : <X size={12} />}
-                              <span>{p.is_active ? 'نشطة' : 'معطلة'}</span>
-                            </span>
-                          </td>
-                          <td style={{ padding: '16px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                            <button 
-                              onClick={() => { setEditingItem(p); setIsAdding(false); setFormFields(p); }}
-                              className="btn btn-outline"
-                              style={{ padding: '6px 12px', fontSize: '0.75rem' }}
-                            >
-                              تعديل
-                            </button>
-                            <button 
-                              onClick={() => handleDeletePlan(p.id)}
-                              className="btn btn-outline"
-                              style={{ padding: '6px 12px', fontSize: '0.75rem', borderColor: 'var(--danger)', color: '#f87171' }}
-                            >
-                              حذف
-                            </button>
-                          </td>
+                    </thead>
+                    <tbody>
+                      {filteredOrders.length > 0 ? (
+                        filteredOrders.map((o) => (
+                          <tr key={o.id} style={{ borderBottom: '1px solid var(--border)', background: o.status === 'pending' ? 'rgba(245, 158, 11, 0.02)' : 'none' }}>
+                            <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }} className="number-latin">{o.gmail}</td>
+                            <td style={{ padding: '16px' }} className="number-latin">{o.phone}</td>
+                            <td style={{ padding: '16px' }}>{plans[o.plan_id]?.name || 'غير معروف'}</td>
+                            <td style={{ padding: '16px' }} className="number-latin">{new Date(o.created_at).toLocaleDateString('ar-IQ')}</td>
+                            <td style={{ padding: '16px' }} className="number-latin">{o.activation_date ? new Date(o.activation_date).toLocaleDateString('ar-IQ') : '—'}</td>
+                            <td style={{ padding: '16px' }} className="number-latin">{o.payment_date ? new Date(o.payment_date).toLocaleDateString('ar-IQ') : '—'}</td>
+                            <td style={{ padding: '16px' }}>
+                              <span className={getOrderStatusDetails(o.status).badgeClass}>
+                                {getOrderStatusDetails(o.status).icon}
+                                <span>{getOrderStatusDetails(o.status).label}</span>
+                              </span>
+                            </td>
+                            <td style={{ padding: '16px' }}>
+                              <input
+                                type="text"
+                                defaultValue={o.notes || ''}
+                                placeholder="أضف ملاحظة..."
+                                onBlur={(e) => handleSaveNotes(o.id, e.target.value)}
+                                dir="auto"
+                                style={{
+                                  width: '120px',
+                                  padding: '6px 10px',
+                                  background: 'var(--background)',
+                                  border: '1px solid var(--border)',
+                                  borderRadius: 'var(--radius-sm)',
+                                  color: 'var(--text)',
+                                  fontSize: '0.8rem',
+                                  outline: 'none'
+                                }}
+                              />
+                            </td>
+                            <td style={{ padding: '16px' }}>
+                              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                                {o.status === 'pending' && (
+                                  <button
+                                    onClick={() => handleProcessOrder(o.id)}
+                                    className="admin-table-action-btn"
+                                  >
+                                    <Activity size={12} />
+                                    <span>بدء المعالجة</span>
+                                  </button>
+                                )}
+                                {(o.status === 'pending' || o.status === 'processing') && (
+                                  <button
+                                    onClick={() => handleApproveOrder(o)}
+                                    className="admin-table-action-btn success"
+                                  >
+                                    <Check size={12} />
+                                    <span>تنشيط</span>
+                                  </button>
+                                )}
+                                {o.status === 'awaiting_payment' && (
+                                  <>
+                                    <button
+                                      onClick={() => handleMarkPaid(o.id)}
+                                      className="admin-table-action-btn success"
+                                    >
+                                      <Check size={12} />
+                                      <span>تأكيد الدفع</span>
+                                    </button>
+                                    <button
+                                      onClick={() => handleSendReminder(o)}
+                                      className="admin-table-action-btn"
+                                      style={{ color: '#25d366', borderColor: 'rgba(37, 211, 102, 0.25)' }}
+                                    >
+                                      <MessageSquare size={12} />
+                                      <span>تذكير بالدفع</span>
+                                    </button>
+                                  </>
+                                )}
+                                {o.status !== 'paid' && o.status !== 'rejected' && (
+                                  <button
+                                    onClick={() => handleRejectOrder(o.id)}
+                                    className="admin-table-action-btn delete"
+                                  >
+                                    <X size={12} />
+                                    <span>رفض</span>
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={9} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد طلبات تطابق معايير البحث.</td>
                         </tr>
-                      );
-                    })
-                  ) : (
-                    <tr>
-                      <td colSpan={7} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد باقات مسجلة.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* TAB 7: FAQS */}
-          {activeTab === 'faqs' && (
-            <div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {faqsList.length > 0 ? (
-                  faqsList.map((f) => (
-                    <div key={f.id} style={{ border: '1px solid var(--border)', borderRadius: '6px', padding: '16px', background: 'rgba(255,255,255,0.01)' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '10px', marginBottom: '10px' }}>
-                        <span style={{ fontWeight: 600, color: 'white' }}>{f.question}</span>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                          <span className={`status-pill ${f.is_active ? 'paid' : 'rejected'}`}>
-                            {f.is_active ? <Check size={12} /> : <X size={12} />}
-                            <span>{f.is_active ? 'نشط' : 'معطل'}</span>
-                          </span>
-                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>الترتيب: {f.display_order}</span>
-                        </div>
-                      </div>
-                      <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '12px' }}>{f.answer}</p>
-                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                        <button 
-                          onClick={() => { setEditingItem(f); setIsAdding(false); setFormFields(f); }}
-                          className="btn btn-outline"
-                          style={{ padding: '4px 10px', fontSize: '0.7rem' }}
-                        >
-                          تعديل
-                        </button>
-                        <button 
-                          onClick={() => handleDeleteFaq(f.id)}
-                          className="btn btn-outline"
-                          style={{ padding: '4px 10px', fontSize: '0.7rem', borderColor: 'var(--danger)', color: '#f87171' }}
-                        >
-                          حذف
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد أسئلة شائعة مسجلة.</div>
+                      )}
+                    </tbody>
+                  </table>
                 )}
-              </div>
-            </div>
-          )}
 
-          {/* TAB 8: TESTIMONIALS */}
-          {activeTab === 'testimonials' && (
-            <div>
-              <table className="admin-table">
-                <thead>
-                  <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
-                    <th style={{ padding: '16px', color: 'var(--text)' }}>العميل</th>
-                    <th style={{ padding: '16px', color: 'var(--text)' }}>التقييم</th>
-                    <th style={{ padding: '16px', color: 'var(--text)' }}>التعليق</th>
-                    <th style={{ padding: '16px', color: 'var(--text)' }}>الترتيب</th>
-                    <th style={{ padding: '16px', color: 'white', textAlign: 'center' }}>العمليات</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {testimonialsList.length > 0 ? (
-                    testimonialsList.map((t) => (
-                      <tr key={t.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                        <td style={{ padding: '16px', fontWeight: 600, color: 'white' }}>{t.name}</td>
-                        <td style={{ padding: '16px', color: '#fbbf24' }}>{Array(t.rating).fill('★').join('')}</td>
-                        <td style={{ padding: '16px', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.comment}</td>
-                        <td style={{ padding: '16px' }} className="number-latin">{t.display_order}</td>
-                        <td style={{ padding: '16px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                          <button 
-                            onClick={() => { setEditingItem(t); setIsAdding(false); setFormFields(t); }}
-                            className="btn btn-outline"
-                            style={{ padding: '6px 12px', fontSize: '0.75rem' }}
-                          >
-                            تعديل
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteTestimonial(t.id)}
-                            className="btn btn-outline"
-                            style={{ padding: '6px 12px', fontSize: '0.75rem', borderColor: 'var(--danger)', color: '#f87171' }}
-                          >
-                            حذف
-                          </button>
-                        </td>
+                {/* TAB 2: RENEWALS */}
+                {activeTab === 'renewals' && (
+                  <table className="admin-table">
+                    <thead>
+                      <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
+                        <th style={{ padding: '16px', color: 'var(--text)' }}>حساب العميل</th>
+                        <th style={{ padding: '16px', color: 'var(--text)' }}>رقم الهاتف للعميل</th>
+                        <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ الطلب</th>
+                        <th style={{ padding: '16px', color: 'var(--text)' }}>الحالة</th>
+                        <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد تقييمات مسجلة.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
+                    </thead>
+                    <tbody>
+                      {filteredRenewals.length > 0 ? (
+                        filteredRenewals.map((r) => {
+                          const userPhone = users.find(u => u.id === r.user_id)?.phone || 'غير مسجل';
+                          return (
+                            <tr key={r.id} style={{ borderBottom: '1px solid var(--border)', background: r.status === 'pending' ? 'rgba(245, 158, 11, 0.02)' : 'none' }}>
+                              <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{getUserDisplayName(r.user_id)}</td>
+                              <td style={{ padding: '16px' }} className="number-latin">{userPhone}</td>
+                              <td style={{ padding: '16px' }} className="number-latin">{new Date(r.created_at).toLocaleString('ar-IQ')}</td>
+                              <td style={{ padding: '16px' }}>
+                                <span className={`status-pill ${r.status === 'approved' ? 'paid' : r.status === 'pending' ? 'pending' : 'rejected'}`}>
+                                  {r.status === 'approved' ? <Check size={12} /> : r.status === 'pending' ? <Clock size={12} /> : <X size={12} />}
+                                  <span>{r.status === 'approved' ? 'تم التجديد' : r.status === 'pending' ? 'معلق' : 'مرفوض'}</span>
+                                </span>
+                              </td>
+                              <td style={{ padding: '16px' }}>
+                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                  {r.status === 'pending' && (
+                                    <>
+                                      <button
+                                        onClick={() => handleApproveRenewal(r)}
+                                        className="admin-table-action-btn success"
+                                      >
+                                        <Check size={12} />
+                                        <span>تمديد وتجديد</span>
+                                      </button>
+                                      <button
+                                        onClick={() => handleRejectRenewal(r.id)}
+                                        className="admin-table-action-btn delete"
+                                      >
+                                        <X size={12} />
+                                        <span>رفض</span>
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      ) : (
+                        <tr>
+                          <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد طلبات تجديد تطابق معايير البحث.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                )}
 
-          {/* TAB 9: SETTINGS */}
-          {activeTab === 'settings' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '800px' }}>
-              {settingsList.map((s) => {
-                const currentVal = s.value;
-                return (
-                  <div key={s.key} style={{ border: '1px solid var(--border)', borderRadius: '6px', padding: '20px', background: 'rgba(255,255,255,0.01)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '10px', marginBottom: '15px' }}>
-                      <h4 style={{ fontWeight: 600, color: 'white' }}>{currentVal.label || s.key}</h4>
-                      <code style={{ fontSize: '0.75rem', color: 'var(--primary)' }}>{s.key}</code>
-                    </div>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>{currentVal.description || 'إعدادات النظام.'}</p>
-                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                      <input 
-                        type={s.key === 'exchange_rate' || s.key === 'google_official_annual_price' ? 'number' : 'text'}
-                        defaultValue={currentVal.value}
-                        id={`setting-input-${s.key}`}
-                        style={{ flexGrow: 1, padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white', fontSize: '0.85rem' }}
-                      />
-                      <button 
-                        onClick={() => {
-                          const input = document.getElementById(`setting-input-${s.key}`) as HTMLInputElement;
-                          const rawVal = input.value;
-                          const parsedVal = s.key === 'exchange_rate' || s.key === 'google_official_annual_price' ? parseFloat(rawVal) : rawVal;
-                          const updatedVal = {
-                            ...currentVal,
-                            value: parsedVal
-                          };
-                          handleSaveSetting(s.key, updatedVal);
-                        }}
-                        className="btn btn-primary"
-                        style={{ padding: '8px 20px', fontSize: '0.8rem', whiteSpace: 'nowrap' }}
-                      >
-                        حفظ التعديل
-                      </button>
+                {/* TAB 3: SUBSCRIPTIONS */}
+                {activeTab === 'subscriptions' && (
+                  <table className="admin-table">
+                    <thead>
+                      <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
+                        <th style={{ padding: '16px', color: 'var(--text)' }}>حساب العميل</th>
+                        <th style={{ padding: '16px', color: 'var(--text)' }}>الباقة المفعلة</th>
+                        <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ البدء</th>
+                        <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ الانتهاء</th>
+                        <th style={{ padding: '16px', color: 'var(--text)' }}>حالة الاشتراك</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredSubscriptions.length > 0 ? (
+                        filteredSubscriptions.map((s) => (
+                          <tr key={s.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                            <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{getUserDisplayName(s.user_id)}</td>
+                            <td style={{ padding: '16px' }}>{plans[s.plan_id]?.name || 'غير معروف'}</td>
+                            <td style={{ padding: '16px' }} className="number-latin">{new Date(s.start_date).toLocaleDateString('ar-IQ')}</td>
+                            <td style={{ padding: '16px' }} className="number-latin">{new Date(s.end_date).toLocaleDateString('ar-IQ')}</td>
+                            <td style={{ padding: '16px' }}>
+                              <span className={`status-pill ${s.status === 'active' ? 'paid' : 'expired'}`}>
+                                {s.status === 'active' ? <Check size={12} /> : <Clock size={12} />}
+                                <span>{s.status === 'active' ? 'نشط' : 'منتهي'}</span>
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد اشتراكات نشطة تطابق معايير البحث.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                )}
+
+                {activeTab === 'users' && (
+                  <table className="admin-table">
+                    <thead>
+                      <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
+                        <th style={{ padding: '16px', color: 'var(--text)' }}>المستخدم</th>
+                        <th style={{ padding: '16px', color: 'var(--text)' }}>رقم الهاتف المسجل</th>
+                        <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ التسجيل</th>
+                        <th style={{ padding: '16px', color: 'var(--text)' }}>الرتبة</th>
+                        <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredUsers.length > 0 ? (
+                        filteredUsers.map((u) => (
+                          <tr key={u.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                            <td style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                              {u.avatar_url ? (
+                                <img src={u.avatar_url} alt="" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
+                              ) : (
+                                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--primary-light)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
+                                  {(u.full_name || u.email || '?')[0].toUpperCase()}
+                                </div>
+                              )}
+                              <div>
+                                <div style={{ fontWeight: 700, color: 'var(--text)' }}>{u.full_name || 'بدون اسم'}</div>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{u.email}</div>
+                              </div>
+                            </td>
+                            <td style={{ padding: '16px' }} className="number-latin">{u.phone || 'غير متوفر'}</td>
+                            <td style={{ padding: '16px' }} className="number-latin">{new Date(u.created_at).toLocaleDateString('ar-IQ')}</td>
+                            <td style={{ padding: '16px' }}>
+                              <span className={`status-pill ${u.is_admin ? 'awaiting_payment' : 'expired'}`}>
+                                {u.is_admin ? <Shield size={12} /> : <User size={12} />}
+                                <span>{u.is_admin ? 'مدير النظام' : 'عميل'}</span>
+                              </span>
+                            </td>
+                            <td style={{ padding: '16px' }}>
+                              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                <button
+                                  onClick={() => handleToggleAdmin(u)}
+                                  className={`admin-table-action-btn ${u.is_admin ? 'delete' : 'success'}`}
+                                >
+                                  {u.is_admin ? <X size={12} /> : <Check size={12} />}
+                                  <span>{u.is_admin ? 'إلغاء صلاحية مدير' : 'جعل كمدير للنظام'}</span>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا يوجد مستخدمون يطابقون معايير البحث.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                )}
+
+
+
+                {/* TAB 5: PRODUCTS */}
+                {activeTab === 'products' && (
+                  <div>
+                    <table className="admin-table">
+                      <thead>
+                        <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
+                          <th style={{ padding: '16px', color: 'var(--text)' }}>الاسم</th>
+                          <th style={{ padding: '16px', color: 'var(--text)' }}>المعرف (Slug)</th>
+                          <th style={{ padding: '16px', color: 'var(--text)' }}>الوصف</th>
+                          <th style={{ padding: '16px', color: 'var(--text)' }}>الحالة</th>
+                          <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {productsList.length > 0 ? (
+                          productsList.map((p) => (
+                            <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                              <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{p.name}</td>
+                              <td style={{ padding: '16px' }} className="number-latin">{p.slug}</td>
+                              <td style={{ padding: '16px', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.description}</td>
+                              <td style={{ padding: '16px' }}>
+                                <span className={`status-pill ${p.is_active ? 'paid' : 'rejected'}`}>
+                                  {p.is_active ? <Check size={12} /> : <X size={12} />}
+                                  <span>{p.is_active ? 'نشط' : 'معطل'}</span>
+                                </span>
+                              </td>
+                              <td style={{ padding: '16px' }}>
+                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                  <button
+                                    onClick={() => { setEditingItem(p); setIsAdding(false); setFormFields(p); }}
+                                    className="admin-table-action-btn"
+                                  >
+                                    <Edit2 size={12} />
+                                    <span>تعديل</span>
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteProduct(p.id)}
+                                    className="admin-table-action-btn delete"
+                                  >
+                                    <Trash2 size={12} />
+                                    <span>حذف</span>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد منتجات مسجلة.</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* TAB 6: PLANS */}
+                {activeTab === 'plans' && (
+                  <div>
+                    <table className="admin-table">
+                      <thead>
+                        <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
+                          <th style={{ padding: '16px', color: 'var(--text)' }}>الباقة</th>
+                          <th style={{ padding: '16px', color: 'var(--text)' }}>المنتج</th>
+                          <th style={{ padding: '16px', color: 'var(--text)' }}>المدة</th>
+                          <th style={{ padding: '16px', color: 'var(--text)' }}>السعر المحلي</th>
+                          <th style={{ padding: '16px', color: 'var(--text)' }}>شارة الباقة</th>
+                          <th style={{ padding: '16px', color: 'var(--text)' }}>الحالة</th>
+                          <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Object.values(plans).length > 0 ? (
+                          Object.values(plans).map((p: any) => {
+                            const prod = productsList.find(pr => pr.id === p.product_id);
+                            return (
+                              <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{p.name} {p.is_featured && <span style={{ fontSize: '0.75rem', color: 'var(--primary)' }}>(مميزة)</span>}</td>
+                                <td style={{ padding: '16px' }}>{prod?.name || 'غير معروف'}</td>
+                                <td style={{ padding: '16px' }} className="number-latin">{p.duration_months} شهر</td>
+                                <td style={{ padding: '16px' }} className="number-latin">{p.price_iqd.toLocaleString()} د.ع</td>
+                                <td style={{ padding: '16px' }}>{p.badge || '-'}</td>
+                                <td style={{ padding: '16px' }}>
+                                  <span className={`status-pill ${p.is_active ? 'paid' : 'rejected'}`}>
+                                    {p.is_active ? <Check size={12} /> : <X size={12} />}
+                                    <span>{p.is_active ? 'نشطة' : 'معطلة'}</span>
+                                  </span>
+                                </td>
+                                <td style={{ padding: '16px' }}>
+                                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                    <button
+                                      onClick={() => { setEditingItem(p); setIsAdding(false); setFormFields(p); }}
+                                      className="admin-table-action-btn"
+                                    >
+                                      <Edit2 size={12} />
+                                      <span>تعديل</span>
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeletePlan(p.id)}
+                                      className="admin-table-action-btn delete"
+                                    >
+                                      <Trash2 size={12} />
+                                      <span>حذف</span>
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })
+                        ) : (
+                          <tr>
+                            <td colSpan={7} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد باقات مسجلة.</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* TAB 7: FAQS */}
+                {activeTab === 'faqs' && (
+                  <div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      {faqsList.length > 0 ? (
+                        faqsList.map((f) => (
+                          <div key={f.id} style={{ border: '1px solid var(--border)', borderRadius: '6px', padding: '16px', background: 'rgba(255,255,255,0.01)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '10px', marginBottom: '10px' }}>
+                              <span style={{ fontWeight: 600, color: 'var(--text)' }}>{f.question}</span>
+                              <div style={{ display: 'flex', gap: '8px' }}>
+                                <span className={`status-pill ${f.is_active ? 'paid' : 'rejected'}`}>
+                                  {f.is_active ? <Check size={12} /> : <X size={12} />}
+                                  <span>{f.is_active ? 'نشط' : 'معطل'}</span>
+                                </span>
+                                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>الترتيب: {f.display_order}</span>
+                              </div>
+                            </div>
+                            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '12px' }}>{f.answer}</p>
+                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                              <button
+                                onClick={() => { setEditingItem(f); setIsAdding(false); setFormFields(f); }}
+                                className="admin-table-action-btn"
+                              >
+                                <Edit2 size={12} />
+                                <span>تعديل</span>
+                              </button>
+                              <button
+                                onClick={() => handleDeleteFaq(f.id)}
+                                className="admin-table-action-btn delete"
+                              >
+                                <Trash2 size={12} />
+                                <span>حذف</span>
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد أسئلة شائعة مسجلة.</div>
+                      )}
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          )}
+                )}
+
+                {/* TAB 8: TESTIMONIALS */}
+                {activeTab === 'testimonials' && (
+                  <div>
+                    <table className="admin-table">
+                      <thead>
+                        <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
+                          <th style={{ padding: '16px', color: 'var(--text)' }}>العميل</th>
+                          <th style={{ padding: '16px', color: 'var(--text)' }}>التقييم</th>
+                          <th style={{ padding: '16px', color: 'var(--text)' }}>التعليق</th>
+                          <th style={{ padding: '16px', color: 'var(--text)' }}>الترتيب</th>
+                          <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {testimonialsList.length > 0 ? (
+                          testimonialsList.map((t) => (
+                            <tr key={t.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                              <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{t.name}</td>
+                              <td style={{ padding: '16px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                  {Array.from({ length: 5 }).map((_, idx) => (
+                                    <Star
+                                      key={idx}
+                                      size={14}
+                                      fill={idx < t.rating ? '#fbbf24' : 'transparent'}
+                                      color={idx < t.rating ? '#fbbf24' : 'var(--text-muted)'}
+                                    />
+                                  ))}
+                                </div>
+                              </td>
+                              <td style={{ padding: '16px' }}>
+                                <div style={{ maxWidth: '420px', whiteSpace: 'normal', wordBreak: 'break-word', color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.5' }}>
+                                  {t.comment}
+                                </div>
+                              </td>
+                              <td style={{ padding: '16px' }}>
+                                <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '26px', height: '26px', borderRadius: '50%', background: 'var(--background-alt)', border: '1px solid var(--border)', fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 800 }} className="number-latin">
+                                  {t.display_order}
+                                </span>
+                              </td>
+                              <td style={{ padding: '16px' }}>
+                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                  <button
+                                    onClick={() => { setEditingItem(t); setIsAdding(false); setFormFields(t); }}
+                                    className="admin-table-action-btn"
+                                  >
+                                    <Edit2 size={12} />
+                                    <span>تعديل</span>
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteTestimonial(t.id)}
+                                    className="admin-table-action-btn delete"
+                                  >
+                                    <Trash2 size={12} />
+                                    <span>حذف</span>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد تقييمات مسجلة.</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* TAB 9: SETTINGS */}
+                {activeTab === 'settings' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '800px' }}>
+                    {settingsList.map((s) => {
+                      const currentVal = s.value;
+                      return (
+                        <div key={s.key} style={{ border: '1px solid var(--border)', borderRadius: '6px', padding: '20px', background: 'rgba(255,255,255,0.01)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '10px', marginBottom: '15px' }}>
+                            <h4 style={{ fontWeight: 600, color: 'var(--text)' }}>{currentVal.label || s.key}</h4>
+                            <code style={{ fontSize: '0.75rem', color: 'var(--primary)' }}>{s.key}</code>
+                          </div>
+                          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>{currentVal.description || 'إعدادات النظام.'}</p>
+                          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                            <input
+                              type={s.key === 'exchange_rate' || s.key === 'google_official_annual_price' ? 'number' : 'text'}
+                              defaultValue={currentVal.value}
+                              id={`setting-input-${s.key}`}
+                              className="admin-input-text"
+                              dir="auto"
+                              style={{ flexGrow: 1 }}
+                            />
+                            <button
+                              onClick={() => {
+                                const input = document.getElementById(`setting-input-${s.key}`) as HTMLInputElement;
+                                const rawVal = input.value;
+                                const parsedVal = s.key === 'exchange_rate' || s.key === 'google_official_annual_price' ? parseFloat(rawVal) : rawVal;
+                                const updatedVal = {
+                                  ...currentVal,
+                                  value: parsedVal
+                                };
+                                handleSaveSetting(s.key, updatedVal);
+                              }}
+                              className="btn btn-primary"
+                              style={{ padding: '8px 20px', fontSize: '0.8rem', whiteSpace: 'nowrap' }}
+                            >
+                              حفظ التعديل
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div> {/* Close admin-table-wrapper */}
             </div> {/* Close admin-table-container */}
           </div> {/* Close admin-content */}
@@ -2063,15 +1967,320 @@ export const Admin: React.FC = () => {
 
       </main>
 
+      {/* CRUD Form Modal */}
+      {(isAdding || editingItem) && (
+        <div className="admin-modal-overlay">
+          <div className="admin-modal-card">
+            <h3 style={{ marginBottom: '20px', color: 'var(--text)', fontWeight: 800 }}>
+              {editingItem ? 'تعديل البيانات' : 'إضافة سجل جديد'}
+            </h3>
+
+            {activeTab === 'products' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label className="admin-form-label">اسم المنتج</label>
+                  <input
+                    type="text" value={formFields.name || ''}
+                    onChange={e => setFormFields({ ...formFields, name: e.target.value })}
+                    className="admin-input-text"
+                    dir="auto"
+                  />
+                </div>
+                <div>
+                  <label className="admin-form-label">المعرف الفريد (Slug)</label>
+                  <input
+                    type="text" value={formFields.slug || ''}
+                    onChange={e => setFormFields({ ...formFields, slug: e.target.value })}
+                    className="admin-input-text"
+                    dir="auto"
+                  />
+                </div>
+                <div>
+                  <label className="admin-form-label">الوصف</label>
+                  <textarea
+                    value={formFields.description || ''}
+                    onChange={e => setFormFields({ ...formFields, description: e.target.value })}
+                    className="admin-input-text"
+                    dir="auto"
+                    style={{ minHeight: '80px' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', margin: '4px 0' }}>
+                  <label className="flex items-center gap-3 cursor-pointer select-none">
+                    <div className="relative w-5 h-5 flex-shrink-0">
+                      <input 
+                        type="checkbox" 
+                        checked={formFields.is_active ?? true} 
+                        onChange={e => setFormFields({ ...formFields, is_active: e.target.checked })}
+                        className="sr-only peer"
+                      />
+                      <div className="w-5 h-5 rounded-md border border-[var(--border)] bg-[var(--background-alt)] transition-all peer-checked:bg-[var(--primary)] peer-checked:border-[var(--primary)] peer-focus:ring-2 peer-focus:ring-[var(--primary)]/20"></div>
+                      <svg className="absolute inset-0 w-5 h-5 p-0.5 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <span className="text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text)] transition-colors">
+                      نشط ومتاح للعامة
+                    </span>
+                  </label>
+                </div>
+                <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                  <button onClick={handleSaveProduct} className="btn btn-primary" style={{ padding: '8px 20px' }}>حفظ</button>
+                  <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="btn btn-outline" style={{ padding: '8px 20px' }}>إلغاء</button>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'plans' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label className="admin-form-label">المنتج التابع له</label>
+                  <select
+                    value={formFields.product_id || ''}
+                    onChange={e => setFormFields({ ...formFields, product_id: e.target.value })}
+                    className="admin-input-text"
+                  >
+                    <option value="">اختر المنتج...</option>
+                    {productsList.map(p => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="admin-form-label">اسم الباقة (مثال: 12 شهراً)</label>
+                  <input
+                    type="text" value={formFields.name || ''}
+                    onChange={e => setFormFields({ ...formFields, name: e.target.value })}
+                    className="admin-input-text"
+                    dir="auto"
+                  />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div>
+                    <label className="admin-form-label">المدة بالأشهر</label>
+                    <input
+                      type="number" value={formFields.duration_months || ''}
+                      onChange={e => setFormFields({ ...formFields, duration_months: e.target.value })}
+                      className="admin-input-text"
+                    />
+                  </div>
+                  <div>
+                    <label className="admin-form-label">الترتيب في العرض</label>
+                    <input
+                      type="number" value={formFields.display_order ?? 0}
+                      onChange={e => setFormFields({ ...formFields, display_order: e.target.value })}
+                      className="admin-input-text"
+                    />
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div>
+                    <label className="admin-form-label">السعر المحلي (د.ع)</label>
+                    <input
+                      type="number" value={formFields.price_iqd || ''}
+                      onChange={e => setFormFields({ ...formFields, price_iqd: e.target.value })}
+                      className="admin-input-text"
+                    />
+                  </div>
+                  <div>
+                    <label className="admin-form-label">السعر الرسمي (د.ع - اختياري)</label>
+                    <input
+                      type="number" value={formFields.official_price_iqd || ''}
+                      onChange={e => setFormFields({ ...formFields, official_price_iqd: e.target.value })}
+                      className="admin-input-text"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="admin-form-label">شارة العرض (مثل: العرض الأفضل - اختياري)</label>
+                  <input
+                    type="text" value={formFields.badge || ''}
+                    onChange={e => setFormFields({ ...formFields, badge: e.target.value })}
+                    className="admin-input-text"
+                    dir="auto"
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', margin: '4px 0' }}>
+                  <label className="flex items-center gap-3 cursor-pointer select-none">
+                    <div className="relative w-5 h-5 flex-shrink-0">
+                      <input 
+                        type="checkbox" 
+                        checked={formFields.is_featured ?? false} 
+                        onChange={e => setFormFields({ ...formFields, is_featured: e.target.checked })}
+                        className="sr-only peer"
+                      />
+                      <div className="w-5 h-5 rounded-md border border-[var(--border)] bg-[var(--background-alt)] transition-all peer-checked:bg-[var(--primary)] peer-checked:border-[var(--primary)] peer-focus:ring-2 peer-focus:ring-[var(--primary)]/20"></div>
+                      <svg className="absolute inset-0 w-5 h-5 p-0.5 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <span className="text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text)] transition-colors">
+                      باقة مميزة وممتازة
+                    </span>
+                  </label>
+
+                  <label className="flex items-center gap-3 cursor-pointer select-none">
+                    <div className="relative w-5 h-5 flex-shrink-0">
+                      <input 
+                        type="checkbox" 
+                        checked={formFields.is_active ?? true} 
+                        onChange={e => setFormFields({ ...formFields, is_active: e.target.checked })}
+                        className="sr-only peer"
+                      />
+                      <div className="w-5 h-5 rounded-md border border-[var(--border)] bg-[var(--background-alt)] transition-all peer-checked:bg-[var(--primary)] peer-checked:border-[var(--primary)] peer-focus:ring-2 peer-focus:ring-[var(--primary)]/20"></div>
+                      <svg className="absolute inset-0 w-5 h-5 p-0.5 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <span className="text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text)] transition-colors">
+                      نشطة ومتاحة
+                    </span>
+                  </label>
+                </div>
+                <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                  <button onClick={handleSavePlan} className="btn btn-primary" style={{ padding: '8px 20px' }}>حفظ</button>
+                  <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="btn btn-outline" style={{ padding: '8px 20px' }}>إلغاء</button>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'faqs' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label className="admin-form-label">السؤال (باللغة العربية)</label>
+                  <input
+                    type="text" value={formFields.question || ''}
+                    onChange={e => setFormFields({ ...formFields, question: e.target.value })}
+                    className="admin-input-text"
+                    dir="auto"
+                  />
+                </div>
+                <div>
+                  <label className="admin-form-label">الإجابة (باللغة العربية)</label>
+                  <textarea
+                    value={formFields.answer || ''}
+                    onChange={e => setFormFields({ ...formFields, answer: e.target.value })}
+                    className="admin-input-text"
+                    dir="auto"
+                    style={{ minHeight: '120px' }}
+                  />
+                </div>
+                <div>
+                  <label className="admin-form-label">ترتيب العرض</label>
+                  <input
+                    type="number" value={formFields.display_order ?? 0}
+                    onChange={e => setFormFields({ ...formFields, display_order: e.target.value })}
+                    className="admin-input-text"
+                  />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', margin: '4px 0' }}>
+                  <label className="flex items-center gap-3 cursor-pointer select-none">
+                    <div className="relative w-5 h-5 flex-shrink-0">
+                      <input 
+                        type="checkbox" 
+                        checked={formFields.is_active ?? true} 
+                        onChange={e => setFormFields({ ...formFields, is_active: e.target.checked })}
+                        className="sr-only peer"
+                      />
+                      <div className="w-5 h-5 rounded-md border border-[var(--border)] bg-[var(--background-alt)] transition-all peer-checked:bg-[var(--primary)] peer-checked:border-[var(--primary)] peer-focus:ring-2 peer-focus:ring-[var(--primary)]/20"></div>
+                      <svg className="absolute inset-0 w-5 h-5 p-0.5 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <span className="text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text)] transition-colors">
+                      نشط ويعرض بالموقع
+                    </span>
+                  </label>
+                </div>
+                <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                  <button onClick={handleSaveFaq} className="btn btn-primary" style={{ padding: '8px 20px' }}>حفظ</button>
+                  <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="btn btn-outline" style={{ padding: '8px 20px' }}>إلغاء</button>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'testimonials' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label className="admin-form-label">اسم العميل</label>
+                  <input
+                    type="text" value={formFields.name || ''}
+                    onChange={e => setFormFields({ ...formFields, name: e.target.value })}
+                    className="admin-input-text"
+                    dir="auto"
+                  />
+                </div>
+                <div>
+                  <label className="admin-form-label">التقييم (عدد النجوم)</label>
+                  <select
+                    value={formFields.rating ?? 5}
+                    onChange={e => setFormFields({ ...formFields, rating: e.target.value })}
+                    className="admin-input-text"
+                  >
+                    <option value="5">5 نجوم</option>
+                    <option value="4">4 نجوم</option>
+                    <option value="3">3 نجوم</option>
+                    <option value="2">2 نجوم</option>
+                    <option value="1">نجمة واحدة</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="admin-form-label">التعليق والريادة</label>
+                  <textarea
+                    value={formFields.comment || ''}
+                    onChange={e => setFormFields({ ...formFields, comment: e.target.value })}
+                    className="admin-input-text"
+                    dir="auto"
+                    style={{ minHeight: '100px' }}
+                  />
+                </div>
+                <div>
+                  <label className="admin-form-label">ترتيب العرض</label>
+                  <input
+                    type="number" value={formFields.display_order ?? 0}
+                    onChange={e => setFormFields({ ...formFields, display_order: e.target.value })}
+                    className="admin-input-text"
+                  />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', margin: '4px 0' }}>
+                  <label className="flex items-center gap-3 cursor-pointer select-none">
+                    <div className="relative w-5 h-5 flex-shrink-0">
+                      <input 
+                        type="checkbox" 
+                        checked={formFields.is_active ?? true} 
+                        onChange={e => setFormFields({ ...formFields, is_active: e.target.checked })}
+                        className="sr-only peer"
+                      />
+                      <div className="w-5 h-5 rounded-md border border-[var(--border)] bg-[var(--background-alt)] transition-all peer-checked:bg-[var(--primary)] peer-checked:border-[var(--primary)] peer-focus:ring-2 peer-focus:ring-[var(--primary)]/20"></div>
+                      <svg className="absolute inset-0 w-5 h-5 p-0.5 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <span className="text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text)] transition-colors">
+                      نشط ويعرض بالموقع
+                    </span>
+                  </label>
+                </div>
+                <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                  <button onClick={handleSaveTestimonial} className="btn btn-primary" style={{ padding: '8px 20px' }}>حفظ</button>
+                  <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="btn btn-outline" style={{ padding: '8px 20px' }}>إلغاء</button>
+                </div>
+              </div>
+            )}
+
+          </div>
+        </div>
+      )}
+
       {snackbar && (
-        <div 
+        <div
           className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl transition-all duration-300 border animate-slide-in"
           style={{
             background: 'var(--card-bg)',
             backdropFilter: 'blur(16px)',
             borderColor: snackbar.type === 'success' ? 'rgba(34, 197, 94, 0.4)' : 'rgba(239, 68, 68, 0.4)',
-            boxShadow: snackbar.type === 'success' 
-              ? '0 0 20px rgba(34, 197, 94, 0.15), var(--shadow)' 
+            boxShadow: snackbar.type === 'success'
+              ? '0 0 20px rgba(34, 197, 94, 0.15), var(--shadow)'
               : '0 0 20px rgba(239, 68, 68, 0.15), var(--shadow)',
           }}
         >
@@ -2085,7 +2294,7 @@ export const Admin: React.FC = () => {
           <span className="text-sm font-medium" style={{ color: 'var(--text)' }}>
             {snackbar.message}
           </span>
-          <button 
+          <button
             onClick={() => setSnackbar(null)}
             className="ml-2 hover:opacity-75 transition-opacity"
             style={{ color: 'var(--text-muted)' }}
