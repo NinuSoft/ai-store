@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════════════════════
-   NinuSoft — Instant Intro Screen Styles
+   NinuSoft AI — Instant Intro Screen Styles
    Served as a static asset from /public/intro.css
    Loaded in <head> before any JS so styles are ready at byte 0.
    ══════════════════════════════════════════════════════════════════════════ */
@@ -14,36 +14,34 @@
   padding: 0;
 }
 
+/* ── Theme tokens — Light Mode (default) ────────────────────────────────── */
 #ns-intro {
-  /* Default: Light Mode */
   --gold: hsl(43, 75%, 49%);
   --gold60: hsl(43, 75%, 60%);
   --bg: #f8fafc;
   --dim: hsl(215, 20%, 45%);
   --dimmer: hsl(215, 20%, 80%);
-  --text-main: #0f172a;
-  --ai-color: hsl(205, 100%, 50%);
-  --glow-color-1: rgba(201, 163, 58, .13);
-  --glow-color-2: rgba(201, 163, 58, .06);
-  --grid-color: rgba(201, 163, 58, .06);
+  --text-h1: #0f172a;
+  --grid-color: rgba(201, 163, 58, .05);
+  --glow-1: rgba(201, 163, 58, .10);
+  --glow-2: rgba(201, 163, 58, .05);
 }
 
+/* ── Theme tokens — Dark Mode ───────────────────────────────────────────── */
 .dark #ns-intro {
-  /* Dark Mode */
-  --gold: hsl(43, 75%, 55%);
-  --gold60: hsl(43, 75%, 65%);
-  --bg: hsl(230, 28%, 7%);
-  --dim: hsl(218, 22%, 62%);
-  --dimmer: hsl(228, 22%, 18%);
-  --text-main: hsl(218, 50%, 96%);
-  --ai-color: hsl(205, 100%, 65%);
-  --glow-color-1: rgba(201, 163, 58, .16);
-  --glow-color-2: rgba(201, 163, 58, .08);
-  --grid-color: rgba(201, 163, 58, .04);
+  --gold: hsl(43, 75%, 49%);
+  --gold60: hsl(43, 75%, 60%);
+  --bg: hsl(220, 30%, 5%);
+  --dim: hsl(215, 20%, 35%);
+  --dimmer: hsl(215, 20%, 18%);
+  --text-h1: #ffffff;
+  --grid-color: rgba(201, 163, 58, .06);
+  --glow-1: rgba(201, 163, 58, .13);
+  --glow-2: rgba(201, 163, 58, .06);
 }
 
 body.ns-loading {
-  background: var(--bg) !important;
+  background: var(--bg, #f8fafc) !important;
   overflow: hidden !important;
 }
 
@@ -59,7 +57,6 @@ body.ns-loading {
   background: var(--bg);
   font-family: 'Inter', sans-serif;
   overflow: hidden;
-  /* Fade-out transition — .ns-exit class added by intro.js */
   transition: opacity 0.65s ease, visibility 0.65s ease;
 }
 
@@ -94,7 +91,7 @@ body.ns-loading {
   top: 30%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, var(--glow-color-1) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--glow-1) 0%, transparent 70%);
 }
 
 .ns-glow-2 {
@@ -102,7 +99,7 @@ body.ns-loading {
   height: 280px;
   bottom: 20%;
   right: 20%;
-  background: radial-gradient(circle, var(--glow-color-2) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--glow-2) 0%, transparent 70%);
 }
 
 /* ── Stage ──────────────────────────────────────────────────────────────── */
@@ -147,7 +144,6 @@ body.ns-loading {
   height: 100%;
   object-fit: contain;
   display: block;
-  /* Optically center the asymmetrical wing logo by shifting it slightly left */
   transform: translateX(-10%);
   transition: filter 0.5s ease, transform 0.5s ease;
 }
@@ -173,33 +169,10 @@ body.ns-loading {
   box-shadow: 0 0 6px var(--gold);
 }
 
-.ns-tl {
-  top: 0;
-  left: 0;
-  border-width: 2px 0 0 2px;
-  border-radius: 4px 0 0 0;
-}
-
-.ns-tr {
-  top: 0;
-  right: 0;
-  border-width: 2px 2px 0 0;
-  border-radius: 0 4px 0 0;
-}
-
-.ns-bl {
-  bottom: 0;
-  left: 0;
-  border-width: 0 0 2px 2px;
-  border-radius: 0 0 0 4px;
-}
-
-.ns-br {
-  bottom: 0;
-  right: 0;
-  border-width: 0 2px 2px 0;
-  border-radius: 0 0 4px 0;
-}
+.ns-tl { top: 0; left: 0; border-width: 2px 0 0 2px; border-radius: 4px 0 0 0; }
+.ns-tr { top: 0; right: 0; border-width: 2px 2px 0 0; border-radius: 0 4px 0 0; }
+.ns-bl { bottom: 0; left: 0; border-width: 0 0 2px 2px; border-radius: 0 0 0 4px; }
+.ns-br { bottom: 0; right: 0; border-width: 0 2px 2px 0; border-radius: 0 0 4px 0; }
 
 /* ── Scan line ──────────────────────────────────────────────────────────── */
 #ns-scan {
@@ -208,7 +181,6 @@ body.ns-loading {
   right: 0;
   height: 2px;
   top: 0%;
-  /* driven by intro.js */
   background: linear-gradient(to right, transparent, var(--gold), transparent);
   box-shadow: 0 0 12px 2px hsl(43, 75%, 49%, .7), 0 0 30px 6px hsl(43, 75%, 49%, .3);
   opacity: 0;
@@ -235,7 +207,7 @@ body.ns-loading {
   font-size: 2rem;
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: var(--text-main);
+  color: var(--text-h1);
   line-height: 1;
 }
 
@@ -245,22 +217,7 @@ body.ns-loading {
   }
 }
 
-.ns-brand h1 .ns-ninu {
-  color: var(--ai-color);
-}
-
-.ns-brand h1 .ns-split-s {
-  background: linear-gradient(to right, var(--ai-color) 50%, var(--text-main) 50%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  display: inline-block;
-}
-
-.ns-brand h1 .ns-soft {
-  color: var(--text-main);
-}
-
-.ns-brand h1 .ns-ai {
+.ns-brand h1 span {
   color: var(--gold);
 }
 
@@ -291,43 +248,18 @@ body.ns-loading {
   flex-shrink: 0;
 }
 
-.ns-dot-idle {
-  animation: ns-pulse 1.8s ease-in-out infinite;
-}
-
-.ns-dot-scan {
-  animation: ns-ping 0.8s ease-in-out infinite;
-}
+.ns-dot-idle { animation: ns-pulse 1.8s ease-in-out infinite; }
+.ns-dot-scan { animation: ns-ping 0.8s ease-in-out infinite; }
 
 @keyframes ns-pulse {
-
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  50% {
-    opacity: .4;
-    transform: scale(.8);
-  }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .4; transform: scale(.8); }
 }
 
 @keyframes ns-ping {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-
-  70% {
-    transform: scale(2);
-    opacity: 0;
-  }
-
-  100% {
-    transform: scale(1);
-    opacity: 0;
-  }
+  0%   { transform: scale(1); opacity: 1; }
+  70%  { transform: scale(2); opacity: 0; }
+  100% { transform: scale(1); opacity: 0; }
 }
 
 /* ── Progress bar ───────────────────────────────────────────────────────── */
@@ -341,9 +273,7 @@ body.ns-loading {
 }
 
 @media (min-width: 480px) {
-  .ns-bar-track {
-    width: 260px;
-  }
+  .ns-bar-track { width: 260px; }
 }
 
 #ns-bar-fill {
