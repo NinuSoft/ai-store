@@ -319,7 +319,7 @@ export const Admin: React.FC = () => {
             expires_at: currentExpiry.toISOString(),
           })
           .eq('id', activeSub.id);
-        
+
         subError = error;
       } else {
         // Create a new subscription starting now
@@ -1150,8 +1150,8 @@ export const Admin: React.FC = () => {
 
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <Link to="/dashboard" className="btn btn-outline" style={{ padding: '6px 16px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <ArrowLeft size={14} /> لوحة العميل
+            <Link to="/" className="btn btn-outline" style={{ padding: '6px 16px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <ArrowLeft size={14} /> الصفحة الرئيسية
             </Link>
           </div>
         </div>
@@ -1164,7 +1164,7 @@ export const Admin: React.FC = () => {
 
           {/* RIGHT COLUMN: Sidebar (Metrics + Navigation) */}
           <aside className="admin-sidebar" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            
+
             {/* METRICS STACK */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }} className="text-right">
               {/* Total Registrations */}
@@ -1184,106 +1184,106 @@ export const Admin: React.FC = () => {
             {/* NAVIGATION PANEL */}
             <div className="glass-panel" style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <div style={{ padding: '0 8px 12px 8px', borderBottom: '1px solid var(--border)', marginBottom: '8px' }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 900, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>لوحات التحكم</span>
-            </div>
-
-            <button
-              onClick={() => { setActiveTab('orders'); setStatusFilter('all'); }}
-              className={`admin-tab-item ${activeTab === 'orders' ? 'active' : ''}`}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <ShoppingBag size={18} />
-                <span>الطلبات الواردة</span>
+                <span style={{ fontSize: '0.78rem', fontWeight: 900, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>لوحات التحكم</span>
               </div>
-              <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{orders.length}</span>
-            </button>
 
-            <button
-              onClick={() => { setActiveTab('renewals'); setStatusFilter('all'); }}
-              className={`admin-tab-item ${activeTab === 'renewals' ? 'active' : ''}`}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <RotateCw size={18} />
-                <span>طلبات التجديد</span>
-              </div>
-              <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{renewals.length}</span>
-            </button>
+              <button
+                onClick={() => { setActiveTab('orders'); setStatusFilter('all'); }}
+                className={`admin-tab-item ${activeTab === 'orders' ? 'active' : ''}`}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <ShoppingBag size={18} />
+                  <span>الطلبات الواردة</span>
+                </div>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{orders.length}</span>
+              </button>
 
-            <button
-              onClick={() => { setActiveTab('subscriptions'); setStatusFilter('all'); }}
-              className={`admin-tab-item ${activeTab === 'subscriptions' ? 'active' : ''}`}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <ShieldCheck size={18} />
-                <span>الاشتراكات</span>
-              </div>
-              <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{subscriptions.length}</span>
-            </button>
+              <button
+                onClick={() => { setActiveTab('renewals'); setStatusFilter('all'); }}
+                className={`admin-tab-item ${activeTab === 'renewals' ? 'active' : ''}`}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <RotateCw size={18} />
+                  <span>طلبات التجديد</span>
+                </div>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{renewals.length}</span>
+              </button>
 
-            <button
-              onClick={() => { setActiveTab('users'); setStatusFilter('all'); }}
-              className={`admin-tab-item ${activeTab === 'users' ? 'active' : ''}`}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Users size={18} />
-                <span>المستخدمين</span>
-              </div>
-              <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{users.length}</span>
-            </button>
+              <button
+                onClick={() => { setActiveTab('subscriptions'); setStatusFilter('all'); }}
+                className={`admin-tab-item ${activeTab === 'subscriptions' ? 'active' : ''}`}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <ShieldCheck size={18} />
+                  <span>الاشتراكات</span>
+                </div>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{subscriptions.length}</span>
+              </button>
 
-            <button
-              onClick={() => { setActiveTab('products'); setStatusFilter('all'); }}
-              className={`admin-tab-item ${activeTab === 'products' ? 'active' : ''}`}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <DollarSign size={18} />
-                <span>المنتجات</span>
-              </div>
-              <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{productsList.length}</span>
-            </button>
+              <button
+                onClick={() => { setActiveTab('users'); setStatusFilter('all'); }}
+                className={`admin-tab-item ${activeTab === 'users' ? 'active' : ''}`}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Users size={18} />
+                  <span>المستخدمين</span>
+                </div>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{users.length}</span>
+              </button>
 
-            <button
-              onClick={() => { setActiveTab('plans'); setStatusFilter('all'); }}
-              className={`admin-tab-item ${activeTab === 'plans' ? 'active' : ''}`}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <PlusCircle size={18} />
-                <span>الباقات</span>
-              </div>
-              <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{Object.keys(plans).length}</span>
-            </button>
+              <button
+                onClick={() => { setActiveTab('products'); setStatusFilter('all'); }}
+                className={`admin-tab-item ${activeTab === 'products' ? 'active' : ''}`}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <DollarSign size={18} />
+                  <span>المنتجات</span>
+                </div>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{productsList.length}</span>
+              </button>
 
-            <button
-              onClick={() => { setActiveTab('faqs'); setStatusFilter('all'); }}
-              className={`admin-tab-item ${activeTab === 'faqs' ? 'active' : ''}`}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <MessageSquare size={18} />
-                <span>الأسئلة الشائعة</span>
-              </div>
-              <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{faqsList.length}</span>
-            </button>
+              <button
+                onClick={() => { setActiveTab('plans'); setStatusFilter('all'); }}
+                className={`admin-tab-item ${activeTab === 'plans' ? 'active' : ''}`}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <PlusCircle size={18} />
+                  <span>الباقات</span>
+                </div>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{Object.keys(plans).length}</span>
+              </button>
 
-            <button
-              onClick={() => { setActiveTab('testimonials'); setStatusFilter('all'); }}
-              className={`admin-tab-item ${activeTab === 'testimonials' ? 'active' : ''}`}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Sparkles size={18} />
-                <span>الآراء والتقييمات</span>
-              </div>
-              <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{testimonialsList.length}</span>
-            </button>
+              <button
+                onClick={() => { setActiveTab('faqs'); setStatusFilter('all'); }}
+                className={`admin-tab-item ${activeTab === 'faqs' ? 'active' : ''}`}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <MessageSquare size={18} />
+                  <span>الأسئلة الشائعة</span>
+                </div>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{faqsList.length}</span>
+              </button>
 
-            <button
-              onClick={() => { setActiveTab('settings'); setStatusFilter('all'); }}
-              className={`admin-tab-item ${activeTab === 'settings' ? 'active' : ''}`}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Settings size={18} />
-                <span>إعدادات المتجر</span>
-              </div>
-            </button>
+              <button
+                onClick={() => { setActiveTab('testimonials'); setStatusFilter('all'); }}
+                className={`admin-tab-item ${activeTab === 'testimonials' ? 'active' : ''}`}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Sparkles size={18} />
+                  <span>الآراء والتقييمات</span>
+                </div>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{testimonialsList.length}</span>
+              </button>
+
+              <button
+                onClick={() => { setActiveTab('settings'); setStatusFilter('all'); }}
+                className={`admin-tab-item ${activeTab === 'settings' ? 'active' : ''}`}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Settings size={18} />
+                  <span>إعدادات المتجر</span>
+                </div>
+              </button>
             </div>
           </aside>
 
@@ -1487,8 +1487,8 @@ export const Admin: React.FC = () => {
                         <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ التفعيل</th>
                         <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ الدفع</th>
                         <th style={{ padding: '16px', color: 'var(--text)' }}>الحالة</th>
-                         <th style={{ padding: '16px', color: 'var(--text)', minWidth: '130px' }}>ملاحظات المسؤول</th>
-                         <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
+                        <th style={{ padding: '16px', color: 'var(--text)', minWidth: '130px' }}>ملاحظات المسؤول</th>
+                        <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -2099,9 +2099,9 @@ export const Admin: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', margin: '4px 0' }}>
                   <label className="flex items-center gap-3 cursor-pointer select-none">
                     <div className="relative w-5 h-5 flex-shrink-0">
-                      <input 
-                        type="checkbox" 
-                        checked={formFields.is_active ?? true} 
+                      <input
+                        type="checkbox"
+                        checked={formFields.is_active ?? true}
                         onChange={e => setFormFields({ ...formFields, is_active: e.target.checked })}
                         className="sr-only peer"
                       />
@@ -2194,9 +2194,9 @@ export const Admin: React.FC = () => {
                 <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', margin: '4px 0' }}>
                   <label className="flex items-center gap-3 cursor-pointer select-none">
                     <div className="relative w-5 h-5 flex-shrink-0">
-                      <input 
-                        type="checkbox" 
-                        checked={formFields.is_featured ?? false} 
+                      <input
+                        type="checkbox"
+                        checked={formFields.is_featured ?? false}
                         onChange={e => setFormFields({ ...formFields, is_featured: e.target.checked })}
                         className="sr-only peer"
                       />
@@ -2212,9 +2212,9 @@ export const Admin: React.FC = () => {
 
                   <label className="flex items-center gap-3 cursor-pointer select-none">
                     <div className="relative w-5 h-5 flex-shrink-0">
-                      <input 
-                        type="checkbox" 
-                        checked={formFields.is_active ?? true} 
+                      <input
+                        type="checkbox"
+                        checked={formFields.is_active ?? true}
                         onChange={e => setFormFields({ ...formFields, is_active: e.target.checked })}
                         className="sr-only peer"
                       />
@@ -2267,9 +2267,9 @@ export const Admin: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', margin: '4px 0' }}>
                   <label className="flex items-center gap-3 cursor-pointer select-none">
                     <div className="relative w-5 h-5 flex-shrink-0">
-                      <input 
-                        type="checkbox" 
-                        checked={formFields.is_active ?? true} 
+                      <input
+                        type="checkbox"
+                        checked={formFields.is_active ?? true}
                         onChange={e => setFormFields({ ...formFields, is_active: e.target.checked })}
                         className="sr-only peer"
                       />
@@ -2336,9 +2336,9 @@ export const Admin: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', margin: '4px 0' }}>
                   <label className="flex items-center gap-3 cursor-pointer select-none">
                     <div className="relative w-5 h-5 flex-shrink-0">
-                      <input 
-                        type="checkbox" 
-                        checked={formFields.is_active ?? true} 
+                      <input
+                        type="checkbox"
+                        checked={formFields.is_active ?? true}
                         onChange={e => setFormFields({ ...formFields, is_active: e.target.checked })}
                         className="sr-only peer"
                       />
@@ -2390,8 +2390,8 @@ export const Admin: React.FC = () => {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div 
-              style={{ 
+            <div
+              style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -2413,10 +2413,10 @@ export const Admin: React.FC = () => {
               {snackbar.message}
             </span>
           </div>
-          
+
           <button
             onClick={() => setSnackbar(null)}
-            style={{ 
+            style={{
               background: 'none',
               border: 'none',
               padding: '4px',

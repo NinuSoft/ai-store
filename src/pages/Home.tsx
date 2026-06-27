@@ -37,7 +37,7 @@ const WhatsAppIcon = ({ size = 24, ...props }: { size?: number;[key: string]: an
 );
 
 export const Home: React.FC = () => {
-  const { user, signInWithGoogle } = useAuth();
+  const { user, profile, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -216,13 +216,23 @@ export const Home: React.FC = () => {
           <div className="flex items-center gap-3">
             <ThemeToggle />
             {user ? (
-              <Link
-                to="/dashboard"
-                className="btn btn-secondary"
-                style={{ padding: '8px 18px', fontSize: '0.875rem', borderRadius: '9999px' }}
-              >
-                لوحة التحكم
-              </Link>
+              profile?.is_admin ? (
+                <Link
+                  to="/admin"
+                  className="btn btn-secondary"
+                  style={{ padding: '8px 18px', fontSize: '0.875rem', borderRadius: '9999px' }}
+                >
+                  لوحة الإدارة
+                </Link>
+              ) : (
+                <Link
+                  to="/dashboard"
+                  className="btn btn-secondary"
+                  style={{ padding: '8px 18px', fontSize: '0.875rem', borderRadius: '9999px' }}
+                >
+                  لوحة العميل
+                </Link>
+              )
             ) : (
               <button
                 onClick={() => signInWithGoogle().catch(err => console.error('Sign-in error:', err))}
