@@ -12,10 +12,11 @@ interface Plan {
 
 interface OrderModalProps {
   plan: Plan | null;
+  whatsappNum?: string;
   onClose: () => void;
 }
 
-export const OrderModal: React.FC<OrderModalProps> = ({ plan, onClose }) => {
+export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum = '9647750977509', onClose }) => {
   const { user, profile, signInWithGoogle } = useAuth();
   
   // Order inputs
@@ -63,6 +64,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, onClose }) => {
         setErrorMessage(error.message || 'حدث خطأ أثناء تسجيل الدخول بـ Google.');
       }
     } catch (err) {
+      console.error('Google login error in modal:', err);
       setErrorMessage('فشل تسجيل الدخول بـ Google.');
     } finally {
       setAuthLoading(false);
@@ -89,7 +91,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, onClose }) => {
         .from('orders')
         .select('*')
         .eq('gmail', gmail.trim().toLowerCase())
-        .eq('status', 'pending');
+        .eq('status', 'Pending');
 
       if (orderCheckError) throw orderCheckError;
 
@@ -105,7 +107,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, onClose }) => {
           plan_id: plan.id,
           gmail: gmail.trim().toLowerCase(),
           phone: phone.trim(),
-          status: 'pending'
+          status: 'Pending'
         });
 
       if (insertError) throw insertError;
@@ -385,7 +387,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, onClose }) => {
 
             <div className="flex flex-col gap-3">
               <a 
-                href={`https://wa.me/9647701234567?text=${encodeURIComponent(`مرحباً، قمت بتقديم طلب تفعيل باقة ${plan.name} على بريد ${gmail} وأود تسريع عملية التفعيل.`)}`}
+                href={`https://wa.me/${whatsappNum}?text=${encodeURIComponent(`مرحباً، قمت بتقديم طلب تفعيل باقة ${plan.name} على بريد ${gmail} وأود تسريع عملية التفعيل.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-primary"

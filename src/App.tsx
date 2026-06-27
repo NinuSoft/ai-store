@@ -4,6 +4,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import Admin from './pages/Admin';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
 import { RotateCw } from 'lucide-react';
 
 // Protected Route Guard (redirects to /?login=true if unauthenticated)
@@ -54,6 +56,8 @@ export const App: React.FC = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
           
           <Route 
             path="/dashboard" 

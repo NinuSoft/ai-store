@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
-  Sparkles, ShieldCheck, ArrowLeft, Users, ShoppingBag, 
-  RefreshCw, DollarSign, Activity, Check, X, Search, 
-  Trash2, UserPlus, Filter, Calendar, Mail, Phone
+  ShieldCheck, ArrowLeft, Users, ShoppingBag, 
+  DollarSign, Activity, Check, X, Search, PlusCircle
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -21,6 +20,7 @@ interface Order {
   id: string;
   user_id: string;
   plan_id: string;
+  product_id?: string;
   gmail: string;
   phone: string;
   status: 'pending' | 'processing' | 'awaiting_payment' | 'paid' | 'expired' | 'rejected';
@@ -28,7 +28,8 @@ interface Order {
   activation_date?: string;
   payment_date?: string;
   notes?: string;
-  user_email?: string; // Optional joined user data
+  user_email?: string;
+  plan_name_snapshot?: string;
 }
 
 interface Subscription {
@@ -73,7 +74,7 @@ export const Admin: React.FC = () => {
   }, [profile, navigate]);
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<'orders' | 'users' | 'renewals' | 'subscriptions'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'users' | 'renewals' | 'subscriptions' | 'products' | 'plans' | 'faqs' | 'testimonials' | 'settings'>('orders');
   
   // Data States
   const [loading, setLoading] = useState(true);
@@ -82,6 +83,17 @@ export const Admin: React.FC = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [renewals, setRenewals] = useState<Renewal[]>([]);
+
+  // CRUD Data States
+  const [productsList, setProductsList] = useState<any[]>([]);
+  const [faqsList, setFaqsList] = useState<any[]>([]);
+  const [testimonialsList, setTestimonialsList] = useState<any[]>([]);
+  const [settingsList, setSettingsList] = useState<any[]>([]);
+
+  // CRUD Modal/Editor States
+  const [editingItem, setEditingItem] = useState<any>(null);
+  const [isAdding, setIsAdding] = useState(false);
+  const [formFields, setFormFields] = useState<any>({});
 
   // Search & Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -107,37 +119,111 @@ export const Admin: React.FC = () => {
         setPlans(planMap);
       }
 
-      // 2. Fetch users
-      const { data: usersData } = await supabase.from('users').select('*');
-      if (usersData) setUsers(usersData);
+      // 2. Fetch users (profiles)
+      const { data: usersData } = await supabase.from('profiles').select('*');
+      let mappedUsers: UserProfile[] = [];
+      if (usersData) {
+        mappedUsers = usersData.map((u: any) => ({
+          id: u.id,
+          email: u.email || '',
+          phone: u.phone || '',
+          is_admin: u.role === 'admin',
+          created_at: u.created_at
+        }));
+        setUsers(mappedUsers);
+      }
 
       // 3. Fetch orders
       const { data: ordersData } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
-      if (ordersData) setOrders(ordersData);
+      let mappedOrders: Order[] = [];
+      if (ordersData) {
+        mappedOrders = ordersData.map((o: any) => {
+          let frontendStatus: Order['status'] = 'pending';
+          if (o.notes === 'PROCESSING') {
+            frontendStatus = 'processing';
+          } else if (o.status === 'Activated') {
+            if (o.payment_status === 'Paid') {
+              frontendStatus = 'paid';
+            } else if (o.payment_status === 'AwaitingPayment') {
+              frontendStatus = 'awaiting_payment';
+            } else {
+              frontendStatus = 'awaiting_payment';
+            }
+          } else if (o.status === 'Pending') {
+            frontendStatus = 'pending';
+          } else if (o.status === 'Rejected') {
+            frontendStatus = 'rejected';
+          } else if (o.status === 'Cancelled') {
+            frontendStatus = 'rejected';
+          }
+          return {
+            ...o,
+            status: frontendStatus
+          };
+        });
+        setOrders(mappedOrders);
+      }
 
       // 4. Fetch subscriptions
-      const { data: subsData } = await supabase.from('subscriptions').select('*').order('end_date', { ascending: false });
-      if (subsData) setSubscriptions(subsData);
+      const { data: subsData } = await supabase.from('subscriptions').select('*').order('expires_at', { ascending: false });
+      let mappedSubs: Subscription[] = [];
+      if (subsData) {
+        mappedSubs = subsData.map((s: any) => ({
+          id: s.id,
+          user_id: s.user_id,
+          plan_id: s.plan_id,
+          start_date: s.activated_at,
+          end_date: s.expires_at,
+          status: s.status.toLowerCase() as 'active' | 'expired'
+        }));
+        setSubscriptions(mappedSubs);
+      }
 
-      // 5. Fetch renewals
-      const { data: renewalsData } = await supabase.from('renewals').select('*').order('created_at', { ascending: false });
-      if (renewalsData) setRenewals(renewalsData);
+      // 5. Derive renewals from orders and subscriptions
+      const userHasSub = new Set(mappedSubs.map(s => s.user_id));
+      const derivedRenewals = mappedOrders
+        .filter((o: Order) => userHasSub.has(o.user_id) && o.status === 'pending')
+        .map((o: Order) => {
+          const associatedSub = mappedSubs.find(s => s.user_id === o.user_id);
+          return {
+            id: o.id,
+            user_id: o.user_id,
+            subscription_id: associatedSub?.id || '',
+            status: 'pending' as const,
+            created_at: o.created_at,
+            gmail: o.gmail,
+            phone: o.phone,
+            plan_name: planMap[o.plan_id]?.name || o.plan_name_snapshot || 'تجديد اشتراك'
+          };
+        });
+      setRenewals(derivedRenewals);
 
       // Calculate Statistics
-      const uCount = usersData?.length || 0;
-      const oCount = ordersData?.length || 0;
-      const pCount = ordersData?.filter((o: Order) => o.status === 'pending').length || 0;
-      const sCount = subsData?.filter((s: Subscription) => s.status === 'active').length || 0;
+      const uCount = mappedUsers.length;
+      const oCount = mappedOrders.length;
+      const pCount = mappedOrders.filter((o: Order) => o.status === 'pending').length;
+      const sCount = mappedSubs.filter((s: Subscription) => s.status === 'active').length;
       
       // Calculate revenue from paid orders
       let rev = 0;
-      if (ordersData && planMap) {
-        ordersData.forEach((o: Order) => {
-          if (o.status === 'paid' && planMap[o.plan_id]) {
-            rev += planMap[o.plan_id].price_iqd;
-          }
-        });
-      }
+      mappedOrders.forEach((o: Order) => {
+        if (o.status === 'paid' && planMap[o.plan_id]) {
+          rev += planMap[o.plan_id].price_iqd;
+        }
+      });
+
+      // 6. Fetch products, faqs, testimonials, settings
+      const { data: prodData } = await supabase.from('products').select('*');
+      if (prodData) setProductsList(prodData);
+
+      const { data: faqData } = await supabase.from('faqs').select('*').order('display_order', { ascending: true });
+      if (faqData) setFaqsList(faqData);
+
+      const { data: testData } = await supabase.from('testimonials').select('*').order('display_order', { ascending: true });
+      if (testData) setTestimonialsList(testData);
+
+      const { data: settData } = await supabase.from('settings').select('*');
+      if (settData) setSettingsList(settData);
 
       setStats({
         totalUsers: uCount,
@@ -167,7 +253,7 @@ export const Admin: React.FC = () => {
     try {
       const { error } = await supabase
         .from('orders')
-        .update({ status: 'processing' })
+        .update({ notes: 'PROCESSING' })
         .eq('id', orderId);
 
       if (error) throw error;
@@ -178,7 +264,7 @@ export const Admin: React.FC = () => {
     }
   };
 
-  // 2. Activate Subscription (Transitions status to awaiting_payment, automatically inserts active subscription, and sets activation_date)
+  // 2. Activate Subscription
   const handleApproveOrder = async (order: Order) => {
     try {
       const plan = plans[order.plan_id];
@@ -193,20 +279,22 @@ export const Admin: React.FC = () => {
         .from('subscriptions')
         .insert({
           user_id: order.user_id,
+          product_id: 'e5b98f24-5d5d-4f10-bf9d-f685d03a11b6', // Google AI Pro UUID
           plan_id: order.plan_id,
-          start_date: startDate.toISOString(),
-          end_date: endDate.toISOString(),
-          status: 'active'
+          activated_at: startDate.toISOString(),
+          expires_at: endDate.toISOString(),
+          status: 'Active'
         });
 
       if (subError) throw subError;
 
-      // B. Update Order Status to awaiting_payment and set activation_date
+      // B. Update Order Status
       const { error: orderError } = await supabase
         .from('orders')
         .update({ 
-          status: 'awaiting_payment',
-          activation_date: new Date().toISOString()
+          status: 'Activated',
+          payment_status: 'AwaitingPayment',
+          notes: ''
         })
         .eq('id', order.id);
 
@@ -220,14 +308,15 @@ export const Admin: React.FC = () => {
     }
   };
 
-  // 3. Mark Order as Paid (Transitions order to paid, sets payment_date)
+  // 3. Mark Order as Paid
   const handleMarkPaid = async (orderId: string) => {
     try {
       const { error } = await supabase
         .from('orders')
         .update({ 
-          status: 'paid',
-          payment_date: new Date().toISOString()
+          status: 'Activated',
+          payment_status: 'Paid',
+          notes: ''
         })
         .eq('id', orderId);
 
@@ -239,7 +328,7 @@ export const Admin: React.FC = () => {
     }
   };
 
-  // 4. Send Payment Reminder (Prefilled WhatsApp reminder)
+  // 4. Send Payment Reminder
   const formatIraqiPhoneForWhatsapp = (phone: string) => {
     let cleaned = phone.replace(/[^0-9]/g, '');
     if (cleaned.startsWith('07')) {
@@ -252,7 +341,7 @@ export const Admin: React.FC = () => {
     const plan = plans[order.plan_id];
     const planName = plan ? plan.name : 'Google AI Pro';
     const price = plan ? plan.price_iqd : 0;
-    const text = `مرحباً، تم تفعيل اشتراكك بـ ${planName} بنجاح على حسابك الشخصي. نود تذكيرك بتحويل مبلغ الاشتراك (${price.toLocaleString()} د.ع) لتأكيد حسابك بشكل نهائي عبر الرقم 07701234567. شكراً لثقتك بنا!`;
+    const text = `مرحباً، تم تفعيل اشتراكك بـ ${planName} بنجاح على حسابك الشخصي. نود تذكيرك بتحويل مبلغ الاشتراك (${price.toLocaleString()} د.ع) لتأكيد حسابك بشكل نهائي عبر الرقم 07750977509. شكراً لثقتك بنا!`;
     const phoneFormatted = formatIraqiPhoneForWhatsapp(order.phone);
     const url = `https://wa.me/${phoneFormatted}?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
@@ -280,7 +369,7 @@ export const Admin: React.FC = () => {
     try {
       const { error } = await supabase
         .from('orders')
-        .update({ status: 'rejected' })
+        .update({ status: 'Rejected' })
         .eq('id', orderId);
 
       if (error) throw error;
@@ -291,17 +380,15 @@ export const Admin: React.FC = () => {
     }
   };
 
-  // 3. Approve Renewal Request (extends active/expired sub)
+  // 3. Approve Renewal Request
   const handleApproveRenewal = async (renewal: Renewal) => {
     try {
-      // Find subscription details
       const sub = subscriptions.find(s => s.id === renewal.subscription_id);
       if (!sub) throw new Error('الاشتراك الأصلي غير موجود');
 
       const plan = plans[sub.plan_id];
       if (!plan) throw new Error('الباقة غير موجودة');
 
-      // Calculate new end date: if already expired, start from now. If active, add to current end date.
       const isExpired = new Date(sub.end_date) < new Date();
       const baseDate = isExpired ? new Date() : new Date(sub.end_date);
       const newEndDate = new Date(baseDate);
@@ -311,20 +398,23 @@ export const Admin: React.FC = () => {
       const { error: subError } = await supabase
         .from('subscriptions')
         .update({
-          end_date: newEndDate.toISOString(),
-          status: 'active'
+          expires_at: newEndDate.toISOString(),
+          status: 'Active'
         })
         .eq('id', sub.id);
 
       if (subError) throw subError;
 
-      // B. Update Renewal Request Status
-      const { error: renewalError } = await supabase
-        .from('renewals')
-        .update({ status: 'approved' })
+      // B. Update Renewal Order Status
+      const { error: orderError } = await supabase
+        .from('orders')
+        .update({
+          status: 'Activated',
+          payment_status: 'Paid'
+        })
         .eq('id', renewal.id);
 
-      if (renewalError) throw renewalError;
+      if (orderError) throw orderError;
 
       alert('تمت الموافقة وتمديد الاشتراك بنجاح!');
       await loadAdminData();
@@ -339,8 +429,8 @@ export const Admin: React.FC = () => {
     if (!window.confirm('هل أنت متأكد من رفض طلب التجديد هذا؟')) return;
     try {
       const { error } = await supabase
-        .from('renewals')
-        .update({ status: 'rejected' })
+        .from('orders')
+        .update({ status: 'Rejected' })
         .eq('id', renewalId);
 
       if (error) throw error;
@@ -359,8 +449,8 @@ export const Admin: React.FC = () => {
     }
     try {
       const { error } = await supabase
-        .from('users')
-        .update({ is_admin: !u.is_admin })
+        .from('profiles')
+        .update({ role: u.is_admin ? 'customer' : 'admin' })
         .eq('id', u.id);
 
       if (error) throw error;
@@ -368,6 +458,187 @@ export const Admin: React.FC = () => {
       await loadAdminData();
     } catch (err: any) {
       alert('حدث خطأ: ' + err.message);
+    }
+  };
+
+  // =========================================================================
+  // CRUD Action Handlers
+  // =========================================================================
+
+  // Products CRUD
+  const handleSaveProduct = async () => {
+    try {
+      const payload = {
+        name: formFields.name,
+        slug: formFields.slug,
+        description: formFields.description,
+        is_active: formFields.is_active ?? true
+      };
+      let error;
+      if (editingItem && editingItem.id) {
+        const res = await supabase.from('products').update(payload).eq('id', editingItem.id);
+        error = res.error;
+      } else {
+        const res = await supabase.from('products').insert(payload);
+        error = res.error;
+      }
+      if (error) throw error;
+      alert('تم حفظ المنتج بنجاح!');
+      setIsAdding(false);
+      setEditingItem(null);
+      await loadAdminData();
+    } catch (err: any) {
+      alert('خطأ أثناء حفظ المنتج: ' + err.message);
+    }
+  };
+
+  const handleDeleteProduct = async (id: string) => {
+    if (!window.confirm('هل أنت متأكد من حذف هذا المنتج؟ سيؤدي ذلك لحذف الباقات التابعة له.')) return;
+    try {
+      const { error } = await supabase.from('products').delete().eq('id', id);
+      if (error) throw error;
+      alert('تم حذف المنتج بنجاح.');
+      await loadAdminData();
+    } catch (err: any) {
+      alert('خطأ أثناء الحذف: ' + err.message);
+    }
+  };
+
+  // Plans CRUD
+  const handleSavePlan = async () => {
+    try {
+      const payload = {
+        product_id: formFields.product_id,
+        name: formFields.name,
+        duration_months: parseInt(formFields.duration_months),
+        price_iqd: parseInt(formFields.price_iqd),
+        official_price_iqd: formFields.official_price_iqd ? parseInt(formFields.official_price_iqd) : null,
+        badge: formFields.badge || null,
+        is_featured: formFields.is_featured ?? false,
+        display_order: parseInt(formFields.display_order ?? 0),
+        is_active: formFields.is_active ?? true
+      };
+      let error;
+      if (editingItem && editingItem.id) {
+        const res = await supabase.from('plans').update(payload).eq('id', editingItem.id);
+        error = res.error;
+      } else {
+        const res = await supabase.from('plans').insert(payload);
+        error = res.error;
+      }
+      if (error) throw error;
+      alert('تم حفظ الباقة بنجاح!');
+      setIsAdding(false);
+      setEditingItem(null);
+      await loadAdminData();
+    } catch (err: any) {
+      alert('خطأ أثناء حفظ الباقة: ' + err.message);
+    }
+  };
+
+  const handleDeletePlan = async (id: string) => {
+    if (!window.confirm('هل أنت متأكد من حذف هذه الباقة؟')) return;
+    try {
+      const { error } = await supabase.from('plans').delete().eq('id', id);
+      if (error) throw error;
+      alert('تم حذف الباقة بنجاح.');
+      await loadAdminData();
+    } catch (err: any) {
+      alert('خطأ أثناء الحذف: ' + err.message);
+    }
+  };
+
+  // FAQ CRUD
+  const handleSaveFaq = async () => {
+    try {
+      const payload = {
+        question: formFields.question,
+        answer: formFields.answer,
+        display_order: parseInt(formFields.display_order ?? 0),
+        is_active: formFields.is_active ?? true
+      };
+      let error;
+      if (editingItem && editingItem.id) {
+        const res = await supabase.from('faqs').update(payload).eq('id', editingItem.id);
+        error = res.error;
+      } else {
+        const res = await supabase.from('faqs').insert(payload);
+        error = res.error;
+      }
+      if (error) throw error;
+      alert('تم حفظ السؤال بنجاح!');
+      setIsAdding(false);
+      setEditingItem(null);
+      await loadAdminData();
+    } catch (err: any) {
+      alert('خطأ أثناء حفظ السؤال: ' + err.message);
+    }
+  };
+
+  const handleDeleteFaq = async (id: string) => {
+    if (!window.confirm('هل أنت متأكد من حذف هذا السؤال الشائع؟')) return;
+    try {
+      const { error } = await supabase.from('faqs').delete().eq('id', id);
+      if (error) throw error;
+      alert('تم حذف السؤال بنجاح.');
+      await loadAdminData();
+    } catch (err: any) {
+      alert('خطأ أثناء الحذف: ' + err.message);
+    }
+  };
+
+  // Testimonials CRUD
+  const handleSaveTestimonial = async () => {
+    try {
+      const payload = {
+        name: formFields.name,
+        rating: parseInt(formFields.rating ?? 5),
+        comment: formFields.comment,
+        display_order: parseInt(formFields.display_order ?? 0),
+        is_active: formFields.is_active ?? true
+      };
+      let error;
+      if (editingItem && editingItem.id) {
+        const res = await supabase.from('testimonials').update(payload).eq('id', editingItem.id);
+        error = res.error;
+      } else {
+        const res = await supabase.from('testimonials').insert(payload);
+        error = res.error;
+      }
+      if (error) throw error;
+      alert('تم حفظ التقييم بنجاح!');
+      setIsAdding(false);
+      setEditingItem(null);
+      await loadAdminData();
+    } catch (err: any) {
+      alert('خطأ أثناء حفظ التقييم: ' + err.message);
+    }
+  };
+
+  const handleDeleteTestimonial = async (id: string) => {
+    if (!window.confirm('هل أنت متأكد من حذف هذا التقييم؟')) return;
+    try {
+      const { error } = await supabase.from('testimonials').delete().eq('id', id);
+      if (error) throw error;
+      alert('تم حذف التقييم بنجاح.');
+      await loadAdminData();
+    } catch (err: any) {
+      alert('خطأ أثناء الحذف: ' + err.message);
+    }
+  };
+
+  // Settings Update
+  const handleSaveSetting = async (key: string, valueJson: any) => {
+    try {
+      const { error } = await supabase
+        .from('settings')
+        .update({ value: valueJson })
+        .eq('key', key);
+      if (error) throw error;
+      alert('تم تحديث الإعداد بنجاح!');
+      await loadAdminData();
+    } catch (err: any) {
+      alert('خطأ أثناء تحديث الإعداد: ' + err.message);
     }
   };
 
@@ -413,7 +684,6 @@ export const Admin: React.FC = () => {
 
   const filteredRenewals = renewals.filter(r => {
     // Map details on the fly
-    const sub = subscriptions.find(s => s.id === r.subscription_id);
     const orderRef = orders.find(o => o.user_id === r.user_id);
     const emailMatch = (orderRef?.gmail || getUserEmail(r.user_id)).toLowerCase().includes(searchTerm.toLowerCase());
     const statusMatch = statusFilter === 'all' || r.status === statusFilter;
@@ -426,6 +696,14 @@ export const Admin: React.FC = () => {
     const statusMatch = statusFilter === 'all' || s.status === statusFilter;
     return emailMatch && statusMatch;
   });
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[var(--background)] text-[var(--text)]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--primary)]"></div>
+      </div>
+    );
+  }
 
   if (profile && !profile.is_admin) {
     return null;
@@ -518,7 +796,7 @@ export const Admin: React.FC = () => {
           }}
         >
           {/* Tabs Toggles */}
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button 
               onClick={() => { setActiveTab('orders'); setStatusFilter('all'); }}
               className="btn"
@@ -563,6 +841,61 @@ export const Admin: React.FC = () => {
             >
               المستخدمين ({users.length})
             </button>
+            <button 
+              onClick={() => { setActiveTab('products'); setStatusFilter('all'); }}
+              className="btn"
+              style={{
+                fontSize: '0.85rem', padding: '8px 16px',
+                background: activeTab === 'products' ? 'var(--secondary)' : 'transparent',
+                color: activeTab === 'products' ? 'white' : 'var(--text)', border: activeTab === 'products' ? 'none' : '1px solid var(--border)'
+              }}
+            >
+              المنتجات ({productsList.length})
+            </button>
+            <button 
+              onClick={() => { setActiveTab('plans'); setStatusFilter('all'); }}
+              className="btn"
+              style={{
+                fontSize: '0.85rem', padding: '8px 16px',
+                background: activeTab === 'plans' ? 'var(--secondary)' : 'transparent',
+                color: activeTab === 'plans' ? 'white' : 'var(--text)', border: activeTab === 'plans' ? 'none' : '1px solid var(--border)'
+              }}
+            >
+              الباقات ({Object.keys(plans).length})
+            </button>
+            <button 
+              onClick={() => { setActiveTab('faqs'); setStatusFilter('all'); }}
+              className="btn"
+              style={{
+                fontSize: '0.85rem', padding: '8px 16px',
+                background: activeTab === 'faqs' ? 'var(--secondary)' : 'transparent',
+                color: activeTab === 'faqs' ? 'white' : 'var(--text)', border: activeTab === 'faqs' ? 'none' : '1px solid var(--border)'
+              }}
+            >
+              الأسئلة الشائعة ({faqsList.length})
+            </button>
+            <button 
+              onClick={() => { setActiveTab('testimonials'); setStatusFilter('all'); }}
+              className="btn"
+              style={{
+                fontSize: '0.85rem', padding: '8px 16px',
+                background: activeTab === 'testimonials' ? 'var(--secondary)' : 'transparent',
+                color: activeTab === 'testimonials' ? 'white' : 'var(--text)', border: activeTab === 'testimonials' ? 'none' : '1px solid var(--border)'
+              }}
+            >
+              الآراء ({testimonialsList.length})
+            </button>
+            <button 
+              onClick={() => { setActiveTab('settings'); setStatusFilter('all'); }}
+              className="btn"
+              style={{
+                fontSize: '0.85rem', padding: '8px 16px',
+                background: activeTab === 'settings' ? 'var(--secondary)' : 'transparent',
+                color: activeTab === 'settings' ? 'white' : 'var(--text)', border: activeTab === 'settings' ? 'none' : '1px solid var(--border)'
+              }}
+            >
+              الإعدادات
+            </button>
           </div>
 
           {/* Search box & filter status dropdown */}
@@ -582,7 +915,7 @@ export const Admin: React.FC = () => {
               />
             </div>
 
-            {activeTab !== 'users' && (
+            {['orders', 'renewals', 'subscriptions'].includes(activeTab) && (
               <select 
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
@@ -745,7 +1078,6 @@ export const Admin: React.FC = () => {
               <tbody>
                 {filteredRenewals.length > 0 ? (
                   filteredRenewals.map((r) => {
-                    const subRef = subscriptions.find(s => s.id === r.subscription_id);
                     const userPhone = users.find(u => u.id === r.user_id)?.phone || 'غير مسجل';
                     return (
                       <tr key={r.id} style={{ borderBottom: '1px solid var(--border)', background: r.status === 'pending' ? 'rgba(245, 158, 11, 0.02)' : 'none' }}>
@@ -825,7 +1157,6 @@ export const Admin: React.FC = () => {
             </table>
           )}
 
-          {/* TAB 4: USERS */}
           {activeTab === 'users' && (
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', fontSize: '0.9rem' }}>
               <thead>
@@ -867,6 +1198,538 @@ export const Admin: React.FC = () => {
                 )}
               </tbody>
             </table>
+          )}
+
+          {/* CRUD Form Modal */}
+          {(isAdding || editingItem) && (
+            <div style={{
+              position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+              backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex',
+              alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+              padding: '16px'
+            }}>
+              <div style={{
+                background: 'var(--card)', border: '1px solid var(--border)',
+                borderRadius: 'var(--radius)', padding: '24px', width: '100%',
+                maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto'
+              }}>
+                <h3 style={{ marginBottom: '20px', color: 'white', fontWeight: 600 }}>
+                  {editingItem ? 'تعديل البيانات' : 'إضافة سجل جديد'}
+                </h3>
+                
+                {activeTab === 'products' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>اسم المنتج</label>
+                      <input 
+                        type="text" value={formFields.name || ''} 
+                        onChange={e => setFormFields({...formFields, name: e.target.value})}
+                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>المعرف الفريد (Slug)</label>
+                      <input 
+                        type="text" value={formFields.slug || ''} 
+                        onChange={e => setFormFields({...formFields, slug: e.target.value})}
+                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>الوصف</label>
+                      <textarea 
+                        value={formFields.description || ''} 
+                        onChange={e => setFormFields({...formFields, description: e.target.value})}
+                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white', minHeight: '80px' }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <input 
+                        type="checkbox" checked={formFields.is_active ?? true} 
+                        onChange={e => setFormFields({...formFields, is_active: e.target.checked})}
+                        id="prod-active"
+                      />
+                      <label htmlFor="prod-active" style={{ fontSize: '0.85rem' }}>نشط ومتاح للعامة</label>
+                    </div>
+                    <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                      <button onClick={handleSaveProduct} className="btn btn-primary" style={{ padding: '8px 20px' }}>حفظ</button>
+                      <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="btn btn-outline" style={{ padding: '8px 20px' }}>إلغاء</button>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'plans' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>المنتج التابع له</label>
+                      <select 
+                        value={formFields.product_id || ''} 
+                        onChange={e => setFormFields({...formFields, product_id: e.target.value})}
+                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
+                      >
+                        <option value="">اختر المنتج...</option>
+                        {productsList.map(p => (
+                          <option key={p.id} value={p.id}>{p.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>اسم الباقة (مثال: 12 شهراً)</label>
+                      <input 
+                        type="text" value={formFields.name || ''} 
+                        onChange={e => setFormFields({...formFields, name: e.target.value})}
+                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
+                      />
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>المدة بالأشهر</label>
+                        <input 
+                          type="number" value={formFields.duration_months || ''} 
+                          onChange={e => setFormFields({...formFields, duration_months: e.target.value})}
+                          style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>الترتيب في العرض</label>
+                        <input 
+                          type="number" value={formFields.display_order ?? 0} 
+                          onChange={e => setFormFields({...formFields, display_order: e.target.value})}
+                          style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
+                        />
+                      </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>السعر المحلي (د.ع)</label>
+                        <input 
+                          type="number" value={formFields.price_iqd || ''} 
+                          onChange={e => setFormFields({...formFields, price_iqd: e.target.value})}
+                          style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>السعر الرسمي (د.ع - اختياري)</label>
+                        <input 
+                          type="number" value={formFields.official_price_iqd || ''} 
+                          onChange={e => setFormFields({...formFields, official_price_iqd: e.target.value})}
+                          style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>شارة العرض (مثل: العرض الأفضل - اختياري)</label>
+                      <input 
+                        type="text" value={formFields.badge || ''} 
+                        onChange={e => setFormFields({...formFields, badge: e.target.value})}
+                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', gap: '16px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <input 
+                          type="checkbox" checked={formFields.is_featured ?? false} 
+                          onChange={e => setFormFields({...formFields, is_featured: e.target.checked})}
+                          id="plan-featured"
+                        />
+                        <label htmlFor="plan-featured" style={{ fontSize: '0.85rem' }}>باقة مميزة وممتازة</label>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <input 
+                          type="checkbox" checked={formFields.is_active ?? true} 
+                          onChange={e => setFormFields({...formFields, is_active: e.target.checked})}
+                          id="plan-active"
+                        />
+                        <label htmlFor="plan-active" style={{ fontSize: '0.85rem' }}>نشطة ومتاحة</label>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                      <button onClick={handleSavePlan} className="btn btn-primary" style={{ padding: '8px 20px' }}>حفظ</button>
+                      <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="btn btn-outline" style={{ padding: '8px 20px' }}>إلغاء</button>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'faqs' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>السؤال (باللغة العربية)</label>
+                      <input 
+                        type="text" value={formFields.question || ''} 
+                        onChange={e => setFormFields({...formFields, question: e.target.value})}
+                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>الإجابة (باللغة العربية)</label>
+                      <textarea 
+                        value={formFields.answer || ''} 
+                        onChange={e => setFormFields({...formFields, answer: e.target.value})}
+                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white', minHeight: '120px' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>ترتيب العرض</label>
+                      <input 
+                        type="number" value={formFields.display_order ?? 0} 
+                        onChange={e => setFormFields({...formFields, display_order: e.target.value})}
+                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <input 
+                        type="checkbox" checked={formFields.is_active ?? true} 
+                        onChange={e => setFormFields({...formFields, is_active: e.target.checked})}
+                        id="faq-active"
+                      />
+                      <label htmlFor="faq-active" style={{ fontSize: '0.85rem' }}>نشط ويعرض بالموقع</label>
+                    </div>
+                    <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                      <button onClick={handleSaveFaq} className="btn btn-primary" style={{ padding: '8px 20px' }}>حفظ</button>
+                      <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="btn btn-outline" style={{ padding: '8px 20px' }}>إلغاء</button>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'testimonials' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>اسم العميل</label>
+                      <input 
+                        type="text" value={formFields.name || ''} 
+                        onChange={e => setFormFields({...formFields, name: e.target.value})}
+                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>التقييم (عدد النجوم)</label>
+                      <select 
+                        value={formFields.rating ?? 5} 
+                        onChange={e => setFormFields({...formFields, rating: e.target.value})}
+                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
+                      >
+                        <option value="5">5 نجوم</option>
+                        <option value="4">4 نجوم</option>
+                        <option value="3">3 نجوم</option>
+                        <option value="2">2 نجوم</option>
+                        <option value="1">نجمة واحدة</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>التعليق والريادة</label>
+                      <textarea 
+                        value={formFields.comment || ''} 
+                        onChange={e => setFormFields({...formFields, comment: e.target.value})}
+                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white', minHeight: '100px' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>ترتيب العرض</label>
+                      <input 
+                        type="number" value={formFields.display_order ?? 0} 
+                        onChange={e => setFormFields({...formFields, display_order: e.target.value})}
+                        style={{ width: '100%', padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <input 
+                        type="checkbox" checked={formFields.is_active ?? true} 
+                        onChange={e => setFormFields({...formFields, is_active: e.target.checked})}
+                        id="test-active"
+                      />
+                      <label htmlFor="test-active" style={{ fontSize: '0.85rem' }}>نشط ويعرض بالموقع</label>
+                    </div>
+                    <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                      <button onClick={handleSaveTestimonial} className="btn btn-primary" style={{ padding: '8px 20px' }}>حفظ</button>
+                      <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="btn btn-outline" style={{ padding: '8px 20px' }}>إلغاء</button>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            </div>
+          )}
+
+          {/* TAB 5: PRODUCTS */}
+          {activeTab === 'products' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                <button 
+                  onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ name: '', slug: '', description: '', is_active: true }); }}
+                  className="btn btn-primary"
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                >
+                  <PlusCircle size={16} /> إضافة منتج جديد
+                </button>
+              </div>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', fontSize: '0.9rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
+                    <th style={{ padding: '16px', color: 'var(--text)' }}>الاسم</th>
+                    <th style={{ padding: '16px', color: 'var(--text)' }}>المعرف (Slug)</th>
+                    <th style={{ padding: '16px', color: 'var(--text)' }}>الوصف</th>
+                    <th style={{ padding: '16px', color: 'var(--text)' }}>الحالة</th>
+                    <th style={{ padding: '16px', color: 'white', textAlign: 'center' }}>العمليات</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {productsList.length > 0 ? (
+                    productsList.map((p) => (
+                      <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                        <td style={{ padding: '16px', fontWeight: 600, color: 'white' }}>{p.name}</td>
+                        <td style={{ padding: '16px' }} className="number-latin">{p.slug}</td>
+                        <td style={{ padding: '16px', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.description}</td>
+                        <td style={{ padding: '16px' }}>
+                          <span className={`badge ${p.is_active ? 'badge-success' : 'badge-danger'}`}>
+                            {p.is_active ? 'نشط' : 'معطل'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '16px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                          <button 
+                            onClick={() => { setEditingItem(p); setIsAdding(false); setFormFields(p); }}
+                            className="btn btn-outline"
+                            style={{ padding: '6px 12px', fontSize: '0.75rem' }}
+                          >
+                            تعديل
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteProduct(p.id)}
+                            className="btn btn-outline"
+                            style={{ padding: '6px 12px', fontSize: '0.75rem', borderColor: 'var(--danger)', color: '#f87171' }}
+                          >
+                            حذف
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد منتجات مسجلة.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* TAB 6: PLANS */}
+          {activeTab === 'plans' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                <button 
+                  onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ name: '', product_id: productsList[0]?.id || '', duration_months: 1, price_iqd: 15000, official_price_iqd: null, badge: '', is_featured: false, display_order: 0, is_active: true }); }}
+                  className="btn btn-primary"
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                >
+                  <PlusCircle size={16} /> إضافة باقة جديدة
+                </button>
+              </div>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', fontSize: '0.9rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
+                    <th style={{ padding: '16px', color: 'var(--text)' }}>الباقة</th>
+                    <th style={{ padding: '16px', color: 'var(--text)' }}>المنتج</th>
+                    <th style={{ padding: '16px', color: 'var(--text)' }}>المدة</th>
+                    <th style={{ padding: '16px', color: 'var(--text)' }}>السعر المحلي</th>
+                    <th style={{ padding: '16px', color: 'var(--text)' }}>شارة الباقة</th>
+                    <th style={{ padding: '16px', color: 'var(--text)' }}>الحالة</th>
+                    <th style={{ padding: '16px', color: 'white', textAlign: 'center' }}>العمليات</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.values(plans).length > 0 ? (
+                    Object.values(plans).map((p: any) => {
+                      const prod = productsList.find(pr => pr.id === p.product_id);
+                      return (
+                        <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                          <td style={{ padding: '16px', fontWeight: 600, color: 'white' }}>{p.name} {p.is_featured && <span style={{ fontSize: '0.75rem', color: 'var(--primary)' }}>(مميزة)</span>}</td>
+                          <td style={{ padding: '16px' }}>{prod?.name || 'غير معروف'}</td>
+                          <td style={{ padding: '16px' }} className="number-latin">{p.duration_months} شهر</td>
+                          <td style={{ padding: '16px' }} className="number-latin">{p.price_iqd.toLocaleString()} د.ع</td>
+                          <td style={{ padding: '16px' }}>{p.badge || '-'}</td>
+                          <td style={{ padding: '16px' }}>
+                            <span className={`badge ${p.is_active ? 'badge-success' : 'badge-danger'}`}>
+                              {p.is_active ? 'نشطة' : 'معطلة'}
+                            </span>
+                          </td>
+                          <td style={{ padding: '16px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                            <button 
+                              onClick={() => { setEditingItem(p); setIsAdding(false); setFormFields(p); }}
+                              className="btn btn-outline"
+                              style={{ padding: '6px 12px', fontSize: '0.75rem' }}
+                            >
+                              تعديل
+                            </button>
+                            <button 
+                              onClick={() => handleDeletePlan(p.id)}
+                              className="btn btn-outline"
+                              style={{ padding: '6px 12px', fontSize: '0.75rem', borderColor: 'var(--danger)', color: '#f87171' }}
+                            >
+                              حذف
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan={7} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد باقات مسجلة.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* TAB 7: FAQS */}
+          {activeTab === 'faqs' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                <button 
+                  onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ question: '', answer: '', display_order: 0, is_active: true }); }}
+                  className="btn btn-primary"
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                >
+                  <PlusCircle size={16} /> إضافة سؤال شائع
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {faqsList.length > 0 ? (
+                  faqsList.map((f) => (
+                    <div key={f.id} style={{ border: '1px solid var(--border)', borderRadius: '6px', padding: '16px', background: 'rgba(255,255,255,0.01)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '10px', marginBottom: '10px' }}>
+                        <span style={{ fontWeight: 600, color: 'white' }}>{f.question}</span>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <span className={`badge ${f.is_active ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '0.7rem' }}>
+                            {f.is_active ? 'نشط' : 'معطل'}
+                          </span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>الترتيب: {f.display_order}</span>
+                        </div>
+                      </div>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '12px' }}>{f.answer}</p>
+                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                        <button 
+                          onClick={() => { setEditingItem(f); setIsAdding(false); setFormFields(f); }}
+                          className="btn btn-outline"
+                          style={{ padding: '4px 10px', fontSize: '0.7rem' }}
+                        >
+                          تعديل
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteFaq(f.id)}
+                          className="btn btn-outline"
+                          style={{ padding: '4px 10px', fontSize: '0.7rem', borderColor: 'var(--danger)', color: '#f87171' }}
+                        >
+                          حذف
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد أسئلة شائعة مسجلة.</div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 8: TESTIMONIALS */}
+          {activeTab === 'testimonials' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                <button 
+                  onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ name: '', rating: 5, comment: '', display_order: 0, is_active: true }); }}
+                  className="btn btn-primary"
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                >
+                  <PlusCircle size={16} /> إضافة رأي عميل
+                </button>
+              </div>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', fontSize: '0.9rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
+                    <th style={{ padding: '16px', color: 'var(--text)' }}>العميل</th>
+                    <th style={{ padding: '16px', color: 'var(--text)' }}>التقييم</th>
+                    <th style={{ padding: '16px', color: 'var(--text)' }}>التعليق</th>
+                    <th style={{ padding: '16px', color: 'var(--text)' }}>الترتيب</th>
+                    <th style={{ padding: '16px', color: 'white', textAlign: 'center' }}>العمليات</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {testimonialsList.length > 0 ? (
+                    testimonialsList.map((t) => (
+                      <tr key={t.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                        <td style={{ padding: '16px', fontWeight: 600, color: 'white' }}>{t.name}</td>
+                        <td style={{ padding: '16px', color: '#fbbf24' }}>{Array(t.rating).fill('★').join('')}</td>
+                        <td style={{ padding: '16px', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.comment}</td>
+                        <td style={{ padding: '16px' }} className="number-latin">{t.display_order}</td>
+                        <td style={{ padding: '16px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                          <button 
+                            onClick={() => { setEditingItem(t); setIsAdding(false); setFormFields(t); }}
+                            className="btn btn-outline"
+                            style={{ padding: '6px 12px', fontSize: '0.75rem' }}
+                          >
+                            تعديل
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteTestimonial(t.id)}
+                            className="btn btn-outline"
+                            style={{ padding: '6px 12px', fontSize: '0.75rem', borderColor: 'var(--danger)', color: '#f87171' }}
+                          >
+                            حذف
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد تقييمات مسجلة.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* TAB 9: SETTINGS */}
+          {activeTab === 'settings' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '800px' }}>
+              {settingsList.map((s) => {
+                const currentVal = s.value;
+                return (
+                  <div key={s.key} style={{ border: '1px solid var(--border)', borderRadius: '6px', padding: '20px', background: 'rgba(255,255,255,0.01)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '10px', marginBottom: '15px' }}>
+                      <h4 style={{ fontWeight: 600, color: 'white' }}>{currentVal.label || s.key}</h4>
+                      <code style={{ fontSize: '0.75rem', color: 'var(--primary)' }}>{s.key}</code>
+                    </div>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>{currentVal.description || 'إعدادات النظام.'}</p>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                      <input 
+                        type={s.key === 'exchange_rate' || s.key === 'google_official_annual_price' ? 'number' : 'text'}
+                        defaultValue={currentVal.value}
+                        id={`setting-input-${s.key}`}
+                        style={{ flexGrow: 1, padding: '8px 12px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white', fontSize: '0.85rem' }}
+                      />
+                      <button 
+                        onClick={() => {
+                          const input = document.getElementById(`setting-input-${s.key}`) as HTMLInputElement;
+                          const rawVal = input.value;
+                          const parsedVal = s.key === 'exchange_rate' || s.key === 'google_official_annual_price' ? parseFloat(rawVal) : rawVal;
+                          const updatedVal = {
+                            ...currentVal,
+                            value: parsedVal
+                          };
+                          handleSaveSetting(s.key, updatedVal);
+                        }}
+                        className="btn btn-primary"
+                        style={{ padding: '8px 20px', fontSize: '0.8rem', whiteSpace: 'nowrap' }}
+                      >
+                        حفظ التعديل
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
 
         </section>

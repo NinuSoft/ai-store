@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
-  Sparkles, CheckCircle2, ShieldCheck, Zap, MessageSquare,
-  CreditCard, Users, Laptop, Brain, FileText, Image as ImageIcon,
-  Code, PenTool, Search, Check, X, ArrowLeft
+  Sparkles, CheckCircle2, ShieldCheck, MessageSquare,
+  CreditCard, Laptop, Brain, FileText, Image as ImageIcon,
+  Code, PenTool, Search, Check
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -11,7 +11,6 @@ import { StatsCounter } from '../components/StatsCounter';
 import { TestimonialsCarousel } from '../components/TestimonialsCarousel';
 import { FAQAccordion } from '../components/FAQAccordion';
 import { OrderModal } from '../components/OrderModal';
-import { LoginModal } from '../components/LoginModal';
 import { IntroScreen } from '../components/IntroScreen';
 import { supabase } from '../lib/supabase';
 import { ThemeToggle } from '../components/ThemeToggle';
@@ -22,10 +21,11 @@ interface Plan {
   name: string;
   duration_months: number;
   price_iqd: number;
+  official_price_iqd?: number;
 }
 
 export const Home: React.FC = () => {
-  const { user } = useAuth();
+  const { user, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -33,7 +33,6 @@ export const Home: React.FC = () => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [showIntro, setShowIntro] = useState(() => !!document.getElementById('ns-intro'));
   const [countdown, setCountdown] = useState({ hours: 2, minutes: 14, seconds: 45 });
 
@@ -41,10 +40,10 @@ export const Home: React.FC = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get('login') === 'true') {
-      setIsLoginModalOpen(true);
+      signInWithGoogle().catch(err => console.error('Redirect sign-in error:', err));
       navigate('/', { replace: true });
     }
-  }, [location, navigate]);
+  }, [location, navigate, signInWithGoogle]);
 
   // Fetch plans
   useEffect(() => {
@@ -58,6 +57,32 @@ export const Home: React.FC = () => {
       }
     };
     fetchPlans();
+  }, []);
+
+  const [whatsappNum, setWhatsappNum] = useState('9647750977509');
+
+  // Fetch settings (WhatsApp number)
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('settings')
+          .select('*');
+        if (!error && data) {
+          const wa = data.find((s: any) => s.key === 'whatsapp');
+          if (wa && wa.value) {
+            let val = typeof wa.value === 'string' ? JSON.parse(wa.value).value : wa.value.value;
+            if (val) {
+              const cleanNum = val.replace(/\D/g, '');
+              setWhatsappNum(cleanNum);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching settings from Supabase:', err);
+      }
+    };
+    fetchSettings();
   }, []);
 
   // Countdown timer logic
@@ -208,7 +233,7 @@ export const Home: React.FC = () => {
               </Link>
             ) : (
               <button
-                onClick={() => setIsLoginModalOpen(true)}
+                onClick={() => signInWithGoogle().catch(err => console.error('Sign-in error:', err))}
                 style={{
                   background: 'transparent',
                   border: 'none',
@@ -731,16 +756,18 @@ export const Home: React.FC = () => {
                 .pricing-card-elevated { transform: translateY(0) !important; }
               }
             `}</style>
-            {plans.map((p, idx) => {
+            {plans.map((p) => {
               const isRecommended = p.duration_months === 12;
               const isMid = p.duration_months === 3;
               const monthlyPrice = Math.round(p.price_iqd / p.duration_months);
 
-              // Reference: 1-month plan is the base price, compute savings vs monthly
+              // Reference: compute savings relative to official Google price if available, otherwise vs monthly base
               const basePlan = plans.find(x => x.duration_months === 1);
-              const savingsPct = basePlan && p.duration_months > 1
-                ? Math.round((1 - monthlyPrice / basePlan.price_iqd) * 100)
-                : 0;
+              const savingsPct = p.official_price_iqd && p.official_price_iqd > p.price_iqd
+                ? Math.round((1 - p.price_iqd / p.official_price_iqd) * 100)
+                : (basePlan && p.duration_months > 1
+                  ? Math.round((1 - monthlyPrice / basePlan.price_iqd) * 100)
+                  : 0);
 
               return (
                 <div
@@ -823,11 +850,18 @@ export const Home: React.FC = () => {
                   <div className="p-4 md:p-6 flex-1 flex flex-col justify-between">
                     <div>
                       {/* Price block */}
-                      <div className="bg-black/[0.02] dark:bg-white/[0.01] border border-[var(--border)] rounded-2xl p-5 text-center mb-6 relative">
+                      <div className="bg-black/[0.02] dark:bg-white/[0.01] border border-[var(--border)] rounded-2xl p-5 text-center mb-6 relative flex flex-col items-center justify-center min-h-[140px]">
                         {/* Floating discount badge */}
                         {savingsPct > 0 && (
                           <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] font-black px-3.5 py-1 rounded-full shadow-md shadow-emerald-500/20 whitespace-nowrap animate-bounce">
                             وفر {savingsPct}%
+                          </div>
+                        )}
+
+                        {/* Original Google Price */}
+                        {p.official_price_iqd && p.official_price_iqd > p.price_iqd && (
+                          <div className="text-[11px] text-[var(--text-muted)] line-through mb-1 font-bold">
+                            السعر الرسمي من Google: <span className="number-latin">{p.official_price_iqd.toLocaleString()}</span> د.ع
                           </div>
                         )}
 
@@ -1154,7 +1188,7 @@ export const Home: React.FC = () => {
             <h4 style={{ color: 'var(--text)', fontSize: '0.95rem', fontWeight: 700, marginBottom: '16px' }}>تواصل معنا</h4>
             <p style={{ fontSize: '0.85rem', marginBottom: '8px' }}>لديكم استفسار أو بحاجة لمساعدة؟</p>
             <a
-              href="https://wa.me/9647701234567"
+              href={`https://wa.me/${whatsappNum}`}
               target="_blank"
               rel="noopener noreferrer"
               style={{
@@ -1167,20 +1201,24 @@ export const Home: React.FC = () => {
               }}
             >
               <MessageSquare size={16} style={{ color: '#25d366' }} />
-              واتساب: <span className="number-latin">+964 770 123 4567</span>
+              واتساب: <span className="number-latin">+{whatsappNum.slice(0, 3)} {whatsappNum.slice(3, 6)} {whatsappNum.slice(6, 9)} {whatsappNum.slice(9)}</span>
             </a>
           </div>
         </div>
 
         <div style={{ borderTop: '1px solid var(--border)', paddingTop: '24px', textAlign: 'center', fontSize: '0.8rem' }}>
           <p>© {new Date().getFullYear()} NinuSoft AI. جميع الحقوق محفوظة ومضمونة.</p>
+          <div className="flex justify-center gap-6 mt-3 mb-2">
+            <Link to="/privacy" className="hover:text-[var(--primary)] font-semibold transition-colors">سياسة الخصوصية</Link>
+            <Link to="/terms" className="hover:text-[var(--primary)] font-semibold transition-colors">شروط الخدمة والاستخدام</Link>
+          </div>
           <p style={{ marginTop: '4px', opacity: 0.5 }}>موقع مستقل وغير تابع لشركة Google Inc. رسميًا، نوفر خدمات المساعدة لتنشيط الاشتراكات محليًا.</p>
         </div>
       </footer>
 
       {/* 13. FLOATING STICKY WHATSAPP ESCAPE HATCH */}
       <a
-        href="https://wa.me/9647701234567?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D9%84%D8%AF%D9%8A%20%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%A8%D8%AE%D8%B5%D9%88%D8%B5%20%D8%A7%D8%B4%D8%AA%D8%B1%D8%A7%D9%83%20Google%20AI%20Pro."
+        href={`https://wa.me/${whatsappNum}?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D9%84%D8%AF%D9%8A%20%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%A8%D8%AE%D8%B5%D9%88%D8%B5%20%D8%A7%D8%B4%D8%AA%D8%B1%D8%A7%D9%83%20Google%20AI%20Pro.`}
         target="_blank"
         rel="noopener noreferrer"
         className="whatsapp-float animate-float"
@@ -1210,16 +1248,12 @@ export const Home: React.FC = () => {
       {isOrderModalOpen && (
         <OrderModal
           plan={selectedPlan}
+          whatsappNum={whatsappNum}
           onClose={() => setIsOrderModalOpen(false)}
         />
       )}
 
-      {/* 17. LOGIN MODAL */}
-      {isLoginModalOpen && (
-        <LoginModal
-          onClose={() => setIsLoginModalOpen(false)}
-        />
-      )}
+      {/* 17. LOGIN MODAL REMOVED (DIRECT GOOGLE OAUTH) */}
 
       {/* 18. SCROLL PROGRESS BACK TO TOP */}
       <ScrollProgressButton />

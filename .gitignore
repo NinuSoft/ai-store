@@ -47,3 +47,10 @@ attached_assets/
 # Replit
 .cache/
 .local/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+supabase/

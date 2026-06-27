@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
-  Sparkles, ShieldCheck, LogOut, Clock, Calendar, CheckCircle2, 
-  XCircle, AlertCircle, HelpCircle, MessageSquare, ChevronLeft, 
-  RotateCw, PlusCircle 
+  Sparkles, LogOut, Clock, Calendar, CheckCircle2, 
+  AlertCircle, MessageSquare, RotateCw, PlusCircle 
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -19,6 +18,7 @@ interface Plan {
 
 interface Order {
   id: string;
+  user_id: string;
   gmail: string;
   phone: string;
   status: 'pending' | 'processing' | 'awaiting_payment' | 'paid' | 'expired' | 'rejected';
@@ -27,14 +27,19 @@ interface Order {
   activation_date?: string;
   payment_date?: string;
   notes?: string;
+  plan_name_snapshot?: string;
 }
 
 interface Subscription {
   id: string;
+  user_id: string;
   plan_id: string;
+  product_id?: string;
   start_date: string;
   end_date: string;
   status: 'active' | 'expired';
+  gmail?: string;
+  phone?: string;
 }
 
 interface Renewal {
@@ -57,8 +62,9 @@ export const Dashboard: React.FC = () => {
   // Action states
   const [submittingRenewal, setSubmittingRenewal] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState({ text: '', type: '' });
+  const [whatsappNum, setWhatsappNum] = useState('9647750977509');
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     try {
@@ -70,40 +76,99 @@ export const Dashboard: React.FC = () => {
         setPlans(planMap);
       }
 
+      // Fetch settings
+      const { data: settingsData } = await supabase.from('settings').select('*');
+      if (settingsData) {
+        const wa = settingsData.find((s: any) => s.key === 'whatsapp');
+        if (wa && wa.value) {
+          let val = typeof wa.value === 'string' ? JSON.parse(wa.value).value : wa.value.value;
+          if (val) {
+            setWhatsappNum(val.replace(/\D/g, ''));
+          }
+        }
+      }
+
       // 2. Fetch user orders
       const { data: ordersData } = await supabase
         .from('orders')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
-      if (ordersData) setOrders(ordersData);
+      
+      let mappedOrders: Order[] = [];
+      if (ordersData) {
+        mappedOrders = ordersData.map((o: any) => {
+          let frontendStatus: Order['status'] = 'pending';
+          if (o.status === 'Activated') {
+            if (o.payment_status === 'Paid') {
+              frontendStatus = 'paid';
+            } else if (o.payment_status === 'AwaitingPayment') {
+              frontendStatus = 'awaiting_payment';
+            } else {
+              frontendStatus = 'awaiting_payment';
+            }
+          } else if (o.status === 'Pending') {
+            frontendStatus = 'pending';
+          } else if (o.status === 'Rejected') {
+            frontendStatus = 'rejected';
+          } else if (o.status === 'Cancelled') {
+            frontendStatus = 'rejected';
+          }
+          return {
+            ...o,
+            status: frontendStatus
+          };
+        });
+        setOrders(mappedOrders);
+      }
 
       // 3. Fetch user subscriptions
       const { data: subsData } = await supabase
         .from('subscriptions')
         .select('*')
         .eq('user_id', user.id)
-        .order('end_date', { ascending: false });
-      if (subsData) setSubscriptions(subsData);
+        .order('expires_at', { ascending: false });
+      
+      let mappedSubs: Subscription[] = [];
+      if (subsData) {
+        mappedSubs = subsData.map((s: any) => ({
+          id: s.id,
+          user_id: s.user_id,
+          plan_id: s.plan_id,
+          product_id: s.product_id,
+          start_date: s.activated_at,
+          end_date: s.expires_at,
+          status: s.status.toLowerCase() as 'active' | 'expired'
+        }));
+        setSubscriptions(mappedSubs);
+      }
 
-      // 4. Fetch renewals
-      const { data: renewalsData } = await supabase
-        .from('renewals')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-      if (renewalsData) setRenewals(renewalsData);
+      // 4. Derive renewals from mapped orders and subscriptions
+      const activeSubRef = mappedSubs.find(s => s.status === 'active') || mappedSubs[0];
+      const derivedRenewals = mappedOrders
+        .filter((o: Order) => o.status === 'pending')
+        .map((o: Order) => ({
+          id: o.id,
+          user_id: o.user_id,
+          subscription_id: activeSubRef?.id || '',
+          status: 'pending' as const,
+          created_at: o.created_at,
+          gmail: o.gmail,
+          phone: o.phone,
+          plan_name: planMap[o.plan_id]?.name || 'تجديد اشتراك'
+        }));
+      setRenewals(derivedRenewals);
 
     } catch (err) {
       console.error('Error loading dashboard data:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     loadData();
-  }, [user]);
+  }, [user, loadData]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -112,9 +177,7 @@ export const Dashboard: React.FC = () => {
 
   const handleRequestRenewal = async (sub: Subscription) => {
     // Check if there is already a pending renewal for this subscription
-    const hasPending = renewals.some(
-      r => r.subscription_id === sub.id && r.status === 'pending'
-    );
+    const hasPending = orders.some(o => o.status === 'pending');
 
     if (hasPending) {
       setActionMessage({ text: 'يوجد بالفعل طلب تجديد قيد المراجعة لهذا الاشتراك.', type: 'warning' });
@@ -125,12 +188,20 @@ export const Dashboard: React.FC = () => {
     setActionMessage({ text: '', type: '' });
 
     try {
+      const plan = plans[sub.plan_id];
       const { error } = await supabase
-        .from('renewals')
+        .from('orders')
         .insert({
           user_id: user.id,
-          subscription_id: sub.id,
-          status: 'pending'
+          product_id: sub.product_id || 'e5b98f24-5d5d-4f10-bf9d-f685d03a11b6',
+          plan_id: sub.plan_id,
+          gmail: sub.gmail || user.email || '',
+          phone: sub.phone || profile?.phone || '',
+          status: 'Pending',
+          payment_status: 'Pending',
+          product_name_snapshot: 'Google AI Pro',
+          plan_name_snapshot: plan?.name || '12 Months',
+          price_snapshot: plan?.price_iqd || 40000
         });
 
       if (error) throw error;
@@ -314,7 +385,7 @@ export const Dashboard: React.FC = () => {
 
                 <div className="flex flex-col gap-3" style={{ minWidth: '220px', justifySelf: 'flex-end' }}>
                   <a 
-                    href={`https://wa.me/9647701234567?text=${encodeURIComponent(whatsappText)}`}
+                    href={`https://wa.me/${whatsappNum}?text=${encodeURIComponent(whatsappText)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn btn-primary"
@@ -434,7 +505,7 @@ export const Dashboard: React.FC = () => {
                     </button>
                     
                     <a 
-                      href={`https://wa.me/9647701234567?text=${encodeURIComponent(`مرحباً، أود الاستفسار حول اشتراكي الحالي المفعّل على حسابي.`)}`}
+                      href={`https://wa.me/${whatsappNum}?text=${encodeURIComponent(`مرحباً، أود الاستفسار حول اشتراكي الحالي المفعّل على حسابي.`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-outline"
@@ -582,7 +653,7 @@ export const Dashboard: React.FC = () => {
               </p>
 
               <a 
-                href="https://wa.me/9647701234567?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D9%84%D8%AF%D9%8A%20%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%A8%D8%AE%D8%B5%D9%88%D8%B5%20%D8%A7%D8%B4%D8%AA%D8%B1%D8%A7%D9%83%D9%8A."
+                href={`https://wa.me/${whatsappNum}?text=${encodeURIComponent('مرحباً، لدي استفسار بخصوص اشتراكي.')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-primary"

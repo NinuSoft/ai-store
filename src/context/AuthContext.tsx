@@ -24,18 +24,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Fetch public.users profile row for extra metadata (phone, is_admin)
+  // Fetch public.profiles profile row for extra metadata (phone, is_admin)
   const fetchProfile = async (userId: string) => {
     try {
       const { data, error } = await supabase
-        .from('users')
+        .from('profiles')
         .select('*')
         .eq('id', userId);
 
       if (error) throw error;
 
       if (data && data.length > 0) {
-        setProfile(data[0]);
+        const dbProfile = data[0];
+        setProfile({
+          id: dbProfile.id,
+          phone: dbProfile.phone || '',
+          email: dbProfile.email || '',
+          is_admin: dbProfile.role === 'admin',
+          created_at: dbProfile.created_at
+        });
       } else {
         setProfile(null);
       }
