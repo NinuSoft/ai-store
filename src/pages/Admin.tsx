@@ -102,6 +102,22 @@ export const Admin: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
+  // Snackbar State
+  const [snackbar, setSnackbar] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showSnackbar = (message: string, type: 'success' | 'error' = 'success') => {
+    setSnackbar({ message, type });
+  };
+
+  useEffect(() => {
+    if (snackbar) {
+      const timer = setTimeout(() => {
+        setSnackbar(null);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [snackbar]);
+
   // Stats Counters
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -111,8 +127,8 @@ export const Admin: React.FC = () => {
     totalRevenue: 0
   });
 
-  const loadAdminData = async () => {
-    setLoading(true);
+  const loadAdminData = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       // 1. Fetch plans
       const { data: plansData } = await supabase.from('plans').select('*');
@@ -241,7 +257,7 @@ export const Admin: React.FC = () => {
     } catch (err) {
       console.error('Error loading admin dashboard:', err);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -262,10 +278,10 @@ export const Admin: React.FC = () => {
         .eq('id', orderId);
 
       if (error) throw error;
-      alert('تم تغيير حالة الطلب إلى (جاري التفعيل) بنجاح!');
-      await loadAdminData();
+      showSnackbar('تم تغيير حالة الطلب إلى (جاري التفعيل) بنجاح!');
+      await loadAdminData(true);
     } catch (err: any) {
-      alert('حدث خطأ: ' + err.message);
+      showSnackbar('حدث خطأ: ' + err.message, 'error');
     }
   };
 
@@ -305,11 +321,11 @@ export const Admin: React.FC = () => {
 
       if (orderError) throw orderError;
 
-      alert('تم تنشيط وتفعيل الاشتراك بنجاح! حالة الطلب الآن: بانتظار الدفع.');
-      await loadAdminData();
+      showSnackbar('تم تنشيط وتفعيل الاشتراك بنجاح! حالة الطلب الآن: بانتظار الدفع.');
+      await loadAdminData(true);
     } catch (err: any) {
       console.error(err);
-      alert('حدث خطأ: ' + err.message);
+      showSnackbar('حدث خطأ: ' + err.message, 'error');
     }
   };
 
@@ -326,10 +342,10 @@ export const Admin: React.FC = () => {
         .eq('id', orderId);
 
       if (error) throw error;
-      alert('تم تأكيد استلام الدفع وتحويل حالة الطلب إلى (مكتمل / مدفوع) بنجاح!');
-      await loadAdminData();
+      showSnackbar('تم تأكيد استلام الدفع وتحويل حالة الطلب إلى (مكتمل / مدفوع) بنجاح!');
+      await loadAdminData(true);
     } catch (err: any) {
-      alert('حدث خطأ: ' + err.message);
+      showSnackbar('حدث خطأ: ' + err.message, 'error');
     }
   };
 
@@ -361,10 +377,10 @@ export const Admin: React.FC = () => {
         .eq('id', orderId);
 
       if (error) throw error;
-      alert('تم حفظ الملاحظة بنجاح!');
-      await loadAdminData();
+      showSnackbar('تم حفظ الملاحظة بنجاح!');
+      await loadAdminData(true);
     } catch (err: any) {
-      alert('حدث خطأ أثناء حفظ الملاحظة: ' + err.message);
+      showSnackbar('حدث خطأ أثناء حفظ الملاحظة: ' + err.message, 'error');
     }
   };
 
@@ -378,10 +394,10 @@ export const Admin: React.FC = () => {
         .eq('id', orderId);
 
       if (error) throw error;
-      alert('تم رفض الطلب بنجاح.');
-      await loadAdminData();
+      showSnackbar('تم رفض الطلب بنجاح.');
+      await loadAdminData(true);
     } catch (err: any) {
-      alert('حدث خطأ: ' + err.message);
+      showSnackbar('حدث خطأ: ' + err.message, 'error');
     }
   };
 
@@ -421,11 +437,11 @@ export const Admin: React.FC = () => {
 
       if (orderError) throw orderError;
 
-      alert('تمت الموافقة وتمديد الاشتراك بنجاح!');
-      await loadAdminData();
+      showSnackbar('تمت الموافقة وتمديد الاشتراك بنجاح!');
+      await loadAdminData(true);
     } catch (err: any) {
       console.error(err);
-      alert('حدث خطأ: ' + err.message);
+      showSnackbar('حدث خطأ: ' + err.message, 'error');
     }
   };
 
@@ -439,17 +455,17 @@ export const Admin: React.FC = () => {
         .eq('id', renewalId);
 
       if (error) throw error;
-      alert('تم رفض طلب التجديد.');
-      await loadAdminData();
+      showSnackbar('تم رفض طلب التجديد.');
+      await loadAdminData(true);
     } catch (err: any) {
-      alert('حدث خطأ: ' + err.message);
+      showSnackbar('حدث خطأ: ' + err.message, 'error');
     }
   };
 
   // 5. Toggle Admin Permission
   const handleToggleAdmin = async (u: UserProfile) => {
     if (u.id === user.id) {
-      alert('لا يمكنك إزالة صلاحيات المدير عن نفسك!');
+      showSnackbar('لا يمكنك إزالة صلاحيات المدير عن نفسك!', 'error');
       return;
     }
     try {
@@ -459,10 +475,10 @@ export const Admin: React.FC = () => {
         .eq('id', u.id);
 
       if (error) throw error;
-      alert('تم تعديل صلاحية المدير بنجاح.');
-      await loadAdminData();
+      showSnackbar('تم تعديل صلاحية المدير بنجاح.');
+      await loadAdminData(true);
     } catch (err: any) {
-      alert('حدث خطأ: ' + err.message);
+      showSnackbar('حدث خطأ: ' + err.message, 'error');
     }
   };
 
@@ -488,12 +504,12 @@ export const Admin: React.FC = () => {
         error = res.error;
       }
       if (error) throw error;
-      alert('تم حفظ المنتج بنجاح!');
+      showSnackbar('تم حفظ المنتج بنجاح!');
       setIsAdding(false);
       setEditingItem(null);
-      await loadAdminData();
+      await loadAdminData(true);
     } catch (err: any) {
-      alert('خطأ أثناء حفظ المنتج: ' + err.message);
+      showSnackbar('خطأ أثناء حفظ المنتج: ' + err.message, 'error');
     }
   };
 
@@ -502,10 +518,10 @@ export const Admin: React.FC = () => {
     try {
       const { error } = await supabase.from('products').delete().eq('id', id);
       if (error) throw error;
-      alert('تم حذف المنتج بنجاح.');
-      await loadAdminData();
+      showSnackbar('تم حذف المنتج بنجاح.');
+      await loadAdminData(true);
     } catch (err: any) {
-      alert('خطأ أثناء الحذف: ' + err.message);
+      showSnackbar('خطأ أثناء الحذف: ' + err.message, 'error');
     }
   };
 
@@ -532,12 +548,12 @@ export const Admin: React.FC = () => {
         error = res.error;
       }
       if (error) throw error;
-      alert('تم حفظ الباقة بنجاح!');
+      showSnackbar('تم حفظ الباقة بنجاح!');
       setIsAdding(false);
       setEditingItem(null);
-      await loadAdminData();
+      await loadAdminData(true);
     } catch (err: any) {
-      alert('خطأ أثناء حفظ الباقة: ' + err.message);
+      showSnackbar('خطأ أثناء حفظ الباقة: ' + err.message, 'error');
     }
   };
 
@@ -546,10 +562,10 @@ export const Admin: React.FC = () => {
     try {
       const { error } = await supabase.from('plans').delete().eq('id', id);
       if (error) throw error;
-      alert('تم حذف الباقة بنجاح.');
-      await loadAdminData();
+      showSnackbar('تم حذف الباقة بنجاح.');
+      await loadAdminData(true);
     } catch (err: any) {
-      alert('خطأ أثناء الحذف: ' + err.message);
+      showSnackbar('خطأ أثناء الحذف: ' + err.message, 'error');
     }
   };
 
@@ -571,12 +587,12 @@ export const Admin: React.FC = () => {
         error = res.error;
       }
       if (error) throw error;
-      alert('تم حفظ السؤال بنجاح!');
+      showSnackbar('تم حفظ السؤال بنجاح!');
       setIsAdding(false);
       setEditingItem(null);
-      await loadAdminData();
+      await loadAdminData(true);
     } catch (err: any) {
-      alert('خطأ أثناء حفظ السؤال: ' + err.message);
+      showSnackbar('خطأ أثناء حفظ السؤال: ' + err.message, 'error');
     }
   };
 
@@ -585,10 +601,10 @@ export const Admin: React.FC = () => {
     try {
       const { error } = await supabase.from('faqs').delete().eq('id', id);
       if (error) throw error;
-      alert('تم حذف السؤال بنجاح.');
-      await loadAdminData();
+      showSnackbar('تم حذف السؤال بنجاح.');
+      await loadAdminData(true);
     } catch (err: any) {
-      alert('خطأ أثناء الحذف: ' + err.message);
+      showSnackbar('خطأ أثناء الحذف: ' + err.message, 'error');
     }
   };
 
@@ -611,12 +627,12 @@ export const Admin: React.FC = () => {
         error = res.error;
       }
       if (error) throw error;
-      alert('تم حفظ التقييم بنجاح!');
+      showSnackbar('تم حفظ التقييم بنجاح!');
       setIsAdding(false);
       setEditingItem(null);
-      await loadAdminData();
+      await loadAdminData(true);
     } catch (err: any) {
-      alert('خطأ أثناء حفظ التقييم: ' + err.message);
+      showSnackbar('خطأ أثناء حفظ التقييم: ' + err.message, 'error');
     }
   };
 
@@ -625,10 +641,10 @@ export const Admin: React.FC = () => {
     try {
       const { error } = await supabase.from('testimonials').delete().eq('id', id);
       if (error) throw error;
-      alert('تم حذف التقييم بنجاح.');
-      await loadAdminData();
+      showSnackbar('تم حذف التقييم بنجاح.');
+      await loadAdminData(true);
     } catch (err: any) {
-      alert('خطأ أثناء الحذف: ' + err.message);
+      showSnackbar('خطأ أثناء الحذف: ' + err.message, 'error');
     }
   };
 
@@ -640,10 +656,10 @@ export const Admin: React.FC = () => {
         .update({ value: valueJson })
         .eq('key', key);
       if (error) throw error;
-      alert('تم تحديث الإعداد بنجاح!');
-      await loadAdminData();
+      showSnackbar('تم تحديث الإعداد بنجاح!');
+      await loadAdminData(true);
     } catch (err: any) {
-      alert('خطأ أثناء تحديث الإعداد: ' + err.message);
+      showSnackbar('خطأ أثناء تحديث الإعداد: ' + err.message, 'error');
     }
   };
 
@@ -723,6 +739,19 @@ export const Admin: React.FC = () => {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--background)', color: 'var(--text)' }}>
       <style>{`
+        @keyframes slide-in {
+          from {
+            transform: translateY(20px);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+        .animate-slide-in {
+          animation: slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
         .admin-layout {
           display: flex;
           flex-direction: column;
@@ -1911,6 +1940,37 @@ export const Admin: React.FC = () => {
 
       </main>
 
+      {snackbar && (
+        <div 
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl transition-all duration-300 border animate-slide-in"
+          style={{
+            background: 'var(--card-bg)',
+            backdropFilter: 'blur(16px)',
+            borderColor: snackbar.type === 'success' ? 'rgba(34, 197, 94, 0.4)' : 'rgba(239, 68, 68, 0.4)',
+            boxShadow: snackbar.type === 'success' 
+              ? '0 0 20px rgba(34, 197, 94, 0.15), var(--shadow)' 
+              : '0 0 20px rgba(239, 68, 68, 0.15), var(--shadow)',
+          }}
+        >
+          <div className="p-1 rounded-lg" style={{ background: snackbar.type === 'success' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)' }}>
+            {snackbar.type === 'success' ? (
+              <Check className="h-5 w-5 text-green-500" />
+            ) : (
+              <X className="h-5 w-5 text-red-500" />
+            )}
+          </div>
+          <span className="text-sm font-medium" style={{ color: 'var(--text)' }}>
+            {snackbar.message}
+          </span>
+          <button 
+            onClick={() => setSnackbar(null)}
+            className="ml-2 hover:opacity-75 transition-opacity"
+            style={{ color: 'var(--text-muted)' }}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

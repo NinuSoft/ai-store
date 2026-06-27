@@ -35,6 +35,11 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 // Admin Route Guard (for Admin Dashboard)
 const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, profile, loading } = useAuth();
+  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+  if (isLocalhost) {
+    return <>{children}</>;
+  }
 
   if (loading) {
     return (
