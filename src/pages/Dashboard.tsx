@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { 
-  Sparkles, LogOut, Clock, Calendar, CheckCircle2, 
-  AlertCircle, MessageSquare, RotateCw, PlusCircle 
+import {
+  Sparkles, LogOut, Clock, Calendar, CheckCircle2,
+  AlertCircle, MessageSquare, RotateCw, PlusCircle,
+  User, Wallet, Activity
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -264,6 +265,20 @@ export const Dashboard: React.FC = () => {
 
   const awaitingPaymentOrders = orders.filter(o => o.status === 'awaiting_payment');
 
+  // Dashboard overview stats
+  const activeSubsCount = subscriptions.filter(s => s.status === 'active').length;
+  const pendingOrdersCount = orders.filter(o => o.status === 'pending').length;
+  const totalSpent = orders
+    .filter(o => o.status === 'paid')
+    .reduce((sum, o) => sum + (plans[o.plan_id]?.price_iqd || 0), 0);
+
+  const greeting = (() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'صباح الخير';
+    if (hour < 18) return 'مساء الخير';
+    return 'مساء الخير';
+  })();
+
   const getSubscriptionStatusDetails = (sub: Subscription) => {
     const hasPendingRenewal = renewals.some(
       r => r.subscription_id === sub.id && r.status === 'pending'
@@ -314,6 +329,82 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--background)' }}>
+      <style>{`
+        .dash-metric {
+          position: relative;
+          border-radius: 24px;
+          border: 1px solid var(--border);
+          background: linear-gradient(135deg, rgba(255, 255, 255, 0.015) 0%, rgba(255, 255, 255, 0.005) 100%);
+          padding: 22px;
+          overflow: hidden;
+          backdrop-filter: blur(30px);
+          -webkit-backdrop-filter: blur(30px);
+          transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+          box-shadow: var(--shadow);
+        }
+        .dash-metric:hover {
+          transform: translateY(-5px);
+          border-color: rgba(99, 102, 241, 0.35);
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18), 0 0 24px rgba(99, 102, 241, 0.08);
+        }
+        .dash-metric-glow {
+          position: absolute;
+          top: -50px; right: -50px;
+          width: 120px; height: 120px;
+          border-radius: 50%;
+          filter: blur(45px);
+          opacity: 0.14;
+          pointer-events: none;
+        }
+        .dash-welcome {
+          position: relative;
+          border-radius: 28px;
+          border: 1px solid var(--border);
+          background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-glow) 100%);
+          padding: 28px 32px;
+          overflow: hidden;
+          box-shadow: var(--shadow);
+        }
+        .dash-welcome::before {
+          content: '';
+          position: absolute;
+          top: -40px; left: -40px;
+          width: 200px; height: 200px;
+          border-radius: 50%;
+          background: radial-gradient(circle, var(--primary-glow), transparent 70%);
+          opacity: 0.5;
+          pointer-events: none;
+        }
+        .dash-avatar {
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.4rem;
+          font-weight: 800;
+          color: white;
+          background: linear-gradient(135deg, var(--primary), var(--secondary));
+          box-shadow: var(--shadow-primary);
+          flex-shrink: 0;
+          overflow: hidden;
+        }
+        .dash-avatar img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        .dash-profile-row {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 10px 0;
+        }
+        .dash-profile-row + .dash-profile-row {
+          border-top: 1px solid var(--border);
+        }
+      `}</style>
       
       {/* HEADER */}
       <header style={{ borderBottom: '1px solid var(--border)', background: 'var(--background-alt)', padding: '16px 0' }}>
@@ -348,6 +439,87 @@ export const Dashboard: React.FC = () => {
 
       <main className="container" style={{ padding: '40px 20px' }}>
         
+        {/* Welcome Banner */}
+        <div className="dash-welcome animate-fade-in" style={{ marginBottom: '28px' }}>
+          <div className="flex items-center gap-5 flex-wrap" style={{ position: 'relative', zIndex: 1 }}>
+            <div className="dash-avatar">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt={profile?.full_name || 'user'} />
+              ) : (
+                <User size={26} />
+              )}
+            </div>
+            <div className="flex flex-col" style={{ gap: '2px' }}>
+              <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                {greeting} 👋
+              </span>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text)' }}>
+                {profile?.full_name || 'مرحباً بك'}
+              </h2>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                {activeSub?.status === 'active'
+                  ? 'اشتراكك نشط ومفعّل — استمتع بمزايا Google AI Pro'
+                  : activeSub?.status === 'suspended'
+                    ? 'اشتراكك معلّق حالياً — يرجى التواصل مع الدعم الفني'
+                    : activeSub?.status === 'expired'
+                      ? 'انتهت صلاحية اشتراكك — جدّد الآن لاستئناف الخدمة'
+                      : 'لا يوجد اشتراك مفعّل بعد — تصفح الباقات وابدأ الآن'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Overview */}
+        <section className="grid grid-cols-4 gap-6" style={{ marginBottom: '28px' }}>
+          <div className="dash-metric animate-fade-in animate-delay-1">
+            <div className="dash-metric-glow" style={{ background: 'var(--success)' }} />
+            <div className="flex items-center justify-between mb-2">
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>الأيام المتبقية</span>
+              <Clock size={20} style={{ color: 'var(--success)' }} />
+            </div>
+            <strong style={{ fontSize: '1.7rem', color: 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
+              {daysRemaining}
+            </strong>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', display: 'block', marginTop: '2px' }}>يوم في الاشتراك الحالي</span>
+          </div>
+
+          <div className="dash-metric animate-fade-in animate-delay-2">
+            <div className="dash-metric-glow" style={{ background: 'var(--primary)' }} />
+            <div className="flex items-center justify-between mb-2">
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>الاشتراكات النشطة</span>
+              <Activity size={20} style={{ color: 'var(--primary)' }} />
+            </div>
+            <strong style={{ fontSize: '1.7rem', color: 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
+              {activeSubsCount}
+            </strong>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', display: 'block', marginTop: '2px' }}>اشتراك مفعّل الآن</span>
+          </div>
+
+          <div className="dash-metric animate-fade-in animate-delay-3" style={{ border: pendingOrdersCount > 0 ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid var(--border)' }}>
+            <div className="dash-metric-glow" style={{ background: 'var(--warning)' }} />
+            <div className="flex items-center justify-between mb-2">
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>طلبات قيد المراجعة</span>
+              <RotateCw size={20} style={{ color: 'var(--warning)' }} />
+            </div>
+            <strong style={{ fontSize: '1.7rem', color: pendingOrdersCount > 0 ? 'var(--warning)' : 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
+              {pendingOrdersCount}
+            </strong>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', display: 'block', marginTop: '2px' }}>بانتظار الموافقة</span>
+          </div>
+
+          <div className="dash-metric animate-fade-in animate-delay-4">
+            <div className="dash-metric-glow" style={{ background: 'var(--secondary)' }} />
+            <div className="flex items-center justify-between mb-2">
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>إجمالي المدفوعات</span>
+              <Wallet size={20} style={{ color: 'var(--secondary)' }} />
+            </div>
+            <strong style={{ fontSize: '1.7rem', color: 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
+              {totalSpent.toLocaleString('en-US')}
+            </strong>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', display: 'block', marginTop: '2px' }}>د.ع</span>
+          </div>
+        </section>
+
         {/* Notification Banner */}
         {actionMessage.text && (
           <div 
