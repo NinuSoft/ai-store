@@ -104,6 +104,8 @@ CREATE TABLE public.orders (
     status TEXT DEFAULT 'Pending' NOT NULL,
     payment_status TEXT DEFAULT 'Pending' NOT NULL,
     notes TEXT,
+    activation_date TIMESTAMPTZ,
+    payment_date TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT now() NOT NULL,
     CONSTRAINT chk_order_price CHECK (price_snapshot IS NULL OR price_snapshot >= 0),

@@ -392,6 +392,7 @@ export const Admin: React.FC = () => {
         .update({
           status: 'Activated',
           payment_status: 'AwaitingPayment',
+          activation_date: new Date().toISOString(),
           notes: ''
         })
         .eq('id', order.id);
@@ -414,6 +415,7 @@ export const Admin: React.FC = () => {
         .update({
           status: 'Activated',
           payment_status: 'Paid',
+          payment_date: new Date().toISOString(),
           notes: ''
         })
         .eq('id', orderId);
@@ -513,7 +515,9 @@ export const Admin: React.FC = () => {
         .from('orders')
         .update({
           status: 'Activated',
-          payment_status: 'Paid'
+          payment_status: 'Paid',
+          activation_date: new Date().toISOString(),
+          payment_date: new Date().toISOString()
         })
         .eq('id', renewal.id);
 
