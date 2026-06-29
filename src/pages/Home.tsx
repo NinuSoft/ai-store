@@ -3,7 +3,7 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
   Sparkles, CheckCircle2, ShieldCheck, MessageSquare,
   CreditCard, Laptop, Brain, FileText, Image as ImageIcon,
-  Code, PenTool, Search, Check, Phone, Send
+  Code, PenTool, Search, Check, Phone, Send, X
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -46,6 +46,7 @@ export const Home: React.FC = () => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const [isContactMenuOpen, setIsContactMenuOpen] = useState(false);
 
   // Listen to redirect query param from protected route guards
   useEffect(() => {
@@ -1344,17 +1345,83 @@ export const Home: React.FC = () => {
         </div>
       </footer>
 
-      {/* 13. FLOATING STICKY WHATSAPP ESCAPE HATCH */}
-      <a
-        href={`https://wa.me/${whatsappNum}?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D9%84%D8%AF%D9%8A%20%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%A8%D8%AE%D8%B5%D9%88%D8%B5%20%D8%A7%D8%B4%D8%AA%D8%B1%D8%A7%D9%83%20Google%20AI%20Pro.`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="whatsapp-float animate-float"
-        title="تواصل معنا قبل الشراء"
-      >
-        <span className="whatsapp-pulse-ring" />
-        <WhatsAppIcon size={26} style={{ position: 'relative', zIndex: 10 }} />
-      </a>
+      {/* 13. FLOATING STICKY SUPPORT ESCAPE HATCH */}
+      <div className="support-float-container">
+        {isContactMenuOpen && (
+          <div className="support-float-menu" dir="rtl">
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textAlign: 'center', display: 'block', marginBottom: '4px' }}>
+              تواصل معنا عبر:
+            </span>
+            <a
+              href={`https://wa.me/${whatsappNum}?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D9%84%D8%AF%D9%8A%20%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%A8%D8%AE%D8%B5%D9%88%D8%B5%20%D8%A7%D8%B4%D8%AA%D8%B1%D8%A7%D9%83%20Google%20AI%20Pro.`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setIsContactMenuOpen(false)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 12px',
+                borderRadius: '12px',
+                background: 'rgba(37, 211, 102, 0.1)',
+                color: '#25d366',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                transition: 'background 0.2s',
+                textDecoration: 'none'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(37, 211, 102, 0.18)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(37, 211, 102, 0.1)'}
+            >
+              <WhatsAppIcon size={16} />
+              <span>واتساب</span>
+            </a>
+            <a
+              href="https://t.me/NinuSoft?direct"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setIsContactMenuOpen(false)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 12px',
+                borderRadius: '12px',
+                background: 'rgba(34, 158, 217, 0.1)',
+                color: '#229ED9',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                transition: 'background 0.2s',
+                textDecoration: 'none'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(34, 158, 217, 0.18)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(34, 158, 217, 0.1)'}
+            >
+              <Send size={16} />
+              <span>تلغرام</span>
+            </a>
+          </div>
+        )}
+        
+        <button
+          onClick={() => setIsContactMenuOpen(!isContactMenuOpen)}
+          className="support-float-btn"
+          title="تواصل معنا"
+          style={{
+            background: isContactMenuOpen ? 'var(--danger)' : 'var(--primary)',
+            boxShadow: isContactMenuOpen ? '0 8px 24px rgba(239, 68, 68, 0.3)' : 'var(--shadow-primary)'
+          }}
+        >
+          {isContactMenuOpen ? (
+            <X size={22} style={{ color: 'white', position: 'relative', zIndex: 10 }} />
+          ) : (
+            <>
+              <span className="support-pulse-ring" />
+              <MessageSquare size={22} style={{ color: 'white', position: 'relative', zIndex: 10 }} />
+            </>
+          )}
+        </button>
+      </div>
 
       {/* 14. STICKY MOBILE CTA BAR */}
       <div className="sticky-bar">

@@ -806,6 +806,90 @@ textarea {
   }
 }
 
+/* ── GENERAL SUPPORT FLOAT ── */
+.support-float-container {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 999;
+  width: 58px;
+  height: 58px;
+}
+
+.support-float-btn {
+  background: var(--primary);
+  color: white;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-primary);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+}
+
+.support-float-btn:hover {
+  transform: scale(1.1) rotate(4deg);
+  box-shadow: var(--shadow-primary);
+}
+
+.support-float-menu {
+  position: absolute;
+  bottom: 0;
+  right: 70px;
+  background: var(--surface-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  padding: 12px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 150px;
+  animation: slideLeftFade 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.support-pulse-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background-color: var(--primary);
+  animation: whatsapp-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.3;
+}
+
+@keyframes slideLeftFade {
+  from {
+    opacity: 0;
+    transform: translateX(12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@media (max-width: 768px) {
+  .support-float-container {
+    bottom: 90px;
+    right: 18px;
+    width: 52px;
+    height: 52px;
+  }
+  .support-float-menu {
+    right: 64px;
+    bottom: 0;
+  }
+}
+
 /* ── COUNTDOWN BANNER ──────────────────────────────────────────────── */
 .countdown-banner {
   background: linear-gradient(90deg,
