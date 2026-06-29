@@ -3399,10 +3399,10 @@ export const Admin: React.FC = () => {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
-              <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.01)' }}>
+              <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.01)', gridColumn: '1 / -1' }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>البريد الإلكتروني للـ Gmail</span>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginTop: '4px' }}>
-                  <strong style={{ fontSize: '1rem', color: 'var(--text)', wordBreak: 'break-all' }} className="number-latin">
+                  <strong style={{ fontSize: '1.15rem', color: 'var(--text)', whiteSpace: 'nowrap' }} className="number-latin">
                     {selectedGmailAccountDetails.email}
                   </strong>
                   <button
