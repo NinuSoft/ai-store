@@ -3398,39 +3398,38 @@ export const Admin: React.FC = () => {
               <button onClick={() => setSelectedGmailAccountDetails(null)} className="admin-table-action-btn delete" style={{ padding: '6px 12px' }}>إغلاق</button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
-              <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.01)', gridColumn: '1 / -1' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>البريد الإلكتروني للـ Gmail</span>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginTop: '4px' }}>
-                  <strong style={{ fontSize: '1.15rem', color: 'var(--text)', whiteSpace: 'nowrap' }} className="number-latin">
-                    {selectedGmailAccountDetails.email}
-                  </strong>
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(selectedGmailAccountDetails.email);
-                      showSnackbar('تم نسخ البريد الإلكتروني (Email copied).', 'success');
-                    }}
-                    className="admin-table-action-btn"
-                    style={{ padding: '4px 6px', flexShrink: 0 }}
-                    title="نسخ البريد الإلكتروني"
-                  >
-                    <Copy size={12} />
-                  </button>
-                </div>
-              </div>
-              <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.01)' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>الباقة المرتبطة</span>
-                <strong style={{ display: 'block', fontSize: '1rem', marginTop: '4px', color: 'var(--text)' }}>
-                  {plans[selectedGmailAccountDetails.plan_id]?.name || 'غير معروف'}
+            {/* Premium Email Banner */}
+            <div className="glass-panel" style={{ padding: '20px', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '20px' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>البريد الإلكتروني للـ Gmail</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+                <strong style={{ fontSize: '1.35rem', color: 'var(--primary)', letterSpacing: '0.5px', fontFamily: 'monospace' }} className="number-latin">
+                  {selectedGmailAccountDetails.email}
                 </strong>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(selectedGmailAccountDetails.email);
+                    showSnackbar('تم نسخ البريد الإلكتروني (Email copied).', 'success');
+                  }}
+                  className="btn btn-secondary"
+                  style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', border: '1px solid var(--border)' }}
+                >
+                  <Copy size={14} />
+                  <span>نسخ البريد</span>
+                </button>
               </div>
-              <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.01)', gridColumn: '1 / -1' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>رمز الـ 2FA المؤقت (TOTP) والـ Secret</span>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255, 255, 255, 0.04)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                      <Clock size={12} className="text-success" style={{ color: 'var(--success)' }} />
-                      <span className="number-latin" style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', fontFamily: 'monospace', width: '24px', textAlign: 'center' }}>
+            </div>
+
+            {/* Grid Layout for details */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
+              
+              {/* Column 1: 2FA Authentication Card */}
+              <div className="glass-panel" style={{ padding: '20px', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '12px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '180px' }}>
+                <div>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '12px' }}>رمز الـ 2FA المؤقت (TOTP)</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255, 255, 255, 0.04)', padding: '6px 10px', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                      <Clock size={14} style={{ color: 'var(--success)' }} />
+                      <span className="number-latin" style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-muted)', fontFamily: 'monospace' }}>
                         {30 - (Math.floor(Date.now() / 1000) % 30)}s
                       </span>
                     </div>
@@ -3441,61 +3440,81 @@ export const Admin: React.FC = () => {
                       })()}
                     </strong>
                   </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button
-                      onClick={() => {
-                        const otp = generateTOTP(selectedGmailAccountDetails.twofa_secret);
-                        navigator.clipboard.writeText(otp);
-                        showSnackbar('تم نسخ رمز 2FA (2FA code copied).', 'success');
-                      }}
-                      className="admin-table-action-btn success"
-                      style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
-                    >
-                      <Copy size={12} /> نسخ الرمز
-                    </button>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(selectedGmailAccountDetails.twofa_secret);
-                        showSnackbar('تم نسخ المفتاح السري (2FA Secret copied).', 'success');
-                      }}
-                      className="admin-table-action-btn"
-                      style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
-                    >
-                      <Copy size={12} /> نسخ Secret
-                    </button>
+                </div>
+                
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={() => {
+                      const otp = generateTOTP(selectedGmailAccountDetails.twofa_secret);
+                      navigator.clipboard.writeText(otp);
+                      showSnackbar('تم نسخ رمز 2FA (2FA code copied).', 'success');
+                    }}
+                    className="admin-table-action-btn success"
+                    style={{ padding: '8px 12px', fontSize: '0.8rem', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                  >
+                    <Copy size={12} /> نسخ الرمز
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(selectedGmailAccountDetails.twofa_secret);
+                      showSnackbar('تم نسخ المفتاح السري (2FA Secret copied).', 'success');
+                    }}
+                    className="admin-table-action-btn"
+                    style={{ padding: '8px 12px', fontSize: '0.8rem', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                  >
+                    <Copy size={12} /> نسخ Secret
+                  </button>
+                </div>
+              </div>
+
+              {/* Column 2: Plan, Expiry, Status, capacity */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {/* Row 1: Plan and Status */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div className="glass-panel" style={{ padding: '12px 16px', background: 'rgba(255, 255, 255, 0.01)', border: '1px solid var(--border)' }}>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>الباقة</span>
+                    <strong style={{ display: 'block', fontSize: '0.95rem', marginTop: '2px', color: 'var(--text)' }}>
+                      {plans[selectedGmailAccountDetails.plan_id]?.name || 'غير معروف'}
+                    </strong>
+                  </div>
+                  <div className="glass-panel" style={{ padding: '12px 16px', background: 'rgba(255, 255, 255, 0.01)', border: '1px solid var(--border)' }}>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>الحالة</span>
+                    <div style={{ marginTop: '4px' }}>
+                      <span className={`status-pill ${selectedGmailAccountDetails.status === 'Available' ? 'paid' : 'expired'}`} style={{ display: 'inline-flex', padding: '2px 8px', fontSize: '0.75rem' }}>
+                        {selectedGmailAccountDetails.status === 'Available' ? 'متاح' :
+                         selectedGmailAccountDetails.status === 'Full' ? 'ممتلئ' :
+                         selectedGmailAccountDetails.status === 'Expired' ? 'منتهي' : 'ملغى'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Row 2: Expiration and Members count */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div className="glass-panel" style={{ padding: '12px 16px', background: 'rgba(255, 255, 255, 0.01)', border: '1px solid var(--border)' }}>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>انتهاء الصلاحية</span>
+                    <strong style={{ display: 'block', fontSize: '0.95rem', marginTop: '2px', color: 'var(--text)' }} className="number-latin">
+                      {selectedGmailAccountDetails.subscription_valid_until ? new Date(selectedGmailAccountDetails.subscription_valid_until).toLocaleDateString('en-GB') : '—'}
+                    </strong>
+                  </div>
+                  <div className="glass-panel" style={{ padding: '12px 16px', background: 'rgba(255, 255, 255, 0.01)', border: '1px solid var(--border)' }}>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>المشتركون الحاليون</span>
+                    <strong style={{ display: 'block', fontSize: '0.95rem', marginTop: '2px', color: 'var(--text)' }} className="number-latin">
+                      {subscriptions.filter(s => s.gmail_account_id === selectedGmailAccountDetails.id && s.status === 'active').length} / {selectedGmailAccountDetails.max_members}
+                    </strong>
                   </div>
                 </div>
               </div>
-              <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.01)' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>صلاحية اشتراك الحساب</span>
-                <strong style={{ display: 'block', fontSize: '1rem', marginTop: '4px', color: 'var(--text)' }} className="number-latin">
-                  {selectedGmailAccountDetails.subscription_valid_until ? new Date(selectedGmailAccountDetails.subscription_valid_until).toLocaleDateString('en-GB') : '—'}
-                </strong>
-              </div>
-              <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.01)' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>حالة الحساب</span>
-                <strong style={{ display: 'block', fontSize: '1rem', marginTop: '4px' }}>
-                  <span className={`status-pill ${selectedGmailAccountDetails.status === 'Available' ? 'paid' : 'expired'}`} style={{ display: 'inline-flex' }}>
-                    {selectedGmailAccountDetails.status === 'Available' ? 'متاح' :
-                      selectedGmailAccountDetails.status === 'Full' ? 'ممتلئ' :
-                        selectedGmailAccountDetails.status === 'Expired' ? 'منتهي' : 'ملغى'}
-                  </span>
-                </strong>
-              </div>
-              <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.01)' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>الحد الأقصى للأعضاء</span>
-                <strong style={{ display: 'block', fontSize: '1rem', marginTop: '4px', color: 'var(--text)' }} className="number-latin">
-                  {selectedGmailAccountDetails.max_members} أعضاء
-                </strong>
-              </div>
+
             </div>
 
+            {/* Notes Section (if exists) */}
             {selectedGmailAccountDetails.notes && (
-              <div style={{ marginBottom: '24px' }}>
-                <h4 style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px' }}>ملاحظات المسؤول:</h4>
-                <div style={{ padding: '12px 16px', background: 'var(--background)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', fontSize: '0.85rem', color: 'var(--text)', whiteSpace: 'pre-wrap' }}>
+              <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.01)', borderRadius: '12px', marginBottom: '24px', border: '1px solid var(--border)' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>ملاحظات الحساب</span>
+                <p style={{ color: 'var(--text)', fontSize: '0.9rem', margin: 0, whiteSpace: 'pre-wrap', lineHeight: '1.5' }} dir="auto">
                   {selectedGmailAccountDetails.notes}
-                </div>
+                </p>
               </div>
             )}
 
