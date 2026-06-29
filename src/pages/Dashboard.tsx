@@ -373,13 +373,20 @@ export const Dashboard: React.FC = () => {
           border-radius: 24px;
           border: 1px solid var(--border);
           background: var(--surface);
-          padding: 22px;
-          overflow: hidden;
           transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
           box-shadow: var(--shadow);
+          transform: translateZ(0);
+          -webkit-transform: translateZ(0);
+        }
+        .dash-metric-inner {
+          position: relative;
+          padding: 22px;
+          border-radius: 23px;
+          overflow: hidden;
         }
         .dash-metric:hover {
-          transform: translateY(-5px);
+          transform: translateY(-5px) translateZ(0);
+          -webkit-transform: translateY(-5px) translateZ(0);
           border-color: rgba(99, 102, 241, 0.35);
           box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18), 0 0 24px rgba(99, 102, 241, 0.08);
         }
@@ -508,39 +515,45 @@ export const Dashboard: React.FC = () => {
         {/* Stats Overview */}
         <section className="grid grid-cols-3 gap-6" style={{ marginBottom: '28px' }}>
           <div className="dash-metric animate-fade-in animate-delay-1">
-            <div className="dash-metric-glow" style={{ background: 'var(--success)' }} />
-            <div className="flex items-center justify-between mb-2">
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>الأيام المتبقية</span>
-              <Clock size={20} style={{ color: 'var(--success)' }} />
+            <div className="dash-metric-inner">
+              <div className="dash-metric-glow" style={{ background: 'var(--success)' }} />
+              <div className="flex items-center justify-between mb-2">
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>الأيام المتبقية</span>
+                <Clock size={20} style={{ color: 'var(--success)' }} />
+              </div>
+              <strong style={{ fontSize: '1.7rem', color: 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
+                {daysRemaining}
+              </strong>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', display: 'block', marginTop: '2px' }}>يوم في الاشتراك الحالي</span>
             </div>
-            <strong style={{ fontSize: '1.7rem', color: 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
-              {daysRemaining}
-            </strong>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', display: 'block', marginTop: '2px' }}>يوم في الاشتراك الحالي</span>
           </div>
 
           <div className="dash-metric animate-fade-in animate-delay-2">
-            <div className="dash-metric-glow" style={{ background: 'var(--primary)' }} />
-            <div className="flex items-center justify-between mb-2">
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>الاشتراكات النشطة</span>
-              <Activity size={20} style={{ color: 'var(--primary)' }} />
+            <div className="dash-metric-inner">
+              <div className="dash-metric-glow" style={{ background: 'var(--primary)' }} />
+              <div className="flex items-center justify-between mb-2">
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>الاشتراكات النشطة</span>
+                <Activity size={20} style={{ color: 'var(--primary)' }} />
+              </div>
+              <strong style={{ fontSize: '1.7rem', color: 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
+                {activeSubsCount}
+              </strong>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', display: 'block', marginTop: '2px' }}>اشتراك مفعّل الآن</span>
             </div>
-            <strong style={{ fontSize: '1.7rem', color: 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
-              {activeSubsCount}
-            </strong>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', display: 'block', marginTop: '2px' }}>اشتراك مفعّل الآن</span>
           </div>
 
           <div className="dash-metric animate-fade-in animate-delay-3" style={{ border: pendingOrdersCount > 0 ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid var(--border)' }}>
-            <div className="dash-metric-glow" style={{ background: 'var(--warning)' }} />
-            <div className="flex items-center justify-between mb-2">
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>طلبات قيد المراجعة</span>
-              <RotateCw size={20} style={{ color: 'var(--warning)' }} />
+            <div className="dash-metric-inner">
+              <div className="dash-metric-glow" style={{ background: 'var(--warning)' }} />
+              <div className="flex items-center justify-between mb-2">
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>طلبات قيد المراجعة</span>
+                <RotateCw size={20} style={{ color: 'var(--warning)' }} />
+              </div>
+              <strong style={{ fontSize: '1.7rem', color: pendingOrdersCount > 0 ? 'var(--warning)' : 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
+                {pendingOrdersCount}
+              </strong>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', display: 'block', marginTop: '2px' }}>بانتظار الموافقة</span>
             </div>
-            <strong style={{ fontSize: '1.7rem', color: pendingOrdersCount > 0 ? 'var(--warning)' : 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
-              {pendingOrdersCount}
-            </strong>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', display: 'block', marginTop: '2px' }}>بانتظار الموافقة</span>
           </div>
         </section>
 

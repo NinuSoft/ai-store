@@ -1052,13 +1052,20 @@ export const Admin: React.FC = () => {
           border-radius: 24px;
           border: 1px solid var(--border);
           background: var(--surface);
-          padding: 24px;
-          overflow: hidden;
           transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
           box-shadow: var(--shadow);
+          transform: translateZ(0);
+          -webkit-transform: translateZ(0);
+        }
+        .metric-card-inner {
+          position: relative;
+          padding: 24px;
+          border-radius: 23px;
+          overflow: hidden;
         }
         .metric-card:hover {
-          transform: translateY(-6px);
+          transform: translateY(-6px) translateZ(0);
+          -webkit-transform: translateY(-6px) translateZ(0);
           border-color: rgba(99, 102, 241, 0.35);
           box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25), 0 0 24px rgba(99, 102, 241, 0.08);
         }
