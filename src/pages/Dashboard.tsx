@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import {
   Sparkles, LogOut, Clock, Calendar, CheckCircle2,
   AlertCircle, MessageSquare, RotateCw, PlusCircle,
-  User, Activity, Send
+  User, Activity, Send, Home
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -460,6 +460,13 @@ export const Dashboard: React.FC = () => {
           </Link>
 
           <div className="flex items-center gap-4">
+            <Link 
+              to="/" 
+              className="btn btn-outline" 
+              style={{ padding: '6px 12px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+            >
+              <Home size={14} /> الرئيسية
+            </Link>
             <ThemeToggle />
             {profile?.is_admin && (
               <Link to="/admin" className="badge badge-secondary" style={{ padding: '6px 16px', fontSize: '0.85rem' }}>
