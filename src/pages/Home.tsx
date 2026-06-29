@@ -232,7 +232,7 @@ export const Home: React.FC = () => {
                   className="btn btn-secondary"
                   style={{ padding: '8px 18px', fontSize: '0.875rem', borderRadius: '9999px' }}
                 >
-                  لوحة العميل
+                  لوحة التحكم
                 </Link>
               )
             ) : (
