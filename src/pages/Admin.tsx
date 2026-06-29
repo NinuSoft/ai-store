@@ -121,7 +121,7 @@ export const Admin: React.FC = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       setTotpTick(t => t + 1);
-    }, 5000); // refresh TOTP display codes every 5 seconds
+    }, 1000); // refresh every 1 second for smooth countdown
     return () => clearInterval(timer);
   }, []);
 
@@ -2315,12 +2315,15 @@ export const Admin: React.FC = () => {
                                     </td>
                                     <td style={{ padding: '16px' }}>{plans[g.plan_id]?.name || 'غير معروف'}</td>
                                     <td style={{ padding: '16px' }}>
-                                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}>
                                         <span className="number-latin" style={{ fontFamily: 'monospace', fontWeight: 800, letterSpacing: '1px', fontSize: '1rem', color: 'var(--success)' }}>
                                           {(() => {
                                             const otp = generateTOTP(g.twofa_secret);
                                             return otp.length === 6 ? `${otp.substring(0, 3)} ${otp.substring(3)}` : otp;
                                           })()}
+                                        </span>
+                                        <span className="number-latin" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.05)', padding: '2px 6px', borderRadius: '4px', fontFamily: 'monospace' }} title="الوقت المتبقي لتغير الرمز">
+                                          {30 - (Math.floor(Date.now() / 1000) % 30)}s
                                         </span>
                                         <button
                                           onClick={() => {
@@ -3396,9 +3399,22 @@ export const Admin: React.FC = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
               <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.01)' }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>البريد الإلكتروني للـ Gmail</span>
-                <strong style={{ display: 'block', fontSize: '1rem', marginTop: '4px', color: 'var(--text)' }} className="number-latin">
-                  {selectedGmailAccountDetails.email}
-                </strong>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginTop: '4px' }}>
+                  <strong style={{ fontSize: '1rem', color: 'var(--text)', wordBreak: 'break-all' }} className="number-latin">
+                    {selectedGmailAccountDetails.email}
+                  </strong>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(selectedGmailAccountDetails.email);
+                      showSnackbar('تم نسخ البريد الإلكتروني (Email copied).', 'success');
+                    }}
+                    className="admin-table-action-btn"
+                    style={{ padding: '4px 6px', flexShrink: 0 }}
+                    title="نسخ البريد الإلكتروني"
+                  >
+                    <Copy size={12} />
+                  </button>
+                </div>
               </div>
               <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.01)' }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>الباقة المرتبطة</span>
@@ -3406,36 +3422,46 @@ export const Admin: React.FC = () => {
                   {plans[selectedGmailAccountDetails.plan_id]?.name || 'غير معروف'}
                 </strong>
               </div>
-              <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.01)' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>رمز الـ 2FA المؤقت (TOTP) والـ Secret</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '6px' }}>
-                  <strong className="number-latin" style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: '1.25rem', color: 'var(--success)', letterSpacing: '1px' }}>
-                    {(() => {
-                      const otp = generateTOTP(selectedGmailAccountDetails.twofa_secret);
-                      return otp.length === 6 ? `${otp.substring(0, 3)} ${otp.substring(3)}` : otp;
-                    })()}
-                  </strong>
-                  <button
-                    onClick={() => {
-                      const otp = generateTOTP(selectedGmailAccountDetails.twofa_secret);
-                      navigator.clipboard.writeText(otp);
-                      showSnackbar('تم نسخ رمز 2FA (2FA code copied).', 'success');
-                    }}
-                    className="admin-table-action-btn success"
-                    style={{ padding: '4px 8px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}
-                  >
-                    <Copy size={12} /> نسخ الرمز
-                  </button>
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(selectedGmailAccountDetails.twofa_secret);
-                      showSnackbar('تم نسخ المفتاح السري (2FA Secret copied).', 'success');
-                    }}
-                    className="admin-table-action-btn"
-                    style={{ padding: '4px 8px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}
-                  >
-                    <Copy size={12} /> نسخ Secret
-                  </button>
+              <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.01)', gridColumn: '1 / -1' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>رمز الـ 2FA المؤقت (TOTP) والـ Secret</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <strong className="number-latin" style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: '1.6rem', color: 'var(--success)', letterSpacing: '2px', whiteSpace: 'nowrap' }}>
+                      {(() => {
+                        const otp = generateTOTP(selectedGmailAccountDetails.twofa_secret);
+                        return otp.length === 6 ? `${otp.substring(0, 3)} ${otp.substring(3)}` : otp;
+                      })()}
+                    </strong>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255, 255, 255, 0.04)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                      <Clock size={12} className="text-success" style={{ color: 'var(--success)' }} />
+                      <span className="number-latin" style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', fontFamily: 'monospace', width: '24px', textAlign: 'center' }}>
+                        {30 - (Math.floor(Date.now() / 1000) % 30)}s
+                      </span>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      onClick={() => {
+                        const otp = generateTOTP(selectedGmailAccountDetails.twofa_secret);
+                        navigator.clipboard.writeText(otp);
+                        showSnackbar('تم نسخ رمز 2FA (2FA code copied).', 'success');
+                      }}
+                      className="admin-table-action-btn success"
+                      style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      <Copy size={12} /> نسخ الرمز
+                    </button>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(selectedGmailAccountDetails.twofa_secret);
+                        showSnackbar('تم نسخ المفتاح السري (2FA Secret copied).', 'success');
+                      }}
+                      className="admin-table-action-btn"
+                      style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      <Copy size={12} /> نسخ Secret
+                    </button>
+                  </div>
                 </div>
               </div>
               <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.01)' }}>
