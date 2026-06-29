@@ -4,7 +4,7 @@ import {
   ShieldCheck, ArrowLeft, Users, ShoppingBag,
   DollarSign, Activity, Check, X, Search, PlusCircle,
   RotateCw, MessageSquare, Settings, Sparkles, Clock, User, Shield,
-  Edit2, Trash2, Star, Ban, Play
+  Edit2, Trash2, Star, Ban, Play, AlertTriangle
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -109,6 +109,31 @@ export const Admin: React.FC = () => {
 
   const showSnackbar = (message: string, type: 'success' | 'error' = 'success') => {
     setSnackbar({ message, type });
+  };
+
+  // Confirmation Dialog State
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {}
+  });
+
+  const requestConfirmation = (title: string, message: string, onConfirm: () => void) => {
+    setConfirmConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => {
+        onConfirm();
+        setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+      }
+    });
   };
 
   useEffect(() => {
@@ -437,20 +462,25 @@ export const Admin: React.FC = () => {
   };
 
   // 6. Reject Order
-  const handleRejectOrder = async (orderId: string) => {
-    if (!window.confirm('هل أنت متأكد من رفض هذا الطلب؟')) return;
-    try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ status: 'Rejected' })
-        .eq('id', orderId);
+  const handleRejectOrder = (orderId: string) => {
+    requestConfirmation(
+      'تأكيد رفض الطلب',
+      'هل أنت متأكد من رفض هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.',
+      async () => {
+        try {
+          const { error } = await supabase
+            .from('orders')
+            .update({ status: 'Rejected' })
+            .eq('id', orderId);
 
-      if (error) throw error;
-      showSnackbar('تم رفض الطلب بنجاح.');
-      await loadAdminData(true);
-    } catch (err: any) {
-      showSnackbar('حدث خطأ: ' + err.message, 'error');
-    }
+          if (error) throw error;
+          showSnackbar('تم رفض الطلب بنجاح.');
+          await loadAdminData(true);
+        } catch (err: any) {
+          showSnackbar('حدث خطأ: ' + err.message, 'error');
+        }
+      }
+    );
   };
 
   // 3. Approve Renewal Request
@@ -498,20 +528,25 @@ export const Admin: React.FC = () => {
   };
 
   // 4. Reject Renewal Request
-  const handleRejectRenewal = async (renewalId: string) => {
-    if (!window.confirm('هل أنت متأكد من رفض طلب التجديد هذا؟')) return;
-    try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ status: 'Rejected' })
-        .eq('id', renewalId);
+  const handleRejectRenewal = (renewalId: string) => {
+    requestConfirmation(
+      'تأكيد رفض التجديد',
+      'هل أنت متأكد من رفض طلب التجديد هذا؟',
+      async () => {
+        try {
+          const { error } = await supabase
+            .from('orders')
+            .update({ status: 'Rejected' })
+            .eq('id', renewalId);
 
-      if (error) throw error;
-      showSnackbar('تم رفض طلب التجديد.');
-      await loadAdminData(true);
-    } catch (err: any) {
-      showSnackbar('حدث خطأ: ' + err.message, 'error');
-    }
+          if (error) throw error;
+          showSnackbar('تم رفض طلب التجديد.');
+          await loadAdminData(true);
+        } catch (err: any) {
+          showSnackbar('حدث خطأ: ' + err.message, 'error');
+        }
+      }
+    );
   };
 
   // 5. Toggle Admin Permission
@@ -584,16 +619,21 @@ export const Admin: React.FC = () => {
     }
   };
 
-  const handleDeleteProduct = async (id: string) => {
-    if (!window.confirm('هل أنت متأكد من حذف هذا المنتج؟ سيؤدي ذلك لحذف الباقات التابعة له.')) return;
-    try {
-      const { error } = await supabase.from('products').delete().eq('id', id);
-      if (error) throw error;
-      showSnackbar('تم حذف المنتج بنجاح.');
-      await loadAdminData(true);
-    } catch (err: any) {
-      showSnackbar('خطأ أثناء الحذف: ' + err.message, 'error');
-    }
+  const handleDeleteProduct = (id: string) => {
+    requestConfirmation(
+      'حذف المنتج',
+      'هل أنت متأكد من حذف هذا المنتج؟ سيؤدي ذلك لحذف الباقات التابعة له بشكل نهائي.',
+      async () => {
+        try {
+          const { error } = await supabase.from('products').delete().eq('id', id);
+          if (error) throw error;
+          showSnackbar('تم حذف المنتج بنجاح.');
+          await loadAdminData(true);
+        } catch (err: any) {
+          showSnackbar('خطأ أثناء الحذف: ' + err.message, 'error');
+        }
+      }
+    );
   };
 
   // Plans CRUD
@@ -628,16 +668,21 @@ export const Admin: React.FC = () => {
     }
   };
 
-  const handleDeletePlan = async (id: string) => {
-    if (!window.confirm('هل أنت متأكد من حذف هذه الباقة؟')) return;
-    try {
-      const { error } = await supabase.from('plans').delete().eq('id', id);
-      if (error) throw error;
-      showSnackbar('تم حذف الباقة بنجاح.');
-      await loadAdminData(true);
-    } catch (err: any) {
-      showSnackbar('خطأ أثناء الحذف: ' + err.message, 'error');
-    }
+  const handleDeletePlan = (id: string) => {
+    requestConfirmation(
+      'حذف الباقة',
+      'هل أنت متأكد من حذف هذه الباقة؟ لا يمكن استرجاعها بعد الحذف.',
+      async () => {
+        try {
+          const { error } = await supabase.from('plans').delete().eq('id', id);
+          if (error) throw error;
+          showSnackbar('تم حذف الباقة بنجاح.');
+          await loadAdminData(true);
+        } catch (err: any) {
+          showSnackbar('خطأ أثناء الحذف: ' + err.message, 'error');
+        }
+      }
+    );
   };
 
   // FAQ CRUD
@@ -667,16 +712,21 @@ export const Admin: React.FC = () => {
     }
   };
 
-  const handleDeleteFaq = async (id: string) => {
-    if (!window.confirm('هل أنت متأكد من حذف هذا السؤال الشائع؟')) return;
-    try {
-      const { error } = await supabase.from('faqs').delete().eq('id', id);
-      if (error) throw error;
-      showSnackbar('تم حذف السؤال بنجاح.');
-      await loadAdminData(true);
-    } catch (err: any) {
-      showSnackbar('خطأ أثناء الحذف: ' + err.message, 'error');
-    }
+  const handleDeleteFaq = (id: string) => {
+    requestConfirmation(
+      'حذف السؤال الشائع',
+      'هل أنت متأكد من حذف هذا السؤال الشائع؟',
+      async () => {
+        try {
+          const { error } = await supabase.from('faqs').delete().eq('id', id);
+          if (error) throw error;
+          showSnackbar('تم حذف السؤال بنجاح.');
+          await loadAdminData(true);
+        } catch (err: any) {
+          showSnackbar('خطأ أثناء الحذف: ' + err.message, 'error');
+        }
+      }
+    );
   };
 
   // Testimonials CRUD
@@ -707,16 +757,21 @@ export const Admin: React.FC = () => {
     }
   };
 
-  const handleDeleteTestimonial = async (id: string) => {
-    if (!window.confirm('هل أنت متأكد من حذف هذا التقييم؟')) return;
-    try {
-      const { error } = await supabase.from('testimonials').delete().eq('id', id);
-      if (error) throw error;
-      showSnackbar('تم حذف التقييم بنجاح.');
-      await loadAdminData(true);
-    } catch (err: any) {
-      showSnackbar('خطأ أثناء الحذف: ' + err.message, 'error');
-    }
+  const handleDeleteTestimonial = (id: string) => {
+    requestConfirmation(
+      'حذف التقييم',
+      'هل أنت متأكد من حذف هذا التقييم؟',
+      async () => {
+        try {
+          const { error } = await supabase.from('testimonials').delete().eq('id', id);
+          if (error) throw error;
+          showSnackbar('تم حذف التقييم بنجاح.');
+          await loadAdminData(true);
+        } catch (err: any) {
+          showSnackbar('خطأ أثناء الحذف: ' + err.message, 'error');
+        }
+      }
+    );
   };
 
   // Settings Update
@@ -2753,6 +2808,66 @@ export const Admin: React.FC = () => {
           >
             <X size={16} />
           </button>
+        </div>
+      )}
+
+      {/* Custom Confirmation Modal */}
+      {confirmConfig.isOpen && (
+        <div className="admin-modal-overlay">
+          <div className="admin-modal-card" style={{ maxWidth: '400px', textAlign: 'center', padding: '30px' }}>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '56px',
+              height: '56px',
+              borderRadius: '50%',
+              background: 'rgba(239, 68, 68, 0.1)',
+              color: '#f87171',
+              marginBottom: '20px'
+            }}>
+              <AlertTriangle size={28} />
+            </div>
+            
+            <h3 style={{ marginBottom: '12px', color: 'var(--text)', fontWeight: 800, fontSize: '1.2rem' }}>
+              {confirmConfig.title}
+            </h3>
+            
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '24px', lineHeight: '1.5' }}>
+              {confirmConfig.message}
+            </p>
+            
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <button
+                onClick={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text)',
+                  padding: '10px 20px',
+                  borderRadius: '10px',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                إلغاء
+              </button>
+              <button
+                onClick={confirmConfig.onConfirm}
+                style={{
+                  background: 'var(--danger)',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '10px 20px',
+                  borderRadius: '10px',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                تأكيد
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
