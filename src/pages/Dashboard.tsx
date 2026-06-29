@@ -174,6 +174,33 @@ export const Dashboard: React.FC = () => {
 
   useEffect(() => {
     loadData();
+
+    if (!user) return;
+
+    // Subscribe to realtime database updates for the logged-in user
+    const channel = supabase
+      .channel(`dashboard-realtime-${user.id}`)
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'orders',
+        filter: `user_id=eq.${user.id}`
+      }, () => {
+        loadData(true);
+      })
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'subscriptions',
+        filter: `user_id=eq.${user.id}`
+      }, () => {
+        loadData(true);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user, loadData]);
 
   const handleSignOut = async () => {

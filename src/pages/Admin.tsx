@@ -265,6 +265,24 @@ export const Admin: React.FC = () => {
 
   useEffect(() => {
     loadAdminData();
+
+    // Subscribe to realtime database updates
+    const channel = supabase
+      .channel('admin-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
+        loadAdminData(true);
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'subscriptions' }, () => {
+        loadAdminData(true);
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+        loadAdminData(true);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   // -------------------------------------------------------------

@@ -574,3 +574,44 @@ VALUES
     )
 ON CONFLICT (key) DO UPDATE
 SET value = EXCLUDED.value;
+
+-- =========================================================================
+-- 15. ENABLE REALTIME REPLICATION
+-- =========================================================================
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_publication WHERE pubname = 'supabase_realtime') THEN
+        CREATE PUBLICATION supabase_realtime;
+    END IF;
+END $$;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_rel pr 
+        JOIN pg_class c ON pr.prrelid = c.oid 
+        JOIN pg_publication p ON pr.prpubid = p.oid 
+        WHERE p.pubname = 'supabase_realtime' AND c.relname = 'orders'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.orders;
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_rel pr 
+        JOIN pg_class c ON pr.prrelid = c.oid 
+        JOIN pg_publication p ON pr.prpubid = p.oid 
+        WHERE p.pubname = 'supabase_realtime' AND c.relname = 'subscriptions'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.subscriptions;
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_rel pr 
+        JOIN pg_class c ON pr.prrelid = c.oid 
+        JOIN pg_publication p ON pr.prpubid = p.oid 
+        WHERE p.pubname = 'supabase_realtime' AND c.relname = 'profiles'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.profiles;
+    END IF;
+END $$;
+
