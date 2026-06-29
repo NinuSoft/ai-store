@@ -12,11 +12,13 @@ DROP TRIGGER IF EXISTS trg_plans_updated_at ON public.plans;
 DROP TRIGGER IF EXISTS trg_orders_updated_at ON public.orders;
 DROP TRIGGER IF EXISTS trg_subscriptions_updated_at ON public.subscriptions;
 DROP TRIGGER IF EXISTS trg_settings_updated_at ON public.settings;
+DROP TRIGGER IF EXISTS trg_orders_populate_product_id ON public.orders;
 
 DROP FUNCTION IF EXISTS public.handle_new_user() CASCADE;
 DROP FUNCTION IF EXISTS public.handle_updated_at() CASCADE;
 DROP FUNCTION IF EXISTS public.is_admin() CASCADE;
 DROP FUNCTION IF EXISTS public.is_admin(user_id UUID) CASCADE;
+DROP FUNCTION IF EXISTS public.handle_order_product_id() CASCADE;
 
 DROP TABLE IF EXISTS public.settings CASCADE;
 DROP TABLE IF EXISTS public.testimonials CASCADE;
@@ -178,6 +180,23 @@ CREATE TRIGGER trg_subscriptions_updated_at
 CREATE TRIGGER trg_settings_updated_at
     BEFORE UPDATE ON public.settings
     FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+-- Trigger to automatically populate product_id from plans when plan_id is set
+CREATE OR REPLACE FUNCTION public.handle_order_product_id()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.plan_id IS NOT NULL THEN
+        SELECT product_id INTO NEW.product_id
+        FROM public.plans
+        WHERE id = NEW.plan_id;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER trg_orders_populate_product_id
+    BEFORE INSERT OR UPDATE ON public.orders
+    FOR EACH ROW EXECUTE FUNCTION public.handle_order_product_id();
 
 -- 6. INDEXES
 CREATE INDEX idx_orders_user_id ON public.orders (user_id);
