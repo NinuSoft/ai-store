@@ -17,7 +17,7 @@ interface OrderModalProps {
   onClose: () => void;
 }
 
-export const OrderModal: React.FC<OrderModalProps> = ({ plan, _whatsappNum = '9647750977509', onClose }) => {
+export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum: _whatsappNum = '9647750977509', onClose }) => {
   const { user, profile, signInWithGoogle, refreshProfile } = useAuth();
   const navigate = useNavigate();
 

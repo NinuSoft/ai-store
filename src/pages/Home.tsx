@@ -297,7 +297,7 @@ export const Home: React.FC = () => {
               <button
                 onClick={() => scrollToSection('pricing')}
                 className="btn btn-primary"
-                style={{ padding: '14px 38px', fontSize: '1.05rem', borderRadius: 'var(--radius-xl)' }}
+                style={{ padding: '14px 38px', fontSize: '1.05rem', borderRadius: 'var(--ns-radius-xl)' }}
               >
                 اشترك الآن
               </button>
@@ -305,7 +305,7 @@ export const Home: React.FC = () => {
               <button
                 onClick={() => scrollToSection('pricing')}
                 className="btn btn-outline"
-                style={{ padding: '14px 32px', fontSize: '1.05rem', borderRadius: 'var(--radius-xl)' }}
+                style={{ padding: '14px 32px', fontSize: '1.05rem', borderRadius: 'var(--ns-radius-xl)' }}
               >
                 عرض الباقات
               </button>
@@ -473,7 +473,7 @@ export const Home: React.FC = () => {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: '40px' }}>
-            <div className="flex items-center gap-2" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '12px 24px', fontSize: '0.95rem' }}>
+            <div className="flex items-center gap-2" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: 'var(--ns-radius)', padding: '12px 24px', fontSize: '0.95rem' }}>
               <Laptop size={18} style={{ color: 'var(--secondary)' }} />
               <span>الاشتراك يعمل بكل سلاسة على الهواتف والأجهزة اللوحية وأجهزة الكمبيوتر.</span>
             </div>
@@ -524,7 +524,7 @@ export const Home: React.FC = () => {
                   position: 'absolute',
                   inset: 0,
                   background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
-                  borderRadius: 'var(--radius)',
+                  borderRadius: 'var(--ns-radius)',
                   filter: 'blur(30px)',
                   opacity: 0.15,
                   pointerEvents: 'none'
@@ -558,7 +558,7 @@ export const Home: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4" style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
+                <div className="flex items-center gap-4" style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: 'var(--ns-radius-sm)', border: '1px solid var(--border)' }}>
                   <ShieldCheck size={36} style={{ color: 'var(--primary)' }} />
                   <div>
                     <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text)' }}>حماية وضمان ذهبي 100%</h4>

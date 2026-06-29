@@ -48,7 +48,7 @@ export const Privacy: React.FC = () => {
       {/* CONTENT */}
       <main style={{ padding: '40px 0 80px 0' }}>
         <div className="container max-w-[800px]">
-          <div className="glass-panel" style={{ padding: '40px', borderRadius: 'var(--radius-lg)' }}>
+          <div className="glass-panel" style={{ padding: '40px', borderRadius: 'var(--ns-radius-lg)' }}>
             
             {/* Sec 1 */}
             <div style={{ marginBottom: '32px' }}>

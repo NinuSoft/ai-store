@@ -528,7 +528,7 @@ export const Dashboard: React.FC = () => {
               background: actionMessage.type === 'success' ? 'var(--success-light)' : actionMessage.type === 'warning' ? 'var(--warning-light)' : 'var(--danger-light)',
               border: `1px solid ${actionMessage.type === 'success' ? 'var(--success)' : actionMessage.type === 'warning' ? 'var(--warning)' : 'var(--danger)'}`,
               color: actionMessage.type === 'success' ? '#34d399' : actionMessage.type === 'warning' ? '#fbbf24' : '#f87171',
-              borderRadius: 'var(--radius)',
+              borderRadius: 'var(--ns-radius)',
               padding: '16px 20px',
               marginBottom: '32px',
               fontSize: '0.95rem'
@@ -574,12 +574,12 @@ export const Dashboard: React.FC = () => {
                   </p>
                   
                   <div className="flex items-center gap-6 mt-2 flex-wrap">
-                    <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px 20px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
+                    <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px 20px', borderRadius: 'var(--ns-radius-sm)', border: '1px solid var(--border)' }}>
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>رقم التحويل (زين كاش / آسيا حوالة)</span>
                       <strong style={{ fontSize: '1.2rem', color: 'var(--text)' }} className="number-latin">07701234567</strong>
                     </div>
 
-                    <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px 20px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
+                    <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px 20px', borderRadius: 'var(--ns-radius-sm)', border: '1px solid var(--border)' }}>
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>المبلغ المطلوب</span>
                       <strong style={{ fontSize: '1.2rem', color: 'var(--success)' }} className="number-latin">
                         {price.toLocaleString('en-US')} د.ع
@@ -653,7 +653,7 @@ export const Dashboard: React.FC = () => {
                 <div className="flex flex-col gap-6">
                   {/* Plan Meta Details */}
                   <div className="grid grid-cols-2 gap-4">
-                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }} className="flex items-center gap-3">
+                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: 'var(--ns-radius-sm)', border: '1px solid var(--border)' }} className="flex items-center gap-3">
                       <Clock size={24} style={{ color: 'var(--primary)' }} />
                       <div>
                         <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>الباقة المفعلة</span>
@@ -661,7 +661,7 @@ export const Dashboard: React.FC = () => {
                       </div>
                     </div>
 
-                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }} className="flex items-center gap-3">
+                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: 'var(--ns-radius-sm)', border: '1px solid var(--border)' }} className="flex items-center gap-3">
                       <Calendar size={24} style={{ color: 'var(--secondary)' }} />
                       <div>
                         <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>تاريخ انتهاء الصلاحية</span>
@@ -758,7 +758,7 @@ export const Dashboard: React.FC = () => {
                       style={{
                         padding: '16px',
                         border: '1px solid var(--border)',
-                        borderRadius: 'var(--radius-sm)',
+                        borderRadius: 'var(--ns-radius-sm)',
                         background: 'rgba(255, 255, 255, 0.01)'
                       }}
                       className="flex items-center justify-between"
@@ -885,7 +885,7 @@ export const Dashboard: React.FC = () => {
                       key={r.id}
                       style={{
                         padding: '12px',
-                        borderRadius: 'var(--radius-sm)',
+                        borderRadius: 'var(--ns-radius-sm)',
                         border: '1px solid var(--border)',
                         background: 'rgba(255,255,255,0.01)'
                       }}

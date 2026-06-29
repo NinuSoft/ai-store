@@ -78,7 +78,7 @@ export const Admin: React.FC = () => {
   }, [profile, navigate]);
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<'orders' | 'users' | 'renewals' | 'subscriptions' | 'products' | 'plans' | 'faqs' | 'testimonials' | 'settings'>('orders');
+  const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'users' | 'renewals' | 'subscriptions' | 'products' | 'plans' | 'faqs' | 'testimonials' | 'settings'>('overview');
 
   // Data States
   const [loading, setLoading] = useState(true);
@@ -747,6 +747,114 @@ export const Admin: React.FC = () => {
   };
 
   // -------------------------------------------------------------
+  // Overview Dashboard Derivations (borrowed from redesign-admin-dashboard-component)
+  // -------------------------------------------------------------
+  const months = React.useMemo(() => {
+    const out: { label: string; key: string; y: number; m: number }[] = [];
+    const base = new Date();
+    const AR_MONTHS = [
+      "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+      "يوليو", "أغسطس", "أيلول", "تشرين الأول", "تشرين الثاني", "كانون الأول",
+    ];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(base.getFullYear(), base.getMonth() - i, 1);
+      out.push({
+        label: AR_MONTHS[d.getMonth()],
+        key: `${d.getFullYear()}-${d.getMonth()}`,
+        y: d.getFullYear(),
+        m: d.getMonth(),
+      });
+    }
+    return out;
+  }, []);
+
+  const series = React.useMemo(() => {
+    const revenue: number[] = [];
+    const orderCounts: number[] = [];
+    const userCounts: number[] = [];
+    const subCounts: number[] = [];
+    
+    months.forEach((mo) => {
+      const inMonth = (iso?: string) => {
+        if (!iso) return false;
+        const d = new Date(iso);
+        return d.getFullYear() === mo.y && d.getMonth() === mo.m;
+      };
+      
+      let rev = 0;
+      orders.forEach((o) => {
+        if (inMonth(o.payment_date || o.created_at)) {
+          if (o.status === "paid") {
+            const p = plans[o.plan_id];
+            if (p) rev += p.price_iqd;
+          }
+        }
+      });
+      revenue.push(rev);
+      orderCounts.push(orders.filter((o) => inMonth(o.created_at)).length);
+      userCounts.push(users.filter((u) => inMonth(u.created_at)).length);
+      subCounts.push(subscriptions.filter((s) => inMonth(s.start_date)).length);
+    });
+    return { revenue, orderCounts, userCounts, subCounts };
+  }, [months, orders, users, subscriptions, plans]);
+
+  const pct = (a: number[], i: number) => {
+    const prev = a[i - 1];
+    const cur = a[i];
+    if (!prev) return cur > 0 ? 100 : 0;
+    return Math.round(((cur - prev) / prev) * 100);
+  };
+
+  const statusBreakdown = React.useMemo(() => {
+    const map = {
+      pending: 0, processing: 0, awaiting_payment: 0, paid: 0, expired: 0, rejected: 0,
+    };
+    orders.forEach((o) => {
+      if (map[o.status] !== undefined) map[o.status]++;
+    });
+    const label: Record<string, string> = {
+      pending: "معلق",
+      processing: "قيد المعالجة",
+      awaiting_payment: "بانتظار الدفع",
+      paid: "مكتمل",
+      expired: "منتهي",
+      rejected: "مرفوض",
+    };
+    const color: Record<string, string> = {
+      pending: "#f59e0b",
+      processing: "#6366f1",
+      awaiting_payment: "#0ea5e9",
+      paid: "#10b981",
+      expired: "#94a3b8",
+      rejected: "#f43f5e",
+    };
+    return (Object.keys(map) as (keyof typeof map)[])
+      .map((k) => ({ label: label[k] || k, value: map[k], color: color[k], key: k }))
+      .filter((s) => s.value > 0);
+  }, [orders]);
+
+  const topPlans = React.useMemo(() => {
+    const m = new Map<string, number>();
+    orders.forEach((o) => {
+      if (o.status === "paid") {
+        const p = plans[o.plan_id];
+        if (p) m.set(p.name, (m.get(p.name) || 0) + p.price_iqd);
+      }
+    });
+    return [...m.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4)
+      .map(([label, value]) => ({ label, value }));
+  }, [orders, plans]);
+
+  const recentOrders = React.useMemo(
+    () => [...orders].sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at)).slice(0, 6),
+    [orders]
+  );
+
+  const lastIdx = series.revenue.length - 1;
+
+  // -------------------------------------------------------------
   // Filtering logic
   // -------------------------------------------------------------
   const filteredOrders = orders.filter(o => {
@@ -1167,17 +1275,28 @@ export const Admin: React.FC = () => {
 
             {/* METRICS STACK */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }} className="text-right">
-              {/* Total Registrations */}
-              <div className="metric-card">
-                <div className="metric-glow" style={{ background: 'var(--secondary)' }} />
-                <div className="flex items-center justify-between mb-2">
-                  <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>إجمالي المسجلين</span>
-                  <Users size={20} style={{ color: 'var(--secondary)' }} />
+              {/* Revenue card */}
+              <div className="metric-card" style={{ padding: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                  <span style={{ display: 'flex', width: '44px', height: '44px', alignItems: 'center', justifyContent: 'center', borderRadius: '12px', background: 'var(--success-light)', color: 'var(--success)' }}>
+                    <DollarSign size={20} />
+                  </span>
+                  <div style={{ width: '96px', height: '40px', opacity: 0.9 }}>
+                    <Sparkline data={series.revenue} color="var(--success)" />
+                  </div>
                 </div>
-                <strong style={{ fontSize: '1.8rem', color: 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
-                  {stats.totalUsers}
-                </strong>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', display: 'block', marginTop: '2px' }}>حساب مستخدم مسجل</span>
+                <p style={{ marginTop: '16px', fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-muted)' }}>إجمالي الإيرادات</p>
+                <div style={{ marginTop: '4px', display: 'flex', alignItems: 'end', gap: '8px' }}>
+                  <strong style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--text)' }} className="number-latin">
+                    {stats.totalRevenue.toLocaleString('en-US')}
+                  </strong>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>د.ع</span>
+                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                    pct(series.revenue, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
+                  }`} style={{ direction: 'ltr', marginBottom: '4px' }}>
+                    {pct(series.revenue, lastIdx) >= 0 ? '+' : ''}{pct(series.revenue, lastIdx)}%
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -1186,6 +1305,16 @@ export const Admin: React.FC = () => {
               <div style={{ padding: '0 8px 12px 8px', borderBottom: '1px solid var(--border)', marginBottom: '8px' }}>
                 <span style={{ fontSize: '0.78rem', fontWeight: 900, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>لوحات التحكم</span>
               </div>
+
+              <button
+                onClick={() => { setActiveTab('overview'); setStatusFilter('all'); }}
+                className={`admin-tab-item ${activeTab === 'overview' ? 'active' : ''}`}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Activity size={18} />
+                  <span>الرئيسية</span>
+                </div>
+              </button>
 
               <button
                 onClick={() => { setActiveTab('orders'); setStatusFilter('all'); }}
@@ -1291,45 +1420,78 @@ export const Admin: React.FC = () => {
           <div className="admin-content" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
             {/* 1. METRICS DASHBOARD */}
-            <section className="grid grid-cols-1 md:grid-cols-3 gap-6 text-right">
+            <section className="grid grid-cols-1 md:grid-cols-3 gap-6 text-right animate-slide-up">
 
-              {/* Active Subscriptions */}
-              <div className="metric-card">
-                <div className="metric-glow" style={{ background: 'var(--primary)' }} />
-                <div className="flex items-center justify-between mb-2">
-                  <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>الاشتراكات النشطة</span>
-                  <Activity size={20} style={{ color: 'var(--primary)' }} />
+              {/* Active subs card */}
+              <div className="metric-card" style={{ padding: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                  <span style={{ display: 'flex', width: '44px', height: '44px', alignItems: 'center', justifyContent: 'center', borderRadius: '12px', background: 'var(--primary-light)', color: 'var(--primary)' }}>
+                    <Activity size={20} />
+                  </span>
+                  <div style={{ width: '96px', height: '40px', opacity: 0.9 }}>
+                    <Sparkline data={series.subCounts} color="var(--primary)" />
+                  </div>
                 </div>
-                <strong style={{ fontSize: '1.8rem', color: 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
-                  {stats.activeSubs}
-                </strong>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', display: 'block', marginTop: '2px' }}>اشتراك مفعل الآن</span>
+                <p style={{ marginTop: '16px', fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-muted)' }}>الاشتراكات النشطة</p>
+                <div style={{ marginTop: '4px', display: 'flex', alignItems: 'end', gap: '8px' }}>
+                  <strong style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--text)' }} className="number-latin">
+                    {stats.activeSubs}
+                  </strong>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>اشتراك</span>
+                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                    pct(series.subCounts, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
+                  }`} style={{ direction: 'ltr', marginBottom: '4px' }}>
+                    {pct(series.subCounts, lastIdx) >= 0 ? '+' : ''}{pct(series.subCounts, lastIdx)}%
+                  </span>
+                </div>
               </div>
 
-              {/* Pending Orders */}
-              <div className="metric-card" style={{ border: stats.pendingOrders > 0 ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid var(--border)' }}>
-                <div className="metric-glow" style={{ background: 'var(--warning)' }} />
-                <div className="flex items-center justify-between mb-2">
-                  <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>طلبات معلقة</span>
-                  <ShoppingBag size={20} style={{ color: 'var(--warning)' }} />
+              {/* Pending orders card */}
+              <div className="metric-card" style={{ padding: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                  <span style={{ display: 'flex', width: '44px', height: '44px', alignItems: 'center', justifyContent: 'center', borderRadius: '12px', background: 'var(--warning-light)', color: 'var(--warning)' }}>
+                    <ShoppingBag size={20} />
+                  </span>
+                  <div style={{ width: '96px', height: '40px', opacity: 0.9 }}>
+                    <Sparkline data={series.orderCounts} color="var(--warning)" />
+                  </div>
                 </div>
-                <strong style={{ fontSize: '1.8rem', color: stats.pendingOrders > 0 ? 'var(--warning)' : 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
-                  {stats.pendingOrders}
-                </strong>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', display: 'block', marginTop: '2px' }}>بانتظار التنشيط والتفعيل</span>
+                <p style={{ marginTop: '16px', fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-muted)' }}>طلبات معلّقة</p>
+                <div style={{ marginTop: '4px', display: 'flex', alignItems: 'end', gap: '8px' }}>
+                  <strong style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--text)' }} className="number-latin">
+                    {stats.pendingOrders}
+                  </strong>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>طلب معلق</span>
+                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                    pct(series.orderCounts, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
+                  }`} style={{ direction: 'ltr', marginBottom: '4px' }}>
+                    {pct(series.orderCounts, lastIdx) >= 0 ? '+' : ''}{pct(series.orderCounts, lastIdx)}%
+                  </span>
+                </div>
               </div>
 
-              {/* Revenue */}
-              <div className="metric-card">
-                <div className="metric-glow" style={{ background: 'var(--success)' }} />
-                <div className="flex items-center justify-between mb-2">
-                  <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>إجمالي الإيرادات</span>
-                  <DollarSign size={20} style={{ color: 'var(--success)' }} />
+              {/* Total Users card */}
+              <div className="metric-card" style={{ padding: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                  <span style={{ display: 'flex', width: '44px', height: '44px', alignItems: 'center', justifyContent: 'center', borderRadius: '12px', background: 'rgba(139, 92, 246, 0.08)', color: 'var(--secondary)' }}>
+                    <Users size={20} />
+                  </span>
+                  <div style={{ width: '96px', height: '40px', opacity: 0.9 }}>
+                    <Sparkline data={series.userCounts} color="var(--secondary)" />
+                  </div>
                 </div>
-                <strong style={{ fontSize: '1.8rem', color: 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
-                  {stats.totalRevenue.toLocaleString('en-US')}
-                </strong>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', display: 'block', marginTop: '2px' }}>د.ع (الطلبات المقبولة)</span>
+                <p style={{ marginTop: '16px', fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-muted)' }}>إجمالي المسجّلين</p>
+                <div style={{ marginTop: '4px', display: 'flex', alignItems: 'end', gap: '8px' }}>
+                  <strong style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--text)' }} className="number-latin">
+                    {stats.totalUsers}
+                  </strong>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>عميل مسجل</span>
+                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                    pct(series.userCounts, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
+                  }`} style={{ direction: 'ltr', marginBottom: '4px' }}>
+                    {pct(series.userCounts, lastIdx) >= 0 ? '+' : ''}{pct(series.userCounts, lastIdx)}%
+                  </span>
+                </div>
               </div>
 
             </section>
@@ -1338,7 +1500,8 @@ export const Admin: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap', background: 'var(--background-alt)', padding: '20px 24px', borderRadius: '16px', border: '1px solid var(--border)' }}>
               <div>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text)' }}>
-                  {activeTab === 'orders' ? 'إدارة الطلبات الواردة' :
+                  {activeTab === 'overview' ? 'لوحة التحكم والمؤشرات الرئيسية' :
+                    activeTab === 'orders' ? 'إدارة الطلبات الواردة' :
                     activeTab === 'renewals' ? 'طلبات تجديد الاشتراكات' :
                       activeTab === 'subscriptions' ? 'الاشتراكات النشطة' :
                         activeTab === 'users' ? 'قائمة حسابات المستخدمين' :
@@ -1349,7 +1512,8 @@ export const Admin: React.FC = () => {
                                   'إعدادات وثوابت متجر نينوسوفت'}
                 </h3>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-                  {activeTab === 'orders' ? 'تتبع وتنشيط وتعديل حالة طلبات العملاء الجدد.' :
+                  {activeTab === 'overview' ? 'نظرة شاملة ومؤشرات تفاعلية لأداء متجرك اليوم.' :
+                    activeTab === 'orders' ? 'تتبع وتنشيط وتعديل حالة طلبات العملاء الجدد.' :
                     activeTab === 'renewals' ? 'مراجعة وتأكيد طلبات العملاء الراغبين بتجديد باقاتهم.' :
                       activeTab === 'subscriptions' ? 'عرض فترات الضمان والاشتراكات المفعلة للعملاء.' :
                         activeTab === 'users' ? 'متابعة تفاصيل المستخدمين المسجلين وصلاحياتهم.' :
@@ -1416,67 +1580,190 @@ export const Admin: React.FC = () => {
               )}
             </div>
 
-            {/* Filter and Search controls bar */}
-            <div style={{ display: 'flex', gap: '12px', width: '100%', flexWrap: 'wrap' }}>
-              <div style={{ position: 'relative', flex: '1', minWidth: '240px' }}>
-                <Search size={16} style={{ position: 'absolute', top: '50%', right: '14px', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="ابحث بالـ Gmail، الاسم، أو رقم الهاتف..."
-                  dir={searchTerm ? 'auto' : 'rtl'}
-                  style={{
-                    width: '100%', padding: '12px 42px 12px 16px',
-                    background: 'var(--background-alt)', border: '1px solid var(--border)',
-                    borderRadius: '12px', color: 'var(--text)', fontSize: '0.85rem'
-                  }}
-                />
+            {activeTab === 'overview' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} className="animate-slide-up">
+
+
+
+                {/* Charts grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  
+                  {/* Area Chart panel */}
+                  <div className="glass-panel md:col-span-2" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
+                      <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text)' }}>مخطط الإيرادات الشهرية</h4>
+                      <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>آخر 6 أشهر · بالدينار العراقي</p>
+                    </div>
+                    <div style={{ padding: '12px 0' }}>
+                      <AreaChart data={series.revenue} labels={months.map((m) => m.label)} />
+                    </div>
+                  </div>
+
+                  {/* Donut Chart panel */}
+                  <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
+                      <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text)' }}>توزيع حالات الطلبات</h4>
+                      <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>حسب إجمالي الطلبات المستلمة</p>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyItems: 'center', gap: '16px', flex: 1, justifyContent: 'center' }}>
+                      <DonutChart
+                        segments={statusBreakdown}
+                        center={
+                          <>
+                            <span className="number-latin" style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text)' }}>
+                              {stats.totalOrders}
+                            </span>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>إجمالي الطلبات</span>
+                          </>
+                        }
+                      />
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%' }}>
+                        {statusBreakdown.map((s) => (
+                          <div key={s.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.78rem' }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}>
+                              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: s.color }} />
+                              {s.label}
+                            </span>
+                            <strong style={{ color: 'var(--text)' }} className="number-latin">{s.value}</strong>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Recent Orders + Top Plans Row */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  
+                  {/* Recent Orders list */}
+                  <div className="glass-panel md:col-span-2" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
+                      <div>
+                        <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text)' }}>أحدث الطلبات الواردة</h4>
+                        <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>آخر 6 طلبات تم تسجيلها</p>
+                      </div>
+                      <button
+                        onClick={() => setActiveTab('orders')}
+                        style={{ background: 'transparent', border: 'none', color: 'var(--primary)', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer' }}
+                      >
+                        عرض الكل
+                      </button>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {recentOrders.map((o) => {
+                        const plan = plans[o.plan_id];
+                        const statusColor = o.status === 'paid' ? 'var(--success)' : o.status === 'pending' ? 'var(--warning)' : o.status === 'rejected' ? 'var(--danger)' : 'var(--text-muted)';
+                        return (
+                          <div key={o.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border)', borderRadius: '12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--primary-light)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center', fontWeight: 800 }}>
+                                {(getUserDisplayName(o.user_id) || o.gmail || '?')[0].toUpperCase()}
+                              </div>
+                              <div>
+                                <h5 style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text)' }}>{o.gmail}</h5>
+                                <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                                  {plan?.name || "باقة"} · <span className="number-latin">{new Date(o.created_at).toLocaleDateString('en-GB')}</span>
+                                </p>
+                              </div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: statusColor }}>
+                                {o.status === 'paid' ? 'مكتمل' : o.status === 'pending' ? 'معلق' : o.status === 'rejected' ? 'مرفوض' : o.status}
+                              </span>
+                              {plan && (
+                                <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text)' }} className="number-latin">
+                                  {plan.price_iqd.toLocaleString('en-US')} د.ع
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Top Plans bar chart */}
+                  <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
+                      <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text)' }}>أعلى الباقات إيراداً</h4>
+                      <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>حسب إجمالي الطلبات المكتملة</p>
+                    </div>
+                    <div style={{ padding: '24px 0 12px 0', flex: 1, display: 'flex', alignItems: 'center' }}>
+                      <BarChart
+                        data={topPlans.map((p) => p.value)}
+                        labels={topPlans.map((p) => p.label.split(" ").slice(0, 2).join(" "))}
+                        formatValue={(n) => `${(n / 1000).toFixed(0)}K`}
+                      />
+                    </div>
+                  </div>
+
+                </div>
+
               </div>
+            ) : (
+              <>
+                {/* Filter and Search controls bar */}
+                <div style={{ display: 'flex', gap: '12px', width: '100%', flexWrap: 'wrap' }}>
+                  <div style={{ position: 'relative', flex: '1', minWidth: '240px' }}>
+                    <Search size={16} style={{ position: 'absolute', top: '50%', right: '14px', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                    <input
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      placeholder="ابحث بالـ Gmail، الاسم، أو رقم الهاتف..."
+                      dir={searchTerm ? 'auto' : 'rtl'}
+                      style={{
+                        width: '100%', padding: '12px 42px 12px 16px',
+                        background: 'var(--background-alt)', border: '1px solid var(--border)',
+                        borderRadius: '12px', color: 'var(--text)', fontSize: '0.85rem'
+                      }}
+                    />
+                  </div>
 
-              {['orders', 'renewals', 'subscriptions'].includes(activeTab) && (
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  style={{
-                    padding: '12px 16px',
-                    background: 'var(--background-alt)', border: '1px solid var(--border)',
-                    borderRadius: '12px', color: 'var(--text)', fontSize: '0.85rem',
-                    outline: 'none', minWidth: '150px', cursor: 'pointer'
-                  }}
-                >
-                  <option value="all">جميع الحالات</option>
-                  {activeTab === 'orders' ? (
-                    <>
-                      <option value="pending">قيد المراجعة</option>
-                      <option value="processing">جاري التفعيل</option>
-                      <option value="awaiting_payment">بانتظار الدفع</option>
-                      <option value="paid">تم الدفع ونشط</option>
-                      <option value="rejected">مرفوض</option>
-                      <option value="expired">منتهي الصلاحية</option>
-                    </>
-                  ) : activeTab === 'renewals' ? (
-                    <>
-                      <option value="pending">معلق</option>
-                      <option value="approved">تم التجديد</option>
-                      <option value="rejected">مرفوض</option>
-                    </>
-                  ) : (
-                    <>
-                      <option value="active">نشط</option>
-                      <option value="expired">منتهي الصلاحية</option>
-                    </>
+                  {['orders', 'renewals', 'subscriptions'].includes(activeTab) && (
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      style={{
+                        padding: '12px 16px',
+                        background: 'var(--background-alt)', border: '1px solid var(--border)',
+                        borderRadius: '12px', color: 'var(--text)', fontSize: '0.85rem',
+                        outline: 'none', minWidth: '150px', cursor: 'pointer'
+                      }}
+                    >
+                      <option value="all">جميع الحالات</option>
+                      {activeTab === 'orders' ? (
+                        <>
+                          <option value="pending">قيد المراجعة</option>
+                          <option value="processing">جاري التفعيل</option>
+                          <option value="awaiting_payment">بانتظار الدفع</option>
+                          <option value="paid">تم الدفع ونشط</option>
+                          <option value="rejected">مرفوض</option>
+                          <option value="expired">منتهي الصلاحية</option>
+                        </>
+                      ) : activeTab === 'renewals' ? (
+                        <>
+                          <option value="pending">معلق</option>
+                          <option value="approved">تم التجديد</option>
+                          <option value="rejected">مرفوض</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value="active">نشط</option>
+                          <option value="expired">منتهي الصلاحية</option>
+                        </>
+                      )}
+                    </select>
                   )}
-                </select>
-              )}
-            </div>
+                </div>
 
-            {/* DYNAMIC DATA TABLE PANEL */}
-            <div className="admin-table-container">
-              <div className="admin-table-wrapper">
+                {/* DYNAMIC DATA TABLE PANEL */}
+                <div className="admin-table-container">
+                  <div className="admin-table-wrapper">
 
-                {/* TAB 1: ORDERS */}
-                {activeTab === 'orders' && (
+                    {/* TAB 1: ORDERS */}
+                    {activeTab === 'orders' && (
                   <table className="admin-table">
                     <thead>
                       <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
@@ -2053,6 +2340,8 @@ export const Admin: React.FC = () => {
                 )}
               </div> {/* Close admin-table-wrapper */}
             </div> {/* Close admin-table-container */}
+          </>
+        )}
           </div> {/* Close admin-content */}
         </div> {/* Close admin-layout */}
 
@@ -2440,6 +2729,197 @@ export const Admin: React.FC = () => {
           >
             <X size={16} />
           </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ---------- Smooth Path Helper for SVG Charts ---------- */
+function buildSmoothPath(points: { x: number; y: number }[]): string {
+  if (points.length < 2) return "";
+  let d = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[i - 1] || points[i];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[i + 2] || p2;
+    const cp1x = p1.x + (p2.x - p0.x) / 6;
+    const cp1y = p1.y + (p2.y - p0.y) / 6;
+    const cp2x = p2.x - (p3.x - p1.x) / 6;
+    const cp2y = p2.y - (p3.y - p1.y) / 6;
+    d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
+  }
+  return d;
+}
+
+/* ---------- Sparkline Component ---------- */
+const Sparkline: React.FC<{ data: number[]; color?: string }> = ({ data, color = "var(--primary)" }) => {
+  const W = 100;
+  const H = 32;
+  const pad = 3;
+  if (!data || data.length === 0) return null;
+  const max = Math.max(...data, 1);
+  const min = Math.min(...data, 0);
+  const range = max - min || 1;
+  const pts = data.map((v, i) => ({
+    x: (i / (data.length - 1 || 1)) * (W - pad * 2) + pad,
+    y: H - pad - ((v - min) / range) * (H - pad * 2),
+  }));
+  const line = buildSmoothPath(pts);
+  const area = `${line} L ${pts[pts.length - 1].x} ${H} L ${pts[0].x} ${H} Z`;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: "100%", height: "100%" }}>
+      <defs>
+        <linearGradient id="sparkline-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.25" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill="url(#sparkline-grad)" />
+      <path d={line} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+};
+
+/* ---------- AreaChart Component ---------- */
+const AreaChart: React.FC<{ data: number[]; labels?: string[]; color?: string }> = ({ data, labels, color = "var(--primary)" }) => {
+  const W = 320;
+  const H = 130;
+  const padY = 12;
+  if (!data || data.length === 0) return null;
+  const max = Math.max(...data, 1) * 1.15;
+  const pts = data.map((v, i) => ({
+    x: (i / (data.length - 1 || 1)) * W,
+    y: H - padY - (v / max) * (H - padY * 2),
+  }));
+  const line = buildSmoothPath(pts);
+  const area = `${line} L ${W} ${H} L 0 ${H} Z`;
+
+  return (
+    <div style={{ width: "100%" }}>
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: "100%", height: 160 }}>
+        <defs>
+          <linearGradient id="areachart-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={color} stopOpacity="0.25" />
+            <stop offset="100%" stopColor={color} stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        {[0.25, 0.5, 0.75].map((g) => (
+          <line
+            key={g}
+            x1="0"
+            x2={W}
+            y1={H * g}
+            y2={H * g}
+            stroke="var(--border)"
+            strokeWidth={1}
+            strokeDasharray="3 5"
+          />
+        ))}
+        <path d={area} fill="url(#areachart-grad)" />
+        <path d={line} fill="none" stroke={color} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+        {pts.map((p, i) => (
+          <circle
+            key={i}
+            cx={p.x}
+            cy={p.y}
+            r={i === pts.length - 1 ? 4 : 0}
+            fill={color}
+            stroke="white"
+            strokeWidth={2}
+          />
+        ))}
+      </svg>
+      {labels && (
+        <div style={{ marginTop: "8px", display: "flex", justifyContent: "space-between", padding: "0 2px", fontSize: "11px", fontWeight: 700, color: "var(--text-muted)" }}>
+          {labels.map((l, i) => (
+            <span key={i} className="number-latin">{l}</span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ---------- BarChart Component ---------- */
+const BarChart: React.FC<{ data: number[]; labels?: string[]; formatValue?: (n: number) => string }> = ({ data, labels, formatValue }) => {
+  if (!data || data.length === 0) return null;
+  const max = Math.max(...data, 1);
+  return (
+    <div style={{ width: "100%" }}>
+      <div style={{ height: "144px", display: "flex", alignItems: "end", justifyContent: "space-between", gap: "8px" }}>
+        {data.map((v, i) => (
+          <div key={i} style={{ display: "flex", height: "100%", flex: 1, flexDirection: "column", alignItems: "center", justifyContent: "end", gap: "6px" }} className="group">
+            <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--text-secondary)", transition: "opacity 0.2s" }} className="opacity-0 group-hover:opacity-100 number-latin">
+              {formatValue ? formatValue(v) : v}
+            </span>
+            <div style={{ display: "flex", width: "100%", maxWidth: "36px", flex: 1, alignItems: "end" }}>
+              <div
+                style={{
+                  width: "100%",
+                  height: `${Math.max((v / max) * 100, 3)}%`,
+                  background: "linear-gradient(to top, var(--primary) 0%, var(--secondary) 100%)",
+                  borderRadius: "8px 8px 0 0",
+                  transition: "all 0.5s ease"
+                }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+      {labels && (
+        <div style={{ marginTop: "8px", display: "flex", justifyContent: "space-between", padding: "0 2px", fontSize: "11px", fontWeight: 700, color: "var(--text-muted)" }}>
+          {labels.map((l, i) => (
+            <span key={i} style={{ flex: 1, textAlign: "center" }}>{l}</span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ---------- DonutChart Component ---------- */
+const DonutChart: React.FC<{ segments: { label: string; value: number; color: string }[]; center?: React.ReactNode }> = ({ segments, center }) => {
+  const total = segments.reduce((s, x) => s + x.value, 0) || 1;
+  const r = 42;
+  const C = 2 * Math.PI * r;
+  let acc = 0;
+  return (
+    <div style={{ position: "relative", width: "160px", height: "160px", flexShrink: 0 }}>
+      <svg viewBox="0 0 120 120" style={{ width: "100%", height: "100%", transform: "rotate(-90deg)" }}>
+        <circle
+          cx="60"
+          cy="60"
+          r={r}
+          fill="none"
+          stroke="var(--border)"
+          strokeWidth="13"
+        />
+        {segments.map((s, i) => {
+          const len = (s.value / total) * C;
+          const offset = -acc;
+          acc += len;
+          return (
+            <circle
+              key={i}
+              cx="60"
+              cy="60"
+              r={r}
+              fill="none"
+              stroke={s.color}
+              strokeWidth="13"
+              strokeLinecap="round"
+              strokeDasharray={`${Math.max(len - 2, 0)} ${C}`}
+              strokeDashoffset={offset}
+              style={{ transition: "stroke-dasharray 0.6s ease" }}
+            />
+          );
+        })}
+      </svg>
+      {center && (
+        <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+          {center}
         </div>
       )}
     </div>
