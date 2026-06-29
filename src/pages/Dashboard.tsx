@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import {
   Sparkles, LogOut, Clock, Calendar, CheckCircle2,
   AlertCircle, MessageSquare, RotateCw, PlusCircle,
-  User, Wallet, Activity, Send
+  User, Activity, Send
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -309,9 +309,6 @@ export const Dashboard: React.FC = () => {
   // Dashboard overview stats
   const activeSubsCount = subscriptions.filter(s => s.status === 'active').length;
   const pendingOrdersCount = orders.filter(o => o.status === 'pending').length;
-  const totalSpent = orders
-    .filter(o => o.status === 'paid')
-    .reduce((sum, o) => sum + (plans[o.plan_id]?.price_iqd || 0), 0);
 
   const greeting = (() => {
     const hour = new Date().getHours();
@@ -511,7 +508,7 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Stats Overview */}
-        <section className="grid grid-cols-4 gap-6" style={{ marginBottom: '28px' }}>
+        <section className="grid grid-cols-3 gap-6" style={{ marginBottom: '28px' }}>
           <div className="dash-metric animate-fade-in animate-delay-1">
             <div className="dash-metric-glow" style={{ background: 'var(--success)' }} />
             <div className="flex items-center justify-between mb-2">
@@ -546,18 +543,6 @@ export const Dashboard: React.FC = () => {
               {pendingOrdersCount}
             </strong>
             <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', display: 'block', marginTop: '2px' }}>بانتظار الموافقة</span>
-          </div>
-
-          <div className="dash-metric animate-fade-in animate-delay-4">
-            <div className="dash-metric-glow" style={{ background: 'var(--secondary)' }} />
-            <div className="flex items-center justify-between mb-2">
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>إجمالي المدفوعات</span>
-              <Wallet size={20} style={{ color: 'var(--secondary)' }} />
-            </div>
-            <strong style={{ fontSize: '1.7rem', color: 'var(--text)', fontFamily: 'var(--font-latin)' }} className="number-latin">
-              {totalSpent.toLocaleString('en-US')}
-            </strong>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', display: 'block', marginTop: '2px' }}>د.ع</span>
           </div>
         </section>
 
