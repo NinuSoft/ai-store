@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import {
   Sparkles, LogOut, Clock, Calendar, CheckCircle2,
   AlertCircle, MessageSquare, RotateCw, PlusCircle,
-  User, Wallet, Activity
+  User, Wallet, Activity, Send
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -965,22 +965,50 @@ export const Dashboard: React.FC = () => {
                 هل واجهت مشكلة في التفعيل؟ أو ترغب بالاستفسار عن طرق الدفع كزين كاش؟ فريقنا متواجد طوال اليوم لمساعدتك.
               </p>
 
-              <a 
-                href={`https://wa.me/${whatsappNum}?text=${encodeURIComponent('مرحباً، لدي استفسار بخصوص اشتراكي.')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-primary"
-                style={{
-                  width: '100%',
-                  backgroundColor: '#25d366',
-                  backgroundImage: 'none',
-                  boxShadow: '0 4px 12px rgba(37, 211, 102, 0.2)',
-                  fontSize: '0.85rem',
-                  padding: '10px'
-                }}
-              >
-                راسلنا الآن عبر واتساب
-              </a>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <a 
+                  href={`https://wa.me/${whatsappNum}?text=${encodeURIComponent('مرحباً، لدي استفسار بخصوص اشتراكي.')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary"
+                  style={{
+                    width: '100%',
+                    backgroundColor: '#25d366',
+                    backgroundImage: 'none',
+                    boxShadow: '0 4px 12px rgba(37, 211, 102, 0.2)',
+                    fontSize: '0.85rem',
+                    padding: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  راسلنا الآن عبر واتساب
+                </a>
+                <a 
+                  href="https://t.me/NinuSoft?direct"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-secondary"
+                  style={{
+                    width: '100%',
+                    backgroundColor: '#229ED9',
+                    border: 'none',
+                    backgroundImage: 'none',
+                    boxShadow: '0 4px 12px rgba(34, 158, 217, 0.2)',
+                    fontSize: '0.85rem',
+                    padding: '10px',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <Send size={16} /> الدعم الفني عبر التلغرام
+                </a>
+              </div>
             </div>
 
           </div>

@@ -3,7 +3,7 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
   Sparkles, CheckCircle2, ShieldCheck, MessageSquare,
   CreditCard, Laptop, Brain, FileText, Image as ImageIcon,
-  Code, PenTool, Search, Check, Phone
+  Code, PenTool, Search, Check, Phone, Send
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -1288,31 +1288,49 @@ export const Home: React.FC = () => {
           <div>
             <h4 style={{ color: 'var(--text)', fontSize: '0.95rem', fontWeight: 700, marginBottom: '16px' }}>تواصل معنا</h4>
             <p style={{ fontSize: '0.85rem', marginBottom: '8px' }}>لديكم استفسار أو بحاجة لمساعدة؟</p>
-            <a
-              href={`https://wa.me/${whatsappNum}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                color: 'var(--text)',
-                fontWeight: 700,
-                fontSize: '0.9rem',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}
-            >
-              <Phone size={16} style={{ color: 'var(--primary)' }} />
-              <span className="number-latin">
-                {whatsappNum.startsWith('964')
-                  ? `+964 ${whatsappNum.slice(3, 5)} ${whatsappNum.slice(5, 8)} ${whatsappNum.slice(8, 10)} ${whatsappNum.slice(10)}`
-                  : whatsappNum.startsWith('0')
-                    ? `+964 ${whatsappNum.slice(1, 3)} ${whatsappNum.slice(3, 6)} ${whatsappNum.slice(6, 8)} ${whatsappNum.slice(8)}`
-                    : whatsappNum.length === 10
-                      ? `+964 ${whatsappNum.slice(0, 2)} ${whatsappNum.slice(2, 5)} ${whatsappNum.slice(5, 7)} ${whatsappNum.slice(7)}`
-                      : whatsappNum
-                }
-              </span>
-            </a>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <a
+                href={`https://wa.me/${whatsappNum}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: 'var(--text)',
+                  fontWeight: 700,
+                  fontSize: '0.9rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <Phone size={16} style={{ color: 'var(--primary)' }} />
+                <span className="number-latin">
+                  {whatsappNum.startsWith('964')
+                    ? `+964 ${whatsappNum.slice(3, 5)} ${whatsappNum.slice(5, 8)} ${whatsappNum.slice(8, 10)} ${whatsappNum.slice(10)}`
+                    : whatsappNum.startsWith('0')
+                      ? `+964 ${whatsappNum.slice(1, 3)} ${whatsappNum.slice(3, 6)} ${whatsappNum.slice(6, 8)} ${whatsappNum.slice(8)}`
+                      : whatsappNum.length === 10
+                        ? `+964 ${whatsappNum.slice(0, 2)} ${whatsappNum.slice(2, 5)} ${whatsappNum.slice(5, 7)} ${whatsappNum.slice(7)}`
+                        : whatsappNum
+                  }
+                </span>
+              </a>
+              <a
+                href="https://t.me/NinuSoft?direct"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: 'var(--text)',
+                  fontWeight: 700,
+                  fontSize: '0.9rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <Send size={16} style={{ color: '#229ED9' }} />
+                <span>الدعم الفني (تلغرام)</span>
+              </a>
+            </div>
           </div>
         </div>
 
