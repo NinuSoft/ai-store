@@ -13,7 +13,7 @@
   'use strict';
 
   var intro = document.getElementById('ns-intro');
-  var sessionBypass = (sessionStorage.getItem('intro_seen') === '1');
+  var sessionBypass = (localStorage.getItem('intro_seen') === '1');
 
   /* ── Config ─────────────────────────────────────────────────────────── */
   var SCAN_MS = 1400;   // scan animation duration (ms)
@@ -89,7 +89,7 @@
       } else {
         // Once full, wait 200ms and fade out the overlay
         setTimeout(function () {
-          sessionStorage.setItem('intro_seen', '1');
+          localStorage.setItem('intro_seen', '1');
           intro.classList.add('ns-exit');
           document.body.classList.remove('ns-loading');
           document.body.removeAttribute('style');
