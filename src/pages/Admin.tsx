@@ -2316,14 +2316,14 @@ export const Admin: React.FC = () => {
                                     <td style={{ padding: '16px' }}>{plans[g.plan_id]?.name || 'غير معروف'}</td>
                                     <td style={{ padding: '16px' }}>
                                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}>
+                                        <span className="number-latin" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.05)', padding: '2px 6px', borderRadius: '4px', fontFamily: 'monospace' }} title="الوقت المتبقي لتغير الرمز">
+                                          {30 - (Math.floor(Date.now() / 1000) % 30)}s
+                                        </span>
                                         <span className="number-latin" style={{ fontFamily: 'monospace', fontWeight: 800, letterSpacing: '1px', fontSize: '1rem', color: 'var(--success)' }}>
                                           {(() => {
                                             const otp = generateTOTP(g.twofa_secret);
                                             return otp.length === 6 ? `${otp.substring(0, 3)} ${otp.substring(3)}` : otp;
                                           })()}
-                                        </span>
-                                        <span className="number-latin" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.05)', padding: '2px 6px', borderRadius: '4px', fontFamily: 'monospace' }} title="الوقت المتبقي لتغير الرمز">
-                                          {30 - (Math.floor(Date.now() / 1000) % 30)}s
                                         </span>
                                         <button
                                           onClick={() => {
@@ -2373,7 +2373,7 @@ export const Admin: React.FC = () => {
                                               email: g.email,
                                               plan_id: g.plan_id,
                                               twofa_secret: g.twofa_secret,
-                                              subscription_valid_until: g.subscription_valid_until ? g.subscription_valid_until.substring(0, 16) : '',
+                                              subscription_valid_until: g.subscription_valid_until ? g.subscription_valid_until.substring(0, 10) : '',
                                               max_members: g.max_members,
                                               status: g.status,
                                               notes: g.notes || ''
@@ -3090,9 +3090,11 @@ export const Admin: React.FC = () => {
                 <div>
                   <label className="admin-form-label">صلاحية الاشتراك (اختياري)</label>
                   <input
-                    type="datetime-local" value={formFields.subscription_valid_until || ''}
+                    type="date"
+                    value={formFields.subscription_valid_until ? formFields.subscription_valid_until.substring(0, 10) : ''}
                     onChange={e => setFormFields({ ...formFields, subscription_valid_until: e.target.value })}
                     className="admin-input-text"
+                    style={{ colorScheme: 'dark' }}
                   />
                 </div>
                 <div>
@@ -3426,18 +3428,18 @@ export const Admin: React.FC = () => {
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>رمز الـ 2FA المؤقت (TOTP) والـ Secret</span>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <strong className="number-latin" style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: '1.6rem', color: 'var(--success)', letterSpacing: '2px', whiteSpace: 'nowrap' }}>
-                      {(() => {
-                        const otp = generateTOTP(selectedGmailAccountDetails.twofa_secret);
-                        return otp.length === 6 ? `${otp.substring(0, 3)} ${otp.substring(3)}` : otp;
-                      })()}
-                    </strong>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255, 255, 255, 0.04)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border)' }}>
                       <Clock size={12} className="text-success" style={{ color: 'var(--success)' }} />
                       <span className="number-latin" style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', fontFamily: 'monospace', width: '24px', textAlign: 'center' }}>
                         {30 - (Math.floor(Date.now() / 1000) % 30)}s
                       </span>
                     </div>
+                    <strong className="number-latin" style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: '1.6rem', color: 'var(--success)', letterSpacing: '2px', whiteSpace: 'nowrap' }}>
+                      {(() => {
+                        const otp = generateTOTP(selectedGmailAccountDetails.twofa_secret);
+                        return otp.length === 6 ? `${otp.substring(0, 3)} ${otp.substring(3)}` : otp;
+                      })()}
+                    </strong>
                   </div>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button
