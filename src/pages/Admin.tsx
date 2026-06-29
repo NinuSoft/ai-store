@@ -25,7 +25,7 @@ interface Order {
   product_id?: string;
   gmail: string;
   phone: string;
-  status: 'pending' | 'processing' | 'awaiting_payment' | 'paid' | 'expired' | 'rejected';
+  status: 'pending' | 'processing' | 'awaiting_payment' | 'paid' | 'expired' | 'rejected' | 'cancelled';
   created_at: string;
   activation_date?: string;
   payment_date?: string;
@@ -162,7 +162,7 @@ export const Admin: React.FC = () => {
       if (ordersData) {
         mappedOrders = ordersData.map((o: any) => {
           let frontendStatus: Order['status'] = 'pending';
-          if (o.notes === 'PROCESSING') {
+          if (o.status === 'Processing') {
             frontendStatus = 'processing';
           } else if (o.status === 'Activated') {
             if (o.payment_status === 'Paid') {
@@ -177,7 +177,7 @@ export const Admin: React.FC = () => {
           } else if (o.status === 'Rejected') {
             frontendStatus = 'rejected';
           } else if (o.status === 'Cancelled') {
-            frontendStatus = 'rejected';
+            frontendStatus = 'cancelled';
           }
           return {
             ...o,
@@ -276,7 +276,7 @@ export const Admin: React.FC = () => {
     try {
       const { error } = await supabase
         .from('orders')
-        .update({ notes: 'PROCESSING' })
+        .update({ status: 'Processing' })
         .eq('id', orderId);
 
       if (error) throw error;
@@ -741,13 +741,15 @@ export const Admin: React.FC = () => {
         return { label: 'منتهي الصلاحية', badgeClass: 'status-pill expired', icon: <Clock size={12} /> };
       case 'rejected':
         return { label: 'مرفوض', badgeClass: 'status-pill rejected', icon: <X size={12} /> };
+      case 'cancelled':
+        return { label: 'ملغي', badgeClass: 'status-pill cancelled', icon: <X size={12} /> };
       default:
         return { label: status, badgeClass: 'status-pill', icon: null };
     }
   };
 
   // -------------------------------------------------------------
-  // Overview Dashboard Derivations (borrowed from redesign-admin-dashboard-component)
+  // Overview Dashboard Derivations (borrowed from redesign-admin-dashboard-componeadd processubg as a status nt)
   // -------------------------------------------------------------
   const months = React.useMemo(() => {
     const out: { label: string; key: string; y: number; m: number }[] = [];
@@ -773,14 +775,14 @@ export const Admin: React.FC = () => {
     const orderCounts: number[] = [];
     const userCounts: number[] = [];
     const subCounts: number[] = [];
-    
+
     months.forEach((mo) => {
       const inMonth = (iso?: string) => {
         if (!iso) return false;
         const d = new Date(iso);
         return d.getFullYear() === mo.y && d.getMonth() === mo.m;
       };
-      
+
       let rev = 0;
       orders.forEach((o) => {
         if (inMonth(o.payment_date || o.created_at)) {
@@ -807,7 +809,7 @@ export const Admin: React.FC = () => {
 
   const statusBreakdown = React.useMemo(() => {
     const map = {
-      pending: 0, processing: 0, awaiting_payment: 0, paid: 0, expired: 0, rejected: 0,
+      pending: 0, processing: 0, awaiting_payment: 0, paid: 0, expired: 0, rejected: 0, cancelled: 0,
     };
     orders.forEach((o) => {
       if (map[o.status] !== undefined) map[o.status]++;
@@ -819,6 +821,7 @@ export const Admin: React.FC = () => {
       paid: "مكتمل",
       expired: "منتهي",
       rejected: "مرفوض",
+      cancelled: "ملغي",
     };
     const color: Record<string, string> = {
       pending: "#f59e0b",
@@ -827,6 +830,7 @@ export const Admin: React.FC = () => {
       paid: "#10b981",
       expired: "#94a3b8",
       rejected: "#f43f5e",
+      cancelled: "#64748b",
     };
     return (Object.keys(map) as (keyof typeof map)[])
       .map((k) => ({ label: label[k] || k, value: map[k], color: color[k], key: k }))
@@ -1089,6 +1093,11 @@ export const Admin: React.FC = () => {
           color: #f87171;
           border-color: rgba(239, 68, 68, 0.25);
         }
+        .status-pill.cancelled {
+          background: rgba(100, 116, 139, 0.08);
+          color: #94a3b8;
+          border-color: rgba(100, 116, 139, 0.25);
+        }
          .status-pill.expired {
           background: rgba(156, 163, 175, 0.08);
           color: #9ca3af;
@@ -1291,9 +1300,8 @@ export const Admin: React.FC = () => {
                     {stats.totalRevenue.toLocaleString('en-US')}
                   </strong>
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>د.ع</span>
-                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                    pct(series.revenue, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
-                  }`} style={{ direction: 'ltr', marginBottom: '4px' }}>
+                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${pct(series.revenue, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
+                    }`} style={{ direction: 'ltr', marginBottom: '4px' }}>
                     {pct(series.revenue, lastIdx) >= 0 ? '+' : ''}{pct(series.revenue, lastIdx)}%
                   </span>
                 </div>
@@ -1438,9 +1446,8 @@ export const Admin: React.FC = () => {
                     {stats.activeSubs}
                   </strong>
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>اشتراك</span>
-                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                    pct(series.subCounts, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
-                  }`} style={{ direction: 'ltr', marginBottom: '4px' }}>
+                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${pct(series.subCounts, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
+                    }`} style={{ direction: 'ltr', marginBottom: '4px' }}>
                     {pct(series.subCounts, lastIdx) >= 0 ? '+' : ''}{pct(series.subCounts, lastIdx)}%
                   </span>
                 </div>
@@ -1462,9 +1469,8 @@ export const Admin: React.FC = () => {
                     {stats.pendingOrders}
                   </strong>
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>طلب معلق</span>
-                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                    pct(series.orderCounts, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
-                  }`} style={{ direction: 'ltr', marginBottom: '4px' }}>
+                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${pct(series.orderCounts, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
+                    }`} style={{ direction: 'ltr', marginBottom: '4px' }}>
                     {pct(series.orderCounts, lastIdx) >= 0 ? '+' : ''}{pct(series.orderCounts, lastIdx)}%
                   </span>
                 </div>
@@ -1486,9 +1492,8 @@ export const Admin: React.FC = () => {
                     {stats.totalUsers}
                   </strong>
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>عميل مسجل</span>
-                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                    pct(series.userCounts, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
-                  }`} style={{ direction: 'ltr', marginBottom: '4px' }}>
+                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${pct(series.userCounts, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
+                    }`} style={{ direction: 'ltr', marginBottom: '4px' }}>
                     {pct(series.userCounts, lastIdx) >= 0 ? '+' : ''}{pct(series.userCounts, lastIdx)}%
                   </span>
                 </div>
@@ -1502,26 +1507,26 @@ export const Admin: React.FC = () => {
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text)' }}>
                   {activeTab === 'overview' ? 'لوحة التحكم والمؤشرات الرئيسية' :
                     activeTab === 'orders' ? 'إدارة الطلبات الواردة' :
-                    activeTab === 'renewals' ? 'طلبات تجديد الاشتراكات' :
-                      activeTab === 'subscriptions' ? 'الاشتراكات النشطة' :
-                        activeTab === 'users' ? 'قائمة حسابات المستخدمين' :
-                          activeTab === 'products' ? 'المنتجات المعروضة' :
-                            activeTab === 'plans' ? 'باقات تفعيل Google AI Pro' :
-                              activeTab === 'faqs' ? 'الأسئلة الشائعة للزوار' :
-                                activeTab === 'testimonials' ? 'تقييمات وآراء العملاء' :
-                                  'إعدادات وثوابت متجر نينوسوفت'}
+                      activeTab === 'renewals' ? 'طلبات تجديد الاشتراكات' :
+                        activeTab === 'subscriptions' ? 'الاشتراكات النشطة' :
+                          activeTab === 'users' ? 'قائمة حسابات المستخدمين' :
+                            activeTab === 'products' ? 'المنتجات المعروضة' :
+                              activeTab === 'plans' ? 'باقات تفعيل Google AI Pro' :
+                                activeTab === 'faqs' ? 'الأسئلة الشائعة للزوار' :
+                                  activeTab === 'testimonials' ? 'تقييمات وآراء العملاء' :
+                                    'إعدادات وثوابت متجر نينوسوفت'}
                 </h3>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px' }}>
                   {activeTab === 'overview' ? 'نظرة شاملة ومؤشرات تفاعلية لأداء متجرك اليوم.' :
                     activeTab === 'orders' ? 'تتبع وتنشيط وتعديل حالة طلبات العملاء الجدد.' :
-                    activeTab === 'renewals' ? 'مراجعة وتأكيد طلبات العملاء الراغبين بتجديد باقاتهم.' :
-                      activeTab === 'subscriptions' ? 'عرض فترات الضمان والاشتراكات المفعلة للعملاء.' :
-                        activeTab === 'users' ? 'متابعة تفاصيل المستخدمين المسجلين وصلاحياتهم.' :
-                          activeTab === 'products' ? 'إضافة وتعديل وحذف المنتجات وخصائصها.' :
-                            activeTab === 'plans' ? 'التحكم بالمدد الزمنية للأسعار والتخفيضات الفعلية.' :
-                              activeTab === 'faqs' ? 'تعديل أو ترتيب الأسئلة الشائعة وأجوبتها.' :
-                                activeTab === 'testimonials' ? 'إدارة التقييمات المعروضة في الصفحة الرئيسية.' :
-                                  'تعديل المتغيرات الأساسية للمنصة مثل رقم الهاتف للدعم.'}
+                      activeTab === 'renewals' ? 'مراجعة وتأكيد طلبات العملاء الراغبين بتجديد باقاتهم.' :
+                        activeTab === 'subscriptions' ? 'عرض فترات الضمان والاشتراكات المفعلة للعملاء.' :
+                          activeTab === 'users' ? 'متابعة تفاصيل المستخدمين المسجلين وصلاحياتهم.' :
+                            activeTab === 'products' ? 'إضافة وتعديل وحذف المنتجات وخصائصها.' :
+                              activeTab === 'plans' ? 'التحكم بالمدد الزمنية للأسعار والتخفيضات الفعلية.' :
+                                activeTab === 'faqs' ? 'تعديل أو ترتيب الأسئلة الشائعة وأجوبتها.' :
+                                  activeTab === 'testimonials' ? 'إدارة التقييمات المعروضة في الصفحة الرئيسية.' :
+                                    'تعديل المتغيرات الأساسية للمنصة مثل رقم الهاتف للدعم.'}
                 </p>
               </div>
 
@@ -1587,7 +1592,7 @@ export const Admin: React.FC = () => {
 
                 {/* Charts grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  
+
                   {/* Area Chart panel */}
                   <div className="glass-panel md:col-span-2" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
@@ -1635,7 +1640,7 @@ export const Admin: React.FC = () => {
 
                 {/* Recent Orders + Top Plans Row */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  
+
                   {/* Recent Orders list */}
                   <div className="glass-panel md:col-span-2" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
@@ -1653,7 +1658,7 @@ export const Admin: React.FC = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                       {recentOrders.map((o) => {
                         const plan = plans[o.plan_id];
-                        const statusColor = o.status === 'paid' ? 'var(--success)' : o.status === 'pending' ? 'var(--warning)' : o.status === 'rejected' ? 'var(--danger)' : 'var(--text-muted)';
+                        const statusColor = o.status === 'paid' ? 'var(--success)' : o.status === 'pending' ? 'var(--warning)' : o.status === 'rejected' ? 'var(--danger)' : o.status === 'cancelled' ? 'var(--text-muted)' : 'var(--text-muted)';
                         return (
                           <div key={o.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border)', borderRadius: '12px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1669,7 +1674,7 @@ export const Admin: React.FC = () => {
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                               <span style={{ fontSize: '0.75rem', fontWeight: 800, color: statusColor }}>
-                                {o.status === 'paid' ? 'مكتمل' : o.status === 'pending' ? 'معلق' : o.status === 'rejected' ? 'مرفوض' : o.status}
+                                {o.status === 'paid' ? 'مكتمل' : o.status === 'pending' ? 'معلق' : o.status === 'rejected' ? 'مرفوض' : o.status === 'cancelled' ? 'ملغي' : o.status}
                               </span>
                               {plan && (
                                 <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text)' }} className="number-latin">
@@ -1740,6 +1745,7 @@ export const Admin: React.FC = () => {
                           <option value="awaiting_payment">بانتظار الدفع</option>
                           <option value="paid">تم الدفع ونشط</option>
                           <option value="rejected">مرفوض</option>
+                          <option value="cancelled">ملغي</option>
                           <option value="expired">منتهي الصلاحية</option>
                         </>
                       ) : activeTab === 'renewals' ? (
@@ -1764,584 +1770,584 @@ export const Admin: React.FC = () => {
 
                     {/* TAB 1: ORDERS */}
                     {activeTab === 'orders' && (
-                  <table className="admin-table">
-                    <thead>
-                      <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
-                        <th style={{ padding: '16px', color: 'var(--text)' }}>بريد التفعيل (Gmail)</th>
-                        <th style={{ padding: '16px', color: 'var(--text)' }}>رقم الهاتف</th>
-                        <th style={{ padding: '16px', color: 'var(--text)' }}>الباقة المطلوبة</th>
-                        <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ الطلب</th>
-                        <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ التفعيل</th>
-                        <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ الدفع</th>
-                        <th style={{ padding: '16px', color: 'var(--text)' }}>الحالة</th>
-                        <th style={{ padding: '16px', color: 'var(--text)', minWidth: '130px' }}>ملاحظات المسؤول</th>
-                        <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredOrders.length > 0 ? (
-                        filteredOrders.map((o) => (
-                          <tr key={o.id} style={{ borderBottom: '1px solid var(--border)', background: o.status === 'pending' ? 'rgba(245, 158, 11, 0.02)' : 'none' }}>
-                            <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }} className="number-latin">{o.gmail}</td>
-                            <td style={{ padding: '16px' }} className="number-latin">{o.phone}</td>
-                            <td style={{ padding: '16px' }}>{plans[o.plan_id]?.name || 'غير معروف'}</td>
-                            <td style={{ padding: '16px' }} className="number-latin">{new Date(o.created_at).toLocaleDateString('en-GB')}</td>
-                            <td style={{ padding: '16px' }} className="number-latin">{o.activation_date ? new Date(o.activation_date).toLocaleDateString('en-GB') : '—'}</td>
-                            <td style={{ padding: '16px' }} className="number-latin">{o.payment_date ? new Date(o.payment_date).toLocaleDateString('en-GB') : '—'}</td>
-                            <td style={{ padding: '16px' }}>
-                              <span className={getOrderStatusDetails(o.status).badgeClass}>
-                                {getOrderStatusDetails(o.status).icon}
-                                <span>{getOrderStatusDetails(o.status).label}</span>
-                              </span>
-                            </td>
-                            <td style={{ padding: '16px' }}>
-                              <input
-                                type="text"
-                                defaultValue={o.notes || ''}
-                                placeholder="أضف ملاحظة..."
-                                onBlur={(e) => handleSaveNotes(o.id, e.target.value)}
-                                dir="auto"
-                                style={{
-                                  width: '120px',
-                                  padding: '6px 10px',
-                                  background: 'var(--background)',
-                                  border: '1px solid var(--border)',
-                                  borderRadius: 'var(--radius-sm)',
-                                  color: 'var(--text)',
-                                  fontSize: '0.8rem',
-                                  outline: 'none'
-                                }}
-                              />
-                            </td>
-                            <td style={{ padding: '16px' }}>
-                              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                {o.status === 'pending' && (
-                                  <button
-                                    onClick={() => handleProcessOrder(o.id)}
-                                    className="admin-table-action-btn"
-                                  >
-                                    <Activity size={12} />
-                                    <span>بدء المعالجة</span>
-                                  </button>
-                                )}
-                                {(o.status === 'pending' || o.status === 'processing') && (
-                                  <button
-                                    onClick={() => handleApproveOrder(o)}
-                                    className="admin-table-action-btn success"
-                                  >
-                                    <Check size={12} />
-                                    <span>تنشيط</span>
-                                  </button>
-                                )}
-                                {o.status === 'awaiting_payment' && (
-                                  <>
-                                    <button
-                                      onClick={() => handleMarkPaid(o.id)}
-                                      className="admin-table-action-btn success"
-                                    >
-                                      <Check size={12} />
-                                      <span>تأكيد الدفع</span>
-                                    </button>
-                                    <button
-                                      onClick={() => handleSendReminder(o)}
-                                      className="admin-table-action-btn"
-                                      style={{ color: '#25d366', borderColor: 'rgba(37, 211, 102, 0.25)' }}
-                                    >
-                                      <MessageSquare size={12} />
-                                      <span>تذكير بالدفع</span>
-                                    </button>
-                                  </>
-                                )}
-                                {o.status !== 'paid' && o.status !== 'rejected' && (
-                                  <button
-                                    onClick={() => handleRejectOrder(o.id)}
-                                    className="admin-table-action-btn delete"
-                                  >
-                                    <X size={12} />
-                                    <span>رفض</span>
-                                  </button>
-                                )}
-                              </div>
-                            </td>
+                      <table className="admin-table">
+                        <thead>
+                          <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>بريد التفعيل (Gmail)</th>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>رقم الهاتف</th>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>الباقة المطلوبة</th>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ الطلب</th>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ التفعيل</th>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ الدفع</th>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>الحالة</th>
+                            <th style={{ padding: '16px', color: 'var(--text)', minWidth: '130px' }}>ملاحظات المسؤول</th>
+                            <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
                           </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={9} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد طلبات تطابق معايير البحث.</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                )}
-
-                {/* TAB 2: RENEWALS */}
-                {activeTab === 'renewals' && (
-                  <table className="admin-table">
-                    <thead>
-                      <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
-                        <th style={{ padding: '16px', color: 'var(--text)' }}>حساب العميل</th>
-                        <th style={{ padding: '16px', color: 'var(--text)' }}>رقم الهاتف للعميل</th>
-                        <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ الطلب</th>
-                        <th style={{ padding: '16px', color: 'var(--text)' }}>الحالة</th>
-                        <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredRenewals.length > 0 ? (
-                        filteredRenewals.map((r) => {
-                          const userPhone = users.find(u => u.id === r.user_id)?.phone || 'غير مسجل';
-                          return (
-                            <tr key={r.id} style={{ borderBottom: '1px solid var(--border)', background: r.status === 'pending' ? 'rgba(245, 158, 11, 0.02)' : 'none' }}>
-                              <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{getUserDisplayName(r.user_id)}</td>
-                              <td style={{ padding: '16px' }} className="number-latin">{userPhone}</td>
-                              <td style={{ padding: '16px' }} className="number-latin">{new Date(r.created_at).toLocaleString('en-GB')}</td>
-                              <td style={{ padding: '16px' }}>
-                                <span className={`status-pill ${r.status === 'approved' ? 'paid' : r.status === 'pending' ? 'pending' : 'rejected'}`}>
-                                  {r.status === 'approved' ? <Check size={12} /> : r.status === 'pending' ? <Clock size={12} /> : <X size={12} />}
-                                  <span>{r.status === 'approved' ? 'تم التجديد' : r.status === 'pending' ? 'معلق' : 'مرفوض'}</span>
-                                </span>
-                              </td>
-                              <td style={{ padding: '16px' }}>
-                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                  {r.status === 'pending' && (
-                                    <>
+                        </thead>
+                        <tbody>
+                          {filteredOrders.length > 0 ? (
+                            filteredOrders.map((o) => (
+                              <tr key={o.id} style={{ borderBottom: '1px solid var(--border)', background: o.status === 'pending' ? 'rgba(245, 158, 11, 0.02)' : 'none' }}>
+                                <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }} className="number-latin">{o.gmail}</td>
+                                <td style={{ padding: '16px' }} className="number-latin">{o.phone}</td>
+                                <td style={{ padding: '16px' }}>{plans[o.plan_id]?.name || 'غير معروف'}</td>
+                                <td style={{ padding: '16px' }} className="number-latin">{new Date(o.created_at).toLocaleDateString('en-GB')}</td>
+                                <td style={{ padding: '16px' }} className="number-latin">{o.activation_date ? new Date(o.activation_date).toLocaleDateString('en-GB') : '—'}</td>
+                                <td style={{ padding: '16px' }} className="number-latin">{o.payment_date ? new Date(o.payment_date).toLocaleDateString('en-GB') : '—'}</td>
+                                <td style={{ padding: '16px' }}>
+                                  <span className={getOrderStatusDetails(o.status).badgeClass}>
+                                    {getOrderStatusDetails(o.status).icon}
+                                    <span>{getOrderStatusDetails(o.status).label}</span>
+                                  </span>
+                                </td>
+                                <td style={{ padding: '16px' }}>
+                                  <input
+                                    type="text"
+                                    defaultValue={o.notes || ''}
+                                    placeholder="أضف ملاحظة..."
+                                    onBlur={(e) => handleSaveNotes(o.id, e.target.value)}
+                                    dir="auto"
+                                    style={{
+                                      width: '120px',
+                                      padding: '6px 10px',
+                                      background: 'var(--background)',
+                                      border: '1px solid var(--border)',
+                                      borderRadius: 'var(--radius-sm)',
+                                      color: 'var(--text)',
+                                      fontSize: '0.8rem',
+                                      outline: 'none'
+                                    }}
+                                  />
+                                </td>
+                                <td style={{ padding: '16px' }}>
+                                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                    {o.status === 'pending' && (
                                       <button
-                                        onClick={() => handleApproveRenewal(r)}
+                                        onClick={() => handleProcessOrder(o.id)}
+                                        className="admin-table-action-btn"
+                                      >
+                                        <Activity size={12} />
+                                        <span>بدء المعالجة</span>
+                                      </button>
+                                    )}
+                                    {(o.status === 'pending' || o.status === 'processing') && (
+                                      <button
+                                        onClick={() => handleApproveOrder(o)}
                                         className="admin-table-action-btn success"
                                       >
                                         <Check size={12} />
-                                        <span>تمديد وتجديد</span>
+                                        <span>تنشيط</span>
                                       </button>
+                                    )}
+                                    {o.status === 'awaiting_payment' && (
+                                      <>
+                                        <button
+                                          onClick={() => handleMarkPaid(o.id)}
+                                          className="admin-table-action-btn success"
+                                        >
+                                          <Check size={12} />
+                                          <span>تأكيد الدفع</span>
+                                        </button>
+                                        <button
+                                          onClick={() => handleSendReminder(o)}
+                                          className="admin-table-action-btn"
+                                          style={{ color: '#25d366', borderColor: 'rgba(37, 211, 102, 0.25)' }}
+                                        >
+                                          <MessageSquare size={12} />
+                                          <span>تذكير بالدفع</span>
+                                        </button>
+                                      </>
+                                    )}
+                                    {o.status !== 'paid' && o.status !== 'rejected' && o.status !== 'cancelled' && (
                                       <button
-                                        onClick={() => handleRejectRenewal(r.id)}
+                                        onClick={() => handleRejectOrder(o.id)}
                                         className="admin-table-action-btn delete"
                                       >
                                         <X size={12} />
                                         <span>رفض</span>
                                       </button>
-                                    </>
-                                  )}
-                                </div>
-                              </td>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan={9} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد طلبات تطابق معايير البحث.</td>
                             </tr>
-                          );
-                        })
-                      ) : (
-                        <tr>
-                          <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد طلبات تجديد تطابق معايير البحث.</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                )}
+                          )}
+                        </tbody>
+                      </table>
+                    )}
 
-                {/* TAB 3: SUBSCRIPTIONS */}
-                {activeTab === 'subscriptions' && (
-                  <table className="admin-table">
-                    <thead>
-                      <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
-                        <th style={{ padding: '16px', color: 'var(--text)' }}>حساب العميل</th>
-                        <th style={{ padding: '16px', color: 'var(--text)' }}>الباقة المفعلة</th>
-                        <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ البدء</th>
-                        <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ الانتهاء</th>
-                        <th style={{ padding: '16px', color: 'var(--text)' }}>حالة الاشتراك</th>
-                        <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredSubscriptions.length > 0 ? (
-                        filteredSubscriptions.map((s) => (
-                          <tr key={s.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                            <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{getUserDisplayName(s.user_id)}</td>
-                            <td style={{ padding: '16px' }}>{plans[s.plan_id]?.name || 'غير معروف'}</td>
-                            <td style={{ padding: '16px' }} className="number-latin">{new Date(s.start_date).toLocaleDateString('en-GB')}</td>
-                            <td style={{ padding: '16px' }} className="number-latin">{new Date(s.end_date).toLocaleDateString('en-GB')}</td>
-                            <td style={{ padding: '16px' }}>
-                              <span className={`status-pill ${s.status === 'active' ? 'paid' : s.status === 'suspended' ? 'suspended' : 'expired'}`}>
-                                {s.status === 'active' ? <Check size={12} /> : s.status === 'suspended' ? <Ban size={12} /> : <Clock size={12} />}
-                                <span>{s.status === 'active' ? 'نشط' : s.status === 'suspended' ? 'معلّق' : 'منتهي'}</span>
-                              </span>
-                            </td>
-                            <td style={{ padding: '16px', textAlign: 'center' }}>
-                              {(s.status === 'active' || s.status === 'suspended') && (
-                                <button
-                                  onClick={() => handleToggleSuspendSubscription(s)}
-                                  disabled={suspendingSub === s.id}
-                                  className="admin-table-action-btn"
-                                  style={{
-                                    color: s.status === 'suspended' ? 'var(--success)' : 'var(--danger)',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    padding: '8px',
-                                    borderRadius: '8px',
-                                    border: '1px solid var(--border)',
-                                    background: 'transparent',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s'
-                                  }}
-                                  title={s.status === 'suspended' ? 'تنشيط الاشتراك' : 'تعليق الاشتراك'}
-                                >
-                                  {suspendingSub === s.id ? (
-                                    <RotateCw size={14} className="animate-spin" />
-                                  ) : s.status === 'suspended' ? (
-                                    <Play size={14} />
-                                  ) : (
-                                    <Ban size={14} />
-                                  )}
-                                </button>
-                              )}
-                            </td>
+                    {/* TAB 2: RENEWALS */}
+                    {activeTab === 'renewals' && (
+                      <table className="admin-table">
+                        <thead>
+                          <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>حساب العميل</th>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>رقم الهاتف للعميل</th>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ الطلب</th>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>الحالة</th>
+                            <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
                           </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={6} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد اشتراكات نشطة تطابق معايير البحث.</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                )}
-
-                {activeTab === 'users' && (
-                  <table className="admin-table">
-                    <thead>
-                      <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
-                        <th style={{ padding: '16px', color: 'var(--text)' }}>المستخدم</th>
-                        <th style={{ padding: '16px', color: 'var(--text)' }}>رقم الهاتف المسجل</th>
-                        <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ التسجيل</th>
-                        <th style={{ padding: '16px', color: 'var(--text)' }}>الرتبة</th>
-                        <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredUsers.length > 0 ? (
-                        filteredUsers.map((u) => (
-                          <tr key={u.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                            <td style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                              {u.avatar_url ? (
-                                <img src={u.avatar_url} alt="" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
-                              ) : (
-                                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--primary-light)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
-                                  {(u.full_name || u.email || '?')[0].toUpperCase()}
-                                </div>
-                              )}
-                              <div>
-                                <div style={{ fontWeight: 700, color: 'var(--text)' }}>{u.full_name || 'بدون اسم'}</div>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{u.email}</div>
-                              </div>
-                            </td>
-                            <td style={{ padding: '16px' }} className="number-latin">{u.phone || 'غير متوفر'}</td>
-                            <td style={{ padding: '16px' }} className="number-latin">{new Date(u.created_at).toLocaleDateString('en-GB')}</td>
-                            <td style={{ padding: '16px' }}>
-                              <span className={`status-pill ${u.is_admin ? 'awaiting_payment' : 'expired'}`}>
-                                {u.is_admin ? <Shield size={12} /> : <User size={12} />}
-                                <span>{u.is_admin ? 'مدير النظام' : 'عميل'}</span>
-                              </span>
-                            </td>
-                            <td style={{ padding: '16px' }}>
-                              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                <button
-                                  onClick={() => handleToggleAdmin(u)}
-                                  className={`admin-table-action-btn ${u.is_admin ? 'delete' : 'success'}`}
-                                >
-                                  {u.is_admin ? <X size={12} /> : <Check size={12} />}
-                                  <span>{u.is_admin ? 'إلغاء صلاحية مدير' : 'جعل كمدير للنظام'}</span>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا يوجد مستخدمون يطابقون معايير البحث.</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                )}
-
-
-
-                {/* TAB 5: PRODUCTS */}
-                {activeTab === 'products' && (
-                  <div>
-                    <table className="admin-table">
-                      <thead>
-                        <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
-                          <th style={{ padding: '16px', color: 'var(--text)' }}>الاسم</th>
-                          <th style={{ padding: '16px', color: 'var(--text)' }}>المعرف (Slug)</th>
-                          <th style={{ padding: '16px', color: 'var(--text)' }}>الوصف</th>
-                          <th style={{ padding: '16px', color: 'var(--text)' }}>الحالة</th>
-                          <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {productsList.length > 0 ? (
-                          productsList.map((p) => (
-                            <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                              <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{p.name}</td>
-                              <td style={{ padding: '16px' }} className="number-latin">{p.slug}</td>
-                              <td style={{ padding: '16px', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.description}</td>
-                              <td style={{ padding: '16px' }}>
-                                <span className={`status-pill ${p.is_active ? 'paid' : 'rejected'}`}>
-                                  {p.is_active ? <Check size={12} /> : <X size={12} />}
-                                  <span>{p.is_active ? 'نشط' : 'معطل'}</span>
-                                </span>
-                              </td>
-                              <td style={{ padding: '16px' }}>
-                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                  <button
-                                    onClick={() => { setEditingItem(p); setIsAdding(false); setFormFields(p); }}
-                                    className="admin-table-action-btn"
-                                  >
-                                    <Edit2 size={12} />
-                                    <span>تعديل</span>
-                                  </button>
-                                  <button
-                                    onClick={() => handleDeleteProduct(p.id)}
-                                    className="admin-table-action-btn delete"
-                                  >
-                                    <Trash2 size={12} />
-                                    <span>حذف</span>
-                                  </button>
-                                </div>
-                              </td>
+                        </thead>
+                        <tbody>
+                          {filteredRenewals.length > 0 ? (
+                            filteredRenewals.map((r) => {
+                              const userPhone = users.find(u => u.id === r.user_id)?.phone || 'غير مسجل';
+                              return (
+                                <tr key={r.id} style={{ borderBottom: '1px solid var(--border)', background: r.status === 'pending' ? 'rgba(245, 158, 11, 0.02)' : 'none' }}>
+                                  <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{getUserDisplayName(r.user_id)}</td>
+                                  <td style={{ padding: '16px' }} className="number-latin">{userPhone}</td>
+                                  <td style={{ padding: '16px' }} className="number-latin">{new Date(r.created_at).toLocaleString('en-GB')}</td>
+                                  <td style={{ padding: '16px' }}>
+                                    <span className={`status-pill ${r.status === 'approved' ? 'paid' : r.status === 'pending' ? 'pending' : 'rejected'}`}>
+                                      {r.status === 'approved' ? <Check size={12} /> : r.status === 'pending' ? <Clock size={12} /> : <X size={12} />}
+                                      <span>{r.status === 'approved' ? 'تم التجديد' : r.status === 'pending' ? 'معلق' : 'مرفوض'}</span>
+                                    </span>
+                                  </td>
+                                  <td style={{ padding: '16px' }}>
+                                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                      {r.status === 'pending' && (
+                                        <>
+                                          <button
+                                            onClick={() => handleApproveRenewal(r)}
+                                            className="admin-table-action-btn success"
+                                          >
+                                            <Check size={12} />
+                                            <span>تمديد وتجديد</span>
+                                          </button>
+                                          <button
+                                            onClick={() => handleRejectRenewal(r.id)}
+                                            className="admin-table-action-btn delete"
+                                          >
+                                            <X size={12} />
+                                            <span>رفض</span>
+                                          </button>
+                                        </>
+                                      )}
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            })
+                          ) : (
+                            <tr>
+                              <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد طلبات تجديد تطابق معايير البحث.</td>
                             </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد منتجات مسجلة.</td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                          )}
+                        </tbody>
+                      </table>
+                    )}
 
-                {/* TAB 6: PLANS */}
-                {activeTab === 'plans' && (
-                  <div>
-                    <table className="admin-table">
-                      <thead>
-                        <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
-                          <th style={{ padding: '16px', color: 'var(--text)' }}>الباقة</th>
-                          <th style={{ padding: '16px', color: 'var(--text)' }}>المنتج</th>
-                          <th style={{ padding: '16px', color: 'var(--text)' }}>المدة</th>
-                          <th style={{ padding: '16px', color: 'var(--text)' }}>السعر المحلي</th>
-                          <th style={{ padding: '16px', color: 'var(--text)' }}>شارة الباقة</th>
-                          <th style={{ padding: '16px', color: 'var(--text)' }}>الحالة</th>
-                          <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {Object.values(plans).length > 0 ? (
-                          Object.values(plans).map((p: any) => {
-                            const prod = productsList.find(pr => pr.id === p.product_id);
-                            return (
-                              <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                                <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{p.name} {p.is_featured && <span style={{ fontSize: '0.75rem', color: 'var(--primary)' }}>(مميزة)</span>}</td>
-                                <td style={{ padding: '16px' }}>{prod?.name || 'غير معروف'}</td>
-                                <td style={{ padding: '16px' }} className="number-latin">{p.duration_months} شهر</td>
-                                <td style={{ padding: '16px' }} className="number-latin">{p.price_iqd.toLocaleString('en-US')} د.ع</td>
-                                <td style={{ padding: '16px' }}>{p.badge || '-'}</td>
+                    {/* TAB 3: SUBSCRIPTIONS */}
+                    {activeTab === 'subscriptions' && (
+                      <table className="admin-table">
+                        <thead>
+                          <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>حساب العميل</th>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>الباقة المفعلة</th>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ البدء</th>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ الانتهاء</th>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>حالة الاشتراك</th>
+                            <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredSubscriptions.length > 0 ? (
+                            filteredSubscriptions.map((s) => (
+                              <tr key={s.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{getUserDisplayName(s.user_id)}</td>
+                                <td style={{ padding: '16px' }}>{plans[s.plan_id]?.name || 'غير معروف'}</td>
+                                <td style={{ padding: '16px' }} className="number-latin">{new Date(s.start_date).toLocaleDateString('en-GB')}</td>
+                                <td style={{ padding: '16px' }} className="number-latin">{new Date(s.end_date).toLocaleDateString('en-GB')}</td>
                                 <td style={{ padding: '16px' }}>
-                                  <span className={`status-pill ${p.is_active ? 'paid' : 'rejected'}`}>
-                                    {p.is_active ? <Check size={12} /> : <X size={12} />}
-                                    <span>{p.is_active ? 'نشطة' : 'معطلة'}</span>
+                                  <span className={`status-pill ${s.status === 'active' ? 'paid' : s.status === 'suspended' ? 'suspended' : 'expired'}`}>
+                                    {s.status === 'active' ? <Check size={12} /> : s.status === 'suspended' ? <Ban size={12} /> : <Clock size={12} />}
+                                    <span>{s.status === 'active' ? 'نشط' : s.status === 'suspended' ? 'معلّق' : 'منتهي'}</span>
+                                  </span>
+                                </td>
+                                <td style={{ padding: '16px', textAlign: 'center' }}>
+                                  {(s.status === 'active' || s.status === 'suspended') && (
+                                    <button
+                                      onClick={() => handleToggleSuspendSubscription(s)}
+                                      disabled={suspendingSub === s.id}
+                                      className="admin-table-action-btn"
+                                      style={{
+                                        color: s.status === 'suspended' ? 'var(--success)' : 'var(--danger)',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        padding: '8px',
+                                        borderRadius: '8px',
+                                        border: '1px solid var(--border)',
+                                        background: 'transparent',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s'
+                                      }}
+                                      title={s.status === 'suspended' ? 'تنشيط الاشتراك' : 'تعليق الاشتراك'}
+                                    >
+                                      {suspendingSub === s.id ? (
+                                        <RotateCw size={14} className="animate-spin" />
+                                      ) : s.status === 'suspended' ? (
+                                        <Play size={14} />
+                                      ) : (
+                                        <Ban size={14} />
+                                      )}
+                                    </button>
+                                  )}
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan={6} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد اشتراكات نشطة تطابق معايير البحث.</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    )}
+
+                    {activeTab === 'users' && (
+                      <table className="admin-table">
+                        <thead>
+                          <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>المستخدم</th>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>رقم الهاتف المسجل</th>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ التسجيل</th>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>الرتبة</th>
+                            <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredUsers.length > 0 ? (
+                            filteredUsers.map((u) => (
+                              <tr key={u.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                <td style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                  {u.avatar_url ? (
+                                    <img src={u.avatar_url} alt="" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
+                                  ) : (
+                                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--primary-light)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
+                                      {(u.full_name || u.email || '?')[0].toUpperCase()}
+                                    </div>
+                                  )}
+                                  <div>
+                                    <div style={{ fontWeight: 700, color: 'var(--text)' }}>{u.full_name || 'بدون اسم'}</div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{u.email}</div>
+                                  </div>
+                                </td>
+                                <td style={{ padding: '16px' }} className="number-latin">{u.phone || 'غير متوفر'}</td>
+                                <td style={{ padding: '16px' }} className="number-latin">{new Date(u.created_at).toLocaleDateString('en-GB')}</td>
+                                <td style={{ padding: '16px' }}>
+                                  <span className={`status-pill ${u.is_admin ? 'awaiting_payment' : 'expired'}`}>
+                                    {u.is_admin ? <Shield size={12} /> : <User size={12} />}
+                                    <span>{u.is_admin ? 'مدير النظام' : 'عميل'}</span>
                                   </span>
                                 </td>
                                 <td style={{ padding: '16px' }}>
                                   <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                                     <button
-                                      onClick={() => { setEditingItem(p); setIsAdding(false); setFormFields(p); }}
-                                      className="admin-table-action-btn"
+                                      onClick={() => handleToggleAdmin(u)}
+                                      className={`admin-table-action-btn ${u.is_admin ? 'delete' : 'success'}`}
                                     >
-                                      <Edit2 size={12} />
-                                      <span>تعديل</span>
-                                    </button>
-                                    <button
-                                      onClick={() => handleDeletePlan(p.id)}
-                                      className="admin-table-action-btn delete"
-                                    >
-                                      <Trash2 size={12} />
-                                      <span>حذف</span>
+                                      {u.is_admin ? <X size={12} /> : <Check size={12} />}
+                                      <span>{u.is_admin ? 'إلغاء صلاحية مدير' : 'جعل كمدير للنظام'}</span>
                                     </button>
                                   </div>
                                 </td>
                               </tr>
-                            );
-                          })
-                        ) : (
-                          <tr>
-                            <td colSpan={7} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد باقات مسجلة.</td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا يوجد مستخدمون يطابقون معايير البحث.</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    )}
 
-                {/* TAB 7: FAQS */}
-                {activeTab === 'faqs' && (
-                  <div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      {faqsList.length > 0 ? (
-                        faqsList.map((f) => (
-                          <div key={f.id} style={{ border: '1px solid var(--border)', borderRadius: '6px', padding: '16px', background: 'rgba(255,255,255,0.01)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '10px', marginBottom: '10px' }}>
-                              <span style={{ fontWeight: 600, color: 'var(--text)' }}>{f.question}</span>
-                              <div style={{ display: 'flex', gap: '8px' }}>
-                                <span className={`status-pill ${f.is_active ? 'paid' : 'rejected'}`}>
-                                  {f.is_active ? <Check size={12} /> : <X size={12} />}
-                                  <span>{f.is_active ? 'نشط' : 'معطل'}</span>
-                                </span>
-                                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>الترتيب: {f.display_order}</span>
-                              </div>
-                            </div>
-                            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '12px' }}>{f.answer}</p>
-                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                              <button
-                                onClick={() => { setEditingItem(f); setIsAdding(false); setFormFields(f); }}
-                                className="admin-table-action-btn"
-                              >
-                                <Edit2 size={12} />
-                                <span>تعديل</span>
-                              </button>
-                              <button
-                                onClick={() => handleDeleteFaq(f.id)}
-                                className="admin-table-action-btn delete"
-                              >
-                                <Trash2 size={12} />
-                                <span>حذف</span>
-                              </button>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد أسئلة شائعة مسجلة.</div>
-                      )}
-                    </div>
-                  </div>
-                )}
 
-                {/* TAB 8: TESTIMONIALS */}
-                {activeTab === 'testimonials' && (
-                  <div>
-                    <table className="admin-table">
-                      <thead>
-                        <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
-                          <th style={{ padding: '16px', color: 'var(--text)' }}>العميل</th>
-                          <th style={{ padding: '16px', color: 'var(--text)' }}>التقييم</th>
-                          <th style={{ padding: '16px', color: 'var(--text)' }}>التعليق</th>
-                          <th style={{ padding: '16px', color: 'var(--text)' }}>الترتيب</th>
-                          <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {testimonialsList.length > 0 ? (
-                          testimonialsList.map((t) => (
-                            <tr key={t.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                              <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{t.name}</td>
-                              <td style={{ padding: '16px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                                  {Array.from({ length: 5 }).map((_, idx) => (
-                                    <Star
-                                      key={idx}
-                                      size={14}
-                                      fill={idx < t.rating ? '#fbbf24' : 'transparent'}
-                                      color={idx < t.rating ? '#fbbf24' : 'var(--text-muted)'}
-                                    />
-                                  ))}
+
+                    {/* TAB 5: PRODUCTS */}
+                    {activeTab === 'products' && (
+                      <div>
+                        <table className="admin-table">
+                          <thead>
+                            <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
+                              <th style={{ padding: '16px', color: 'var(--text)' }}>الاسم</th>
+                              <th style={{ padding: '16px', color: 'var(--text)' }}>المعرف (Slug)</th>
+                              <th style={{ padding: '16px', color: 'var(--text)' }}>الوصف</th>
+                              <th style={{ padding: '16px', color: 'var(--text)' }}>الحالة</th>
+                              <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {productsList.length > 0 ? (
+                              productsList.map((p) => (
+                                <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                  <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{p.name}</td>
+                                  <td style={{ padding: '16px' }} className="number-latin">{p.slug}</td>
+                                  <td style={{ padding: '16px', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.description}</td>
+                                  <td style={{ padding: '16px' }}>
+                                    <span className={`status-pill ${p.is_active ? 'paid' : 'rejected'}`}>
+                                      {p.is_active ? <Check size={12} /> : <X size={12} />}
+                                      <span>{p.is_active ? 'نشط' : 'معطل'}</span>
+                                    </span>
+                                  </td>
+                                  <td style={{ padding: '16px' }}>
+                                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                      <button
+                                        onClick={() => { setEditingItem(p); setIsAdding(false); setFormFields(p); }}
+                                        className="admin-table-action-btn"
+                                      >
+                                        <Edit2 size={12} />
+                                        <span>تعديل</span>
+                                      </button>
+                                      <button
+                                        onClick={() => handleDeleteProduct(p.id)}
+                                        className="admin-table-action-btn delete"
+                                      >
+                                        <Trash2 size={12} />
+                                        <span>حذف</span>
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))
+                            ) : (
+                              <tr>
+                                <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد منتجات مسجلة.</td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* TAB 6: PLANS */}
+                    {activeTab === 'plans' && (
+                      <div>
+                        <table className="admin-table">
+                          <thead>
+                            <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
+                              <th style={{ padding: '16px', color: 'var(--text)' }}>الباقة</th>
+                              <th style={{ padding: '16px', color: 'var(--text)' }}>المنتج</th>
+                              <th style={{ padding: '16px', color: 'var(--text)' }}>المدة</th>
+                              <th style={{ padding: '16px', color: 'var(--text)' }}>السعر المحلي</th>
+                              <th style={{ padding: '16px', color: 'var(--text)' }}>شارة الباقة</th>
+                              <th style={{ padding: '16px', color: 'var(--text)' }}>الحالة</th>
+                              <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {Object.values(plans).length > 0 ? (
+                              Object.values(plans).map((p: any) => {
+                                const prod = productsList.find(pr => pr.id === p.product_id);
+                                return (
+                                  <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                    <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{p.name} {p.is_featured && <span style={{ fontSize: '0.75rem', color: 'var(--primary)' }}>(مميزة)</span>}</td>
+                                    <td style={{ padding: '16px' }}>{prod?.name || 'غير معروف'}</td>
+                                    <td style={{ padding: '16px' }} className="number-latin">{p.duration_months} شهر</td>
+                                    <td style={{ padding: '16px' }} className="number-latin">{p.price_iqd.toLocaleString('en-US')} د.ع</td>
+                                    <td style={{ padding: '16px' }}>{p.badge || '-'}</td>
+                                    <td style={{ padding: '16px' }}>
+                                      <span className={`status-pill ${p.is_active ? 'paid' : 'rejected'}`}>
+                                        {p.is_active ? <Check size={12} /> : <X size={12} />}
+                                        <span>{p.is_active ? 'نشطة' : 'معطلة'}</span>
+                                      </span>
+                                    </td>
+                                    <td style={{ padding: '16px' }}>
+                                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                        <button
+                                          onClick={() => { setEditingItem(p); setIsAdding(false); setFormFields(p); }}
+                                          className="admin-table-action-btn"
+                                        >
+                                          <Edit2 size={12} />
+                                          <span>تعديل</span>
+                                        </button>
+                                        <button
+                                          onClick={() => handleDeletePlan(p.id)}
+                                          className="admin-table-action-btn delete"
+                                        >
+                                          <Trash2 size={12} />
+                                          <span>حذف</span>
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                );
+                              })
+                            ) : (
+                              <tr>
+                                <td colSpan={7} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد باقات مسجلة.</td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* TAB 7: FAQS */}
+                    {activeTab === 'faqs' && (
+                      <div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                          {faqsList.length > 0 ? (
+                            faqsList.map((f) => (
+                              <div key={f.id} style={{ border: '1px solid var(--border)', borderRadius: '6px', padding: '16px', background: 'rgba(255,255,255,0.01)' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '10px', marginBottom: '10px' }}>
+                                  <span style={{ fontWeight: 600, color: 'var(--text)' }}>{f.question}</span>
+                                  <div style={{ display: 'flex', gap: '8px' }}>
+                                    <span className={`status-pill ${f.is_active ? 'paid' : 'rejected'}`}>
+                                      {f.is_active ? <Check size={12} /> : <X size={12} />}
+                                      <span>{f.is_active ? 'نشط' : 'معطل'}</span>
+                                    </span>
+                                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>الترتيب: {f.display_order}</span>
+                                  </div>
                                 </div>
-                              </td>
-                              <td style={{ padding: '16px' }}>
-                                <div style={{ maxWidth: '420px', whiteSpace: 'normal', wordBreak: 'break-word', color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.5' }}>
-                                  {t.comment}
-                                </div>
-                              </td>
-                              <td style={{ padding: '16px' }}>
-                                <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '26px', height: '26px', borderRadius: '50%', background: 'var(--background-alt)', border: '1px solid var(--border)', fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 800 }} className="number-latin">
-                                  {t.display_order}
-                                </span>
-                              </td>
-                              <td style={{ padding: '16px' }}>
-                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '12px' }}>{f.answer}</p>
+                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                                   <button
-                                    onClick={() => { setEditingItem(t); setIsAdding(false); setFormFields(t); }}
+                                    onClick={() => { setEditingItem(f); setIsAdding(false); setFormFields(f); }}
                                     className="admin-table-action-btn"
                                   >
                                     <Edit2 size={12} />
                                     <span>تعديل</span>
                                   </button>
                                   <button
-                                    onClick={() => handleDeleteTestimonial(t.id)}
+                                    onClick={() => handleDeleteFaq(f.id)}
                                     className="admin-table-action-btn delete"
                                   >
                                     <Trash2 size={12} />
                                     <span>حذف</span>
                                   </button>
                                 </div>
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد تقييمات مسجلة.</td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-
-                {/* TAB 9: SETTINGS */}
-                {activeTab === 'settings' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '800px' }}>
-                    {settingsList.map((s) => {
-                      const currentVal = s.value;
-                      return (
-                        <div key={s.key} style={{ border: '1px solid var(--border)', borderRadius: '6px', padding: '20px', background: 'rgba(255,255,255,0.01)' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '10px', marginBottom: '15px' }}>
-                            <h4 style={{ fontWeight: 600, color: 'var(--text)' }}>{currentVal.label || s.key}</h4>
-                            <code style={{ fontSize: '0.75rem', color: 'var(--primary)' }}>{s.key}</code>
-                          </div>
-                          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>{currentVal.description || 'إعدادات النظام.'}</p>
-                          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                            <input
-                              type={s.key === 'exchange_rate' || s.key === 'google_official_annual_price' ? 'number' : 'text'}
-                              defaultValue={currentVal.value}
-                              id={`setting-input-${s.key}`}
-                              className="admin-input-text"
-                              dir="auto"
-                              style={{ flexGrow: 1 }}
-                            />
-                            <button
-                              onClick={() => {
-                                const input = document.getElementById(`setting-input-${s.key}`) as HTMLInputElement;
-                                const rawVal = input.value;
-                                const parsedVal = s.key === 'exchange_rate' || s.key === 'google_official_annual_price' ? parseFloat(rawVal) : rawVal;
-                                const updatedVal = {
-                                  ...currentVal,
-                                  value: parsedVal
-                                };
-                                handleSaveSetting(s.key, updatedVal);
-                              }}
-                              className="btn btn-primary"
-                              style={{ padding: '8px 20px', fontSize: '0.8rem', whiteSpace: 'nowrap' }}
-                            >
-                              حفظ التعديل
-                            </button>
-                          </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد أسئلة شائعة مسجلة.</div>
+                          )}
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div> {/* Close admin-table-wrapper */}
-            </div> {/* Close admin-table-container */}
-          </>
-        )}
+                      </div>
+                    )}
+
+                    {/* TAB 8: TESTIMONIALS */}
+                    {activeTab === 'testimonials' && (
+                      <div>
+                        <table className="admin-table">
+                          <thead>
+                            <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
+                              <th style={{ padding: '16px', color: 'var(--text)' }}>العميل</th>
+                              <th style={{ padding: '16px', color: 'var(--text)' }}>التقييم</th>
+                              <th style={{ padding: '16px', color: 'var(--text)' }}>التعليق</th>
+                              <th style={{ padding: '16px', color: 'var(--text)' }}>الترتيب</th>
+                              <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {testimonialsList.length > 0 ? (
+                              testimonialsList.map((t) => (
+                                <tr key={t.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                  <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{t.name}</td>
+                                  <td style={{ padding: '16px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                      {Array.from({ length: 5 }).map((_, idx) => (
+                                        <Star
+                                          key={idx}
+                                          size={14}
+                                          fill={idx < t.rating ? '#fbbf24' : 'transparent'}
+                                          color={idx < t.rating ? '#fbbf24' : 'var(--text-muted)'}
+                                        />
+                                      ))}
+                                    </div>
+                                  </td>
+                                  <td style={{ padding: '16px' }}>
+                                    <div style={{ maxWidth: '420px', whiteSpace: 'normal', wordBreak: 'break-word', color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.5' }}>
+                                      {t.comment}
+                                    </div>
+                                  </td>
+                                  <td style={{ padding: '16px' }}>
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '26px', height: '26px', borderRadius: '50%', background: 'var(--background-alt)', border: '1px solid var(--border)', fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 800 }} className="number-latin">
+                                      {t.display_order}
+                                    </span>
+                                  </td>
+                                  <td style={{ padding: '16px' }}>
+                                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                      <button
+                                        onClick={() => { setEditingItem(t); setIsAdding(false); setFormFields(t); }}
+                                        className="admin-table-action-btn"
+                                      >
+                                        <Edit2 size={12} />
+                                        <span>تعديل</span>
+                                      </button>
+                                      <button
+                                        onClick={() => handleDeleteTestimonial(t.id)}
+                                        className="admin-table-action-btn delete"
+                                      >
+                                        <Trash2 size={12} />
+                                        <span>حذف</span>
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))
+                            ) : (
+                              <tr>
+                                <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد تقييمات مسجلة.</td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* TAB 9: SETTINGS */}
+                    {activeTab === 'settings' && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '800px' }}>
+                        {settingsList.map((s) => {
+                          const currentVal = s.value;
+                          return (
+                            <div key={s.key} style={{ border: '1px solid var(--border)', borderRadius: '6px', padding: '20px', background: 'rgba(255,255,255,0.01)' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '10px', marginBottom: '15px' }}>
+                                <h4 style={{ fontWeight: 600, color: 'var(--text)' }}>{currentVal.label || s.key}</h4>
+                                <code style={{ fontSize: '0.75rem', color: 'var(--primary)' }}>{s.key}</code>
+                              </div>
+                              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>{currentVal.description || 'إعدادات النظام.'}</p>
+                              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                <input
+                                  type={s.key === 'exchange_rate' || s.key === 'google_official_annual_price' ? 'number' : 'text'}
+                                  defaultValue={currentVal.value}
+                                  id={`setting-input-${s.key}`}
+                                  className="admin-input-text"
+                                  dir="auto"
+                                  style={{ flexGrow: 1 }}
+                                />
+                                <button
+                                  onClick={() => {
+                                    const input = document.getElementById(`setting-input-${s.key}`) as HTMLInputElement;
+                                    const rawVal = input.value;
+                                    const parsedVal = s.key === 'exchange_rate' || s.key === 'google_official_annual_price' ? parseFloat(rawVal) : rawVal;
+                                    const updatedVal = {
+                                      ...currentVal,
+                                      value: parsedVal
+                                    };
+                                    handleSaveSetting(s.key, updatedVal);
+                                  }}
+                                  className="btn btn-primary"
+                                  style={{ padding: '8px 20px', fontSize: '0.8rem', whiteSpace: 'nowrap' }}
+                                >
+                                  حفظ التعديل
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div> {/* Close admin-table-wrapper */}
+                </div> {/* Close admin-table-container */}
+              </>
+            )}
           </div> {/* Close admin-content */}
         </div> {/* Close admin-layout */}
 

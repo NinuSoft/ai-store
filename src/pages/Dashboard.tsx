@@ -111,6 +111,8 @@ export const Dashboard: React.FC = () => {
             } else {
               frontendStatus = 'awaiting_payment';
             }
+          } else if (o.status === 'Processing') {
+            frontendStatus = 'processing';
           } else if (o.status === 'Pending') {
             frontendStatus = 'pending';
           } else if (o.status === 'Rejected') {

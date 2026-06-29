@@ -107,7 +107,7 @@ CREATE TABLE public.orders (
     created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT now() NOT NULL,
     CONSTRAINT chk_order_price CHECK (price_snapshot IS NULL OR price_snapshot >= 0),
-    CONSTRAINT chk_order_status CHECK (status IN ('Pending', 'Activated', 'Rejected', 'Cancelled')),
+    CONSTRAINT chk_order_status CHECK (status IN ('Pending', 'Processing', 'Activated', 'Rejected', 'Cancelled')),
     CONSTRAINT chk_order_payment_status CHECK (payment_status IN ('Pending', 'AwaitingPayment', 'Paid'))
 );
 
