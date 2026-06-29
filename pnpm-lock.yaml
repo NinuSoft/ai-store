@@ -17,6 +17,9 @@ importers:
       lucide-react:
         specifier: ^1.21.0
         version: 1.21.0(react@19.2.7)
+      otpauth:
+        specifier: ^9.5.1
+        version: 9.5.1
       react:
         specifier: ^19.2.7
         version: 19.2.7
@@ -29,6 +32,9 @@ importers:
       tailwind-merge:
         specifier: ^3.6.0
         version: 3.6.0
+      totp-generator:
+        specifier: ^2.0.1
+        version: 2.0.1
     devDependencies:
       '@tailwindcss/vite':
         specifier: ^4.3.1
@@ -90,6 +96,10 @@ packages:
     peerDependencies:
       '@emnapi/core': ^1.7.1
       '@emnapi/runtime': ^1.7.1
+
+  '@noble/hashes@2.2.0':
+    resolution: {integrity: sha512-IYqDGiTXab6FniAgnSdZwgWbomxpy9FtYvLKs7wCUs2a8RkITG+DFGO1DM9cr+E3/RgADRpFjrKVaJ1z6sjtEg==}
+    engines: {node: '>= 20.19.0'}
 
   '@oxc-project/types@0.137.0':
     resolution: {integrity: sha512-WT+Gb24i8hmvo85AIv2oEYouEXkRlKAlT9WaCa3TfLgNCN+GhrJOGZuIlMouAh38Qe4QOx26eUOVsq70qXrywA==}
@@ -506,6 +516,9 @@ packages:
     resolution: {integrity: sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==}
     hasBin: true
 
+  jssha@3.3.2:
+    resolution: {integrity: sha512-0RhFxzijV4W0qTXa97D5b6twAWXX7SEOpw8qzAZyZ+oeGOP9e84PnDSLjl7SBB1vBQ+chSUwsZR06i1AzA+nEA==}
+
   lightningcss-android-arm64@1.32.0:
     resolution: {integrity: sha512-YK7/ClTt4kAK0vo6w3X+Pnm0D2cf2vPHbhOXdoNti1Ga0al1P4TBZhwjATvjNwLEBCnKvjJc2jQgHXH0NEwlAg==}
     engines: {node: '>= 12.0.0'}
@@ -593,6 +606,9 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  otpauth@9.5.1:
+    resolution: {integrity: sha512-fJmDAHc8wImfqqqOXIlBvT1dEKrZK0Cmb2VEgScpNTolCz0PHh6ExUZGv4sLtOsWNaHCQlD+rRqaPgnoxFoZjQ==}
+
   oxlint@1.71.0:
     resolution: {integrity: sha512-U1m1X+C0vDj7DC1e13IoZULzEcPczE7UOMTs8VlZGHUEIUaSTZKo5qkPsQEfzpgnQ29Pea/w3Xntk62UCecxZw==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -671,6 +687,9 @@ packages:
   tinyglobby@0.2.17:
     resolution: {integrity: sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g==}
     engines: {node: '>=12.0.0'}
+
+  totp-generator@2.0.1:
+    resolution: {integrity: sha512-50DiKmv9zKTPzCgWOqQYVBMvxh+tpL9O3IUFIqzGUlFXzJyb/IQZac8bonXudvLbfuDY8laZ9qTDX+yAvTBNSQ==}
 
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
@@ -769,6 +788,8 @@ snapshots:
       '@emnapi/runtime': 1.11.1
       '@tybys/wasm-util': 0.10.3
     optional: true
+
+  '@noble/hashes@2.2.0': {}
 
   '@oxc-project/types@0.137.0': {}
 
@@ -1028,6 +1049,8 @@ snapshots:
 
   jiti@2.7.0: {}
 
+  jssha@3.3.2: {}
+
   lightningcss-android-arm64@1.32.0:
     optional: true
 
@@ -1086,6 +1109,10 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.5
 
   nanoid@3.3.15: {}
+
+  otpauth@9.5.1:
+    dependencies:
+      '@noble/hashes': 2.2.0
 
   oxlint@1.71.0:
     optionalDependencies:
@@ -1177,6 +1204,10 @@ snapshots:
     dependencies:
       fdir: 6.5.0(picomatch@4.0.4)
       picomatch: 4.0.4
+
+  totp-generator@2.0.1:
+    dependencies:
+      jssha: 3.3.2
 
   tslib@2.8.1: {}
 

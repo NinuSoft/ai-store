@@ -20,6 +20,7 @@ DROP FUNCTION IF EXISTS public.is_admin() CASCADE;
 DROP FUNCTION IF EXISTS public.is_admin(user_id UUID) CASCADE;
 DROP FUNCTION IF EXISTS public.handle_order_product_id() CASCADE;
 
+DROP TABLE IF EXISTS public.gmail_accounts CASCADE;
 DROP TABLE IF EXISTS public.settings CASCADE;
 DROP TABLE IF EXISTS public.testimonials CASCADE;
 DROP TABLE IF EXISTS public.faqs CASCADE;
@@ -90,6 +91,22 @@ CREATE TABLE public.plans (
     CONSTRAINT chk_plan_display_order CHECK (display_order >= 0)
 );
 
+-- Gmail Accounts Table
+CREATE TABLE public.gmail_accounts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email TEXT UNIQUE NOT NULL,
+    plan_id UUID REFERENCES public.plans(id) ON DELETE RESTRICT NOT NULL,
+    twofa_secret TEXT NOT NULL,
+    subscription_valid_until TIMESTAMPTZ,
+    max_members INTEGER DEFAULT 5 NOT NULL,
+    status TEXT DEFAULT 'Available' NOT NULL,
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+    CONSTRAINT chk_gmail_status CHECK (status IN ('Available', 'Full', 'Expired', 'Disabled')),
+    CONSTRAINT chk_gmail_max_members CHECK (max_members >= 1)
+);
+
 -- Orders Table
 CREATE TABLE public.orders (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -106,6 +123,7 @@ CREATE TABLE public.orders (
     notes TEXT,
     activation_date TIMESTAMPTZ,
     payment_date TIMESTAMPTZ,
+    gmail_account_id UUID REFERENCES public.gmail_accounts(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT now() NOT NULL,
     CONSTRAINT chk_order_price CHECK (price_snapshot IS NULL OR price_snapshot >= 0),
@@ -121,6 +139,7 @@ CREATE TABLE public.subscriptions (
     plan_id UUID REFERENCES public.plans(id) ON DELETE RESTRICT,
     activated_at TIMESTAMPTZ,
     expires_at TIMESTAMPTZ,
+    gmail_account_id UUID REFERENCES public.gmail_accounts(id) ON DELETE SET NULL,
     status TEXT DEFAULT 'Active' NOT NULL,
     created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT now() NOT NULL,
@@ -181,6 +200,10 @@ CREATE TRIGGER trg_subscriptions_updated_at
 
 CREATE TRIGGER trg_settings_updated_at
     BEFORE UPDATE ON public.settings
+    FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+CREATE TRIGGER trg_gmail_accounts_updated_at
+    BEFORE UPDATE ON public.gmail_accounts
     FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
 -- Trigger to automatically populate product_id from plans when plan_id is set
@@ -257,6 +280,7 @@ CREATE TRIGGER on_auth_user_created
 
 -- 9. ROW LEVEL SECURITY (RLS) POLICIES
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.gmail_accounts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.plans ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
@@ -336,6 +360,10 @@ CREATE POLICY "Allow public read access on settings" ON public.settings
     FOR SELECT TO public USING (true);
 
 CREATE POLICY "Admins have full access on settings" ON public.settings
+    FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
+
+-- Gmail Accounts Policies
+CREATE POLICY "Admins have full access on gmail_accounts" ON public.gmail_accounts
     FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- 10. SEED PRODUCTS
@@ -614,6 +642,15 @@ BEGIN
         WHERE p.pubname = 'supabase_realtime' AND c.relname = 'profiles'
     ) THEN
         ALTER PUBLICATION supabase_realtime ADD TABLE public.profiles;
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_rel pr 
+        JOIN pg_class c ON pr.prrelid = c.oid 
+        JOIN pg_publication p ON pr.prpubid = p.oid 
+        WHERE p.pubname = 'supabase_realtime' AND c.relname = 'gmail_accounts'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.gmail_accounts;
     END IF;
 END $$;
 

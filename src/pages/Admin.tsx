@@ -4,12 +4,13 @@ import {
   ShieldCheck, ArrowLeft, Users, ShoppingBag,
   DollarSign, Activity, Check, X, Search, PlusCircle,
   RotateCw, MessageSquare, Settings, Sparkles, Clock, User, Shield,
-  Edit2, Trash2, Star, Ban, Play, AlertTriangle
+  Edit2, Trash2, Star, Ban, Play, AlertTriangle, Mail, Copy
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { generateTOTP } from '../utils/totp';
 
 interface Plan {
   id: string;
@@ -32,6 +33,7 @@ interface Order {
   notes?: string;
   user_email?: string;
   plan_name_snapshot?: string;
+  gmail_account_id?: string;
 }
 
 interface Subscription {
@@ -43,6 +45,20 @@ interface Subscription {
   status: 'active' | 'expired' | 'suspended';
   gmail?: string;
   phone?: string;
+  gmail_account_id?: string;
+}
+
+interface GmailAccount {
+  id: string;
+  email: string;
+  plan_id: string;
+  twofa_secret: string;
+  subscription_valid_until?: string;
+  max_members: number;
+  status: 'Available' | 'Full' | 'Expired' | 'Disabled';
+  notes?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface Renewal {
@@ -78,7 +94,7 @@ export const Admin: React.FC = () => {
   }, [profile, navigate]);
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'users' | 'renewals' | 'subscriptions' | 'products' | 'plans' | 'faqs' | 'testimonials' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'users' | 'renewals' | 'subscriptions' | 'products' | 'plans' | 'faqs' | 'testimonials' | 'settings' | 'gmail_accounts'>('overview');
 
   // Data States
   const [loading, setLoading] = useState(true);
@@ -93,6 +109,21 @@ export const Admin: React.FC = () => {
   const [faqsList, setFaqsList] = useState<any[]>([]);
   const [testimonialsList, setTestimonialsList] = useState<any[]>([]);
   const [settingsList, setSettingsList] = useState<any[]>([]);
+  const [gmailAccountsList, setGmailAccountsList] = useState<GmailAccount[]>([]);
+
+  // Gmail Accounts assignment/details states
+  const [assigningOrder, setAssigningOrder] = useState<Order | null>(null);
+  const [assigningSub, setAssigningSub] = useState<Subscription | null>(null);
+  const [selectedGmailAccountDetails, setSelectedGmailAccountDetails] = useState<GmailAccount | null>(null);
+
+  // Periodic TOTP refresh timer
+  const [totpTick, setTotpTick] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTotpTick(t => t + 1);
+    }, 5000); // refresh TOTP display codes every 5 seconds
+    return () => clearInterval(timer);
+  }, []);
 
   // CRUD Modal/Editor States
   const [editingItem, setEditingItem] = useState<any>(null);
@@ -121,7 +152,7 @@ export const Admin: React.FC = () => {
     isOpen: false,
     title: '',
     message: '',
-    onConfirm: () => {}
+    onConfirm: () => { }
   });
 
   const requestConfirmation = (title: string, message: string, onConfirm: () => void) => {
@@ -222,7 +253,8 @@ export const Admin: React.FC = () => {
           plan_id: s.plan_id,
           start_date: s.activated_at,
           end_date: s.expires_at,
-          status: s.status.toLowerCase() as 'active' | 'expired' | 'suspended'
+          status: s.status.toLowerCase() as 'active' | 'expired' | 'suspended',
+          gmail_account_id: s.gmail_account_id
         }));
         setSubscriptions(mappedSubs);
       }
@@ -273,6 +305,9 @@ export const Admin: React.FC = () => {
       const { data: settData } = await supabase.from('settings').select('*');
       if (settData) setSettingsList(settData);
 
+      const { data: gmailData } = await supabase.from('gmail_accounts').select('*').order('created_at', { ascending: false });
+      if (gmailData) setGmailAccountsList(gmailData);
+
       setStats({
         totalUsers: uCount,
         totalOrders: oCount,
@@ -303,6 +338,9 @@ export const Admin: React.FC = () => {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
         loadAdminData(true);
       })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'gmail_accounts' }, () => {
+        loadAdminData(true);
+      })
       .subscribe();
 
     return () => {
@@ -330,8 +368,13 @@ export const Admin: React.FC = () => {
     }
   };
 
-  // 2. Activate Subscription
-  const handleApproveOrder = async (order: Order) => {
+  // 2. Activate Subscription (Set state to open Gmail Account selection modal)
+  const handleApproveOrder = (order: Order) => {
+    setAssigningOrder(order);
+  };
+
+  // Actual activation logic execution after Gmail Account has been selected
+  const handleApproveOrderWithAccount = async (order: Order, gmailAccountId: string | null) => {
     try {
       const plan = plans[order.plan_id];
       if (!plan) throw new Error('الباقة غير متوفرة');
@@ -341,7 +384,7 @@ export const Admin: React.FC = () => {
         .from('subscriptions')
         .select('*')
         .eq('user_id', order.user_id)
-        .eq('product_id', 'e5b98f24-5d5d-4f10-bf9d-f685d03a11b6')
+        .eq('product_id', order.product_id || 'e5b98f24-5d5d-4f10-bf9d-f685d03a11b6')
         .eq('status', 'Active');
 
       if (fetchError) throw fetchError;
@@ -360,6 +403,7 @@ export const Admin: React.FC = () => {
           .update({
             plan_id: order.plan_id, // Update to the new plan if they changed it
             expires_at: currentExpiry.toISOString(),
+            gmail_account_id: gmailAccountId
           })
           .eq('id', activeSub.id);
 
@@ -374,11 +418,12 @@ export const Admin: React.FC = () => {
           .from('subscriptions')
           .insert({
             user_id: order.user_id,
-            product_id: 'e5b98f24-5d5d-4f10-bf9d-f685d03a11b6', // Google AI Pro UUID
+            product_id: order.product_id || 'e5b98f24-5d5d-4f10-bf9d-f685d03a11b6', // Google AI Pro UUID
             plan_id: order.plan_id,
             activated_at: startDate.toISOString(),
             expires_at: endDate.toISOString(),
-            status: 'Active'
+            status: 'Active',
+            gmail_account_id: gmailAccountId
           });
 
         subError = error;
@@ -393,17 +438,47 @@ export const Admin: React.FC = () => {
           status: 'Activated',
           payment_status: 'AwaitingPayment',
           activation_date: new Date().toISOString(),
-          notes: ''
+          notes: '',
+          gmail_account_id: gmailAccountId
         })
         .eq('id', order.id);
 
       if (orderError) throw orderError;
 
-      showSnackbar('تم تنشيط وتفعيل الاشتراك بنجاح! حالة الطلب الآن: بانتظار الدفع.');
+      showSnackbar('تم تنشيط وتفعيل الاشتراك وتعيين الحساب بنجاح! حالة الطلب الآن: بانتظار الدفع.');
+      setAssigningOrder(null);
       await loadAdminData(true);
     } catch (err: any) {
       console.error(err);
       showSnackbar('حدث خطأ: ' + err.message, 'error');
+    }
+  };
+
+  const handleAssignGmailAccountToOrder = async (orderId: string, gmailAccountId: string | null) => {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ gmail_account_id: gmailAccountId })
+        .eq('id', orderId);
+      if (error) throw error;
+      showSnackbar('تم تحديث تعيين حساب Gmail للطلب بنجاح.');
+      await loadAdminData(true);
+    } catch (err: any) {
+      showSnackbar('خطأ أثناء التعيين: ' + err.message, 'error');
+    }
+  };
+
+  const handleAssignGmailAccountToSubscription = async (subId: string, gmailAccountId: string | null) => {
+    try {
+      const { error } = await supabase
+        .from('subscriptions')
+        .update({ gmail_account_id: gmailAccountId })
+        .eq('id', subId);
+      if (error) throw error;
+      showSnackbar('تم تحديث تعيين حساب Gmail للاشتراك بنجاح.');
+      await loadAdminData(true);
+    } catch (err: any) {
+      showSnackbar('خطأ أثناء التعيين: ' + err.message, 'error');
     }
   };
 
@@ -595,6 +670,53 @@ export const Admin: React.FC = () => {
   // =========================================================================
   // CRUD Action Handlers
   // =========================================================================
+
+  // Gmail Accounts CRUD
+  const handleSaveGmailAccount = async () => {
+    try {
+      const payload = {
+        email: formFields.email,
+        plan_id: formFields.plan_id,
+        twofa_secret: formFields.twofa_secret,
+        subscription_valid_until: formFields.subscription_valid_until || null,
+        max_members: 5,
+        status: formFields.status || 'Available',
+        notes: formFields.notes || null
+      };
+      let error;
+      if (editingItem && editingItem.id) {
+        const res = await supabase.from('gmail_accounts').update(payload).eq('id', editingItem.id);
+        error = res.error;
+      } else {
+        const res = await supabase.from('gmail_accounts').insert(payload);
+        error = res.error;
+      }
+      if (error) throw error;
+      showSnackbar('تم حفظ حساب Gmail بنجاح!');
+      setIsAdding(false);
+      setEditingItem(null);
+      await loadAdminData(true);
+    } catch (err: any) {
+      showSnackbar('خطأ أثناء حفظ الحساب: ' + err.message, 'error');
+    }
+  };
+
+  const handleDeleteGmailAccount = (id: string) => {
+    requestConfirmation(
+      'حذف حساب Gmail',
+      'هل أنت متأكد من حذف هذا الحساب؟ سيتم إلغاء تعيينه من الاشتراكات والطلبات المرتبطة به.',
+      async () => {
+        try {
+          const { error } = await supabase.from('gmail_accounts').delete().eq('id', id);
+          if (error) throw error;
+          showSnackbar('تم حذف الحساب بنجاح.');
+          await loadAdminData(true);
+        } catch (err: any) {
+          showSnackbar('خطأ أثناء الحذف: ' + err.message, 'error');
+        }
+      }
+    );
+  };
 
   // Products CRUD
   const handleSaveProduct = async () => {
@@ -963,6 +1085,12 @@ export const Admin: React.FC = () => {
     const orderRef = orders.find(o => o.user_id === s.user_id);
     const emailMatch = (orderRef?.gmail || getUserEmail(s.user_id)).toLowerCase().includes(searchTerm.toLowerCase());
     const statusMatch = statusFilter === 'all' || s.status === statusFilter;
+    return emailMatch && statusMatch;
+  });
+
+  const filteredGmailAccounts = gmailAccountsList.filter(g => {
+    const emailMatch = g.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const statusMatch = statusFilter === 'all' || g.status === statusFilter;
     return emailMatch && statusMatch;
   });
 
@@ -1444,6 +1572,17 @@ export const Admin: React.FC = () => {
               </button>
 
               <button
+                onClick={() => { setActiveTab('gmail_accounts'); setStatusFilter('all'); }}
+                className={`admin-tab-item ${activeTab === 'gmail_accounts' ? 'active' : ''}`}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Mail size={18} />
+                  <span>حسابات Gmail للمشاركة</span>
+                </div>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{gmailAccountsList.length}</span>
+              </button>
+
+              <button
                 onClick={() => { setActiveTab('products'); setStatusFilter('all'); }}
                 className={`admin-tab-item ${activeTab === 'products' ? 'active' : ''}`}
               >
@@ -1585,11 +1724,12 @@ export const Admin: React.FC = () => {
                       activeTab === 'renewals' ? 'طلبات تجديد الاشتراكات' :
                         activeTab === 'subscriptions' ? 'الاشتراكات النشطة' :
                           activeTab === 'users' ? 'قائمة حسابات المستخدمين' :
-                            activeTab === 'products' ? 'المنتجات المعروضة' :
-                              activeTab === 'plans' ? 'باقات تفعيل Google AI Pro' :
-                                activeTab === 'faqs' ? 'الأسئلة الشائعة للزوار' :
-                                  activeTab === 'testimonials' ? 'تقييمات وآراء العملاء' :
-                                    'إعدادات وثوابت متجر نينوسوفت'}
+                            activeTab === 'gmail_accounts' ? 'حسابات Gmail المشتركة' :
+                              activeTab === 'products' ? 'المنتجات المعروضة' :
+                                activeTab === 'plans' ? 'باقات تفعيل Google AI Pro' :
+                                  activeTab === 'faqs' ? 'الأسئلة الشائعة للزوار' :
+                                    activeTab === 'testimonials' ? 'تقييمات وآراء العملاء' :
+                                      'إعدادات وثوابت متجر نينوسوفت'}
                 </h3>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px' }}>
                   {activeTab === 'overview' ? 'نظرة شاملة ومؤشرات تفاعلية لأداء متجرك اليوم.' :
@@ -1597,11 +1737,12 @@ export const Admin: React.FC = () => {
                       activeTab === 'renewals' ? 'مراجعة وتأكيد طلبات العملاء الراغبين بتجديد باقاتهم.' :
                         activeTab === 'subscriptions' ? 'عرض فترات الضمان والاشتراكات المفعلة للعملاء.' :
                           activeTab === 'users' ? 'متابعة تفاصيل المستخدمين المسجلين وصلاحياتهم.' :
-                            activeTab === 'products' ? 'إضافة وتعديل وحذف المنتجات وخصائصها.' :
-                              activeTab === 'plans' ? 'التحكم بالمدد الزمنية للأسعار والتخفيضات الفعلية.' :
-                                activeTab === 'faqs' ? 'تعديل أو ترتيب الأسئلة الشائعة وأجوبتها.' :
-                                  activeTab === 'testimonials' ? 'إدارة التقييمات المعروضة في الصفحة الرئيسية.' :
-                                    'تعديل المتغيرات الأساسية للمنصة مثل رقم الهاتف للدعم.'}
+                            activeTab === 'gmail_accounts' ? 'إدارة حسابات Gmail المستخدمة في تفعيل وتوزيع الاشتراكات.' :
+                              activeTab === 'products' ? 'إضافة وتعديل وحذف المنتجات وخصائصها.' :
+                                activeTab === 'plans' ? 'التحكم بالمدد الزمنية للأسعار والتخفيضات الفعلية.' :
+                                  activeTab === 'faqs' ? 'تعديل أو ترتيب الأسئلة الشائعة وأجوبتها.' :
+                                    activeTab === 'testimonials' ? 'إدارة التقييمات المعروضة في الصفحة الرئيسية.' :
+                                      'تعديل المتغيرات الأساسية للمنصة مثل رقم الهاتف للدعم.'}
                 </p>
               </div>
 
@@ -1801,7 +1942,7 @@ export const Admin: React.FC = () => {
                     />
                   </div>
 
-                  {['orders', 'renewals', 'subscriptions'].includes(activeTab) && (
+                  {['orders', 'renewals', 'subscriptions', 'gmail_accounts'].includes(activeTab) && (
                     <select
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value)}
@@ -1829,6 +1970,13 @@ export const Admin: React.FC = () => {
                           <option value="approved">تم التجديد</option>
                           <option value="rejected">مرفوض</option>
                         </>
+                      ) : activeTab === 'gmail_accounts' ? (
+                        <>
+                          <option value="Available">متاح</option>
+                          <option value="Full">ممتلئ</option>
+                          <option value="Expired">منتهي</option>
+                          <option value="Disabled">ملغي</option>
+                        </>
                       ) : (
                         <>
                           <option value="active">نشط</option>
@@ -1849,6 +1997,7 @@ export const Admin: React.FC = () => {
                         <thead>
                           <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
                             <th style={{ padding: '16px', color: 'var(--text)' }}>بريد التفعيل (Gmail)</th>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>حساب المشاركة المعين</th>
                             <th style={{ padding: '16px', color: 'var(--text)' }}>رقم الهاتف</th>
                             <th style={{ padding: '16px', color: 'var(--text)' }}>الباقة المطلوبة</th>
                             <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ الطلب</th>
@@ -1864,6 +2013,21 @@ export const Admin: React.FC = () => {
                             filteredOrders.map((o) => (
                               <tr key={o.id} style={{ borderBottom: '1px solid var(--border)', background: o.status === 'pending' ? 'rgba(245, 158, 11, 0.02)' : 'none' }}>
                                 <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }} className="number-latin">{o.gmail}</td>
+                                <td style={{ padding: '16px' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <span className="number-latin" style={{ fontSize: '0.85rem' }}>
+                                      {gmailAccountsList.find(g => g.id === o.gmail_account_id)?.email || 'غير معين'}
+                                    </span>
+                                    <button
+                                      onClick={() => setAssigningOrder(o)}
+                                      className="admin-table-action-btn"
+                                      style={{ padding: '4px 6px' }}
+                                      title="تغيير الحساب المعين"
+                                    >
+                                      <Edit2 size={10} />
+                                    </button>
+                                  </div>
+                                </td>
                                 <td style={{ padding: '16px' }} className="number-latin">{o.phone}</td>
                                 <td style={{ padding: '16px' }}>{plans[o.plan_id]?.name || 'غير معروف'}</td>
                                 <td style={{ padding: '16px' }} className="number-latin">{new Date(o.created_at).toLocaleDateString('en-GB')}</td>
@@ -2022,6 +2186,7 @@ export const Admin: React.FC = () => {
                         <thead>
                           <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
                             <th style={{ padding: '16px', color: 'var(--text)' }}>حساب العميل</th>
+                            <th style={{ padding: '16px', color: 'var(--text)' }}>حساب المشاركة المعين</th>
                             <th style={{ padding: '16px', color: 'var(--text)' }}>الباقة المفعلة</th>
                             <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ البدء</th>
                             <th style={{ padding: '16px', color: 'var(--text)' }}>تاريخ الانتهاء</th>
@@ -2034,6 +2199,21 @@ export const Admin: React.FC = () => {
                             filteredSubscriptions.map((s) => (
                               <tr key={s.id} style={{ borderBottom: '1px solid var(--border)' }}>
                                 <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{getUserDisplayName(s.user_id)}</td>
+                                <td style={{ padding: '16px' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <span className="number-latin" style={{ fontSize: '0.85rem' }}>
+                                      {gmailAccountsList.find(g => g.id === s.gmail_account_id)?.email || 'غير معين'}
+                                    </span>
+                                    <button
+                                      onClick={() => setAssigningSub(s)}
+                                      className="admin-table-action-btn"
+                                      style={{ padding: '4px 6px' }}
+                                      title="تعديل حساب المشاركة المعين"
+                                    >
+                                      <Edit2 size={10} />
+                                    </button>
+                                  </div>
+                                </td>
                                 <td style={{ padding: '16px' }}>{plans[s.plan_id]?.name || 'غير معروف'}</td>
                                 <td style={{ padding: '16px' }} className="number-latin">{new Date(s.start_date).toLocaleDateString('en-GB')}</td>
                                 <td style={{ padding: '16px' }} className="number-latin">{new Date(s.end_date).toLocaleDateString('en-GB')}</td>
@@ -2082,6 +2262,140 @@ export const Admin: React.FC = () => {
                           )}
                         </tbody>
                       </table>
+                    )}
+
+                    {activeTab === 'gmail_accounts' && (
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
+                          <button
+                            onClick={() => {
+                              setIsAdding(true);
+                              setEditingItem(null);
+                              setFormFields({ max_members: 5, status: 'Available' });
+                            }}
+                            className="btn btn-primary"
+                            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px' }}
+                          >
+                            <PlusCircle size={16} />
+                            <span>إضافة حساب Gmail جديد</span>
+                          </button>
+                        </div>
+
+                        <table className="admin-table">
+                          <thead>
+                            <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
+                              <th style={{ padding: '16px', color: 'var(--text)' }}>البريد الإلكتروني للـ Gmail</th>
+                              <th style={{ padding: '16px', color: 'var(--text)' }}>الباقة المرتبطة</th>
+                              <th style={{ padding: '16px', color: 'var(--text)' }}>رمز الـ 2FA المؤقت (TOTP)</th>
+                              <th style={{ padding: '16px', color: 'var(--text)' }}>صلاحية الاشتراك</th>
+                              <th style={{ padding: '16px', color: 'var(--text)' }}>الأعضاء (الحالي / الأقصى)</th>
+                              <th style={{ padding: '16px', color: 'var(--text)' }}>الحالة</th>
+                              <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {filteredGmailAccounts.length > 0 ? (
+                              filteredGmailAccounts.map((g) => {
+                                const activeMembersCount = subscriptions.filter(s => s.gmail_account_id === g.id && s.status === 'active').length;
+                                return (
+                                  <tr key={g.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                    <td
+                                      style={{ padding: '16px', fontWeight: 600, color: 'var(--primary)', cursor: 'pointer' }}
+                                      onClick={() => setSelectedGmailAccountDetails(g)}
+                                      className="number-latin"
+                                    >
+                                      {g.email}
+                                    </td>
+                                    <td style={{ padding: '16px' }}>{plans[g.plan_id]?.name || 'غير معروف'}</td>
+                                    <td style={{ padding: '16px' }}>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <span className="number-latin" style={{ fontFamily: 'monospace', fontWeight: 800, letterSpacing: '1px', fontSize: '1rem', color: 'var(--success)' }}>
+                                          {(() => {
+                                            const otp = generateTOTP(g.twofa_secret);
+                                            return otp.length === 6 ? `${otp.substring(0, 3)} ${otp.substring(3)}` : otp;
+                                          })()}
+                                        </span>
+                                        <button
+                                          onClick={() => {
+                                            const otp = generateTOTP(g.twofa_secret);
+                                            navigator.clipboard.writeText(otp);
+                                            showSnackbar('تم نسخ رمز 2FA (2FA code copied).', 'success');
+                                          }}
+                                          className="admin-table-action-btn success"
+                                          style={{ padding: '4px 6px' }}
+                                          title="نسخ رمز 2FA الحالي"
+                                        >
+                                          <Copy size={10} />
+                                        </button>
+                                        <button
+                                          onClick={() => {
+                                            navigator.clipboard.writeText(g.twofa_secret);
+                                            showSnackbar('تم نسخ المفتاح السري (2FA Secret copied).', 'success');
+                                          }}
+                                          className="admin-table-action-btn"
+                                          style={{ padding: '4px 6px' }}
+                                          title="نسخ المفتاح السري (Base32)"
+                                        >
+                                          <span>Secret</span>
+                                        </button>
+                                      </div>
+                                    </td>
+                                    <td style={{ padding: '16px' }} className="number-latin">
+                                      {g.subscription_valid_until ? new Date(g.subscription_valid_until).toLocaleDateString('en-GB') : '—'}
+                                    </td>
+                                    <td style={{ padding: '16px' }} className="number-latin">
+                                      {activeMembersCount} / {g.max_members}
+                                    </td>
+                                    <td style={{ padding: '16px' }}>
+                                      <span className={`status-pill ${g.status === 'Available' ? 'paid' : g.status === 'Full' ? 'suspended' : 'expired'
+                                        }`}>
+                                        <span>{
+                                          g.status === 'Available' ? 'متاح' : g.status === 'Full' ? 'ممتلئ' : g.status === 'Expired' ? 'منتهي' : 'ملغى'
+                                        }</span>
+                                      </span>
+                                    </td>
+                                    <td style={{ padding: '16px' }}>
+                                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                        <button
+                                          onClick={() => {
+                                            setEditingItem(g);
+                                            setFormFields({
+                                              email: g.email,
+                                              plan_id: g.plan_id,
+                                              twofa_secret: g.twofa_secret,
+                                              subscription_valid_until: g.subscription_valid_until ? g.subscription_valid_until.substring(0, 16) : '',
+                                              max_members: g.max_members,
+                                              status: g.status,
+                                              notes: g.notes || ''
+                                            });
+                                          }}
+                                          className="admin-table-action-btn"
+                                        >
+                                          <Edit2 size={12} />
+                                          <span>تعديل</span>
+                                        </button>
+                                        <button
+                                          onClick={() => handleDeleteGmailAccount(g.id)}
+                                          className="admin-table-action-btn delete"
+                                        >
+                                          <Trash2 size={12} />
+                                          <span>حذف</span>
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                );
+                              })
+                            ) : (
+                              <tr>
+                                <td colSpan={7} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                                  لا توجد حسابات Gmail مطابقة لمعايير البحث.
+                                </td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
                     )}
 
                     {activeTab === 'users' && (
@@ -2729,6 +3043,78 @@ export const Admin: React.FC = () => {
               </div>
             )}
 
+            {activeTab === 'gmail_accounts' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label className="admin-form-label">البريد الإلكتروني للـ Gmail</label>
+                  <input
+                    type="email" value={formFields.email || ''}
+                    onChange={e => setFormFields({ ...formFields, email: e.target.value })}
+                    className="admin-input-text"
+                    dir="auto"
+                    placeholder="example@gmail.com"
+                  />
+                </div>
+                <div>
+                  <label className="admin-form-label">الباقة المرتبطة</label>
+                  <select
+                    value={formFields.plan_id || ''}
+                    onChange={e => setFormFields({ ...formFields, plan_id: e.target.value })}
+                    className="admin-input-text"
+                  >
+                    <option value="">اختر الباقة...</option>
+                    {Object.values(plans).map((p: any) => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="admin-form-label">2FA Secret (مفتاح المصادقة الثنائية)</label>
+                  <input
+                    type="text" value={formFields.twofa_secret || ''}
+                    onChange={e => setFormFields({ ...formFields, twofa_secret: e.target.value })}
+                    className="admin-input-text"
+                    placeholder="Base32 Key"
+                  />
+                </div>
+                <div>
+                  <label className="admin-form-label">صلاحية الاشتراك (اختياري)</label>
+                  <input
+                    type="datetime-local" value={formFields.subscription_valid_until || ''}
+                    onChange={e => setFormFields({ ...formFields, subscription_valid_until: e.target.value })}
+                    className="admin-input-text"
+                  />
+                </div>
+                <div>
+                  <label className="admin-form-label">حالة الحساب</label>
+                  <select
+                    value={formFields.status || 'Available'}
+                    onChange={e => setFormFields({ ...formFields, status: e.target.value })}
+                    className="admin-input-text"
+                  >
+                    <option value="Available">متاح</option>
+                    <option value="Full">ممتلئ</option>
+                    <option value="Expired">منتهي</option>
+                    <option value="Disabled">ملغى</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="admin-form-label">ملاحظات إضافية (اختياري)</label>
+                  <textarea
+                    value={formFields.notes || ''}
+                    onChange={e => setFormFields({ ...formFields, notes: e.target.value })}
+                    className="admin-input-text"
+                    dir="auto"
+                    style={{ minHeight: '60px' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                  <button onClick={handleSaveGmailAccount} className="btn btn-primary" style={{ padding: '8px 20px' }}>حفظ</button>
+                  <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="btn btn-outline" style={{ padding: '8px 20px' }}>إلغاء</button>
+                </div>
+              </div>
+            )}
+
           </div>
         </div>
       )}
@@ -2830,15 +3216,15 @@ export const Admin: React.FC = () => {
             }}>
               <AlertTriangle size={28} />
             </div>
-            
+
             <h3 style={{ marginBottom: '12px', color: 'var(--text)', fontWeight: 800, fontSize: '1.2rem' }}>
               {confirmConfig.title}
             </h3>
-            
+
             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '24px', lineHeight: '1.5' }}>
               {confirmConfig.message}
             </p>
-            
+
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
               <button
                 onClick={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
@@ -2868,6 +3254,259 @@ export const Admin: React.FC = () => {
               >
                 تأكيد
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Assign Gmail Account to Order Modal */}
+      {assigningOrder && (
+        <div className="admin-modal-overlay">
+          <div className="admin-modal-card" style={{ maxWidth: '450px' }}>
+            <h3 style={{ marginBottom: '16px', color: 'var(--text)', fontWeight: 800 }}>
+              تنشيط وتعيين حساب Gmail للطلب
+            </h3>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '20px' }}>
+              اختر أحد الحسابات المتاحة للباقة <strong>{plans[assigningOrder.plan_id]?.name}</strong> لإضافة العميل إليها:
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+              <div>
+                <label className="admin-form-label">حساب Gmail للمشاركة</label>
+                <select
+                  id="assign-gmail-select"
+                  className="admin-input-text"
+                  defaultValue=""
+                >
+                  <option value="">بدون تعيين حساب (تنشيط فقط)...</option>
+                  {gmailAccountsList
+                    .filter(g => g.plan_id === assigningOrder.plan_id)
+                    .map(g => {
+                      const currentCount = subscriptions.filter(s => s.gmail_account_id === g.id && s.status === 'active').length;
+                      const slotsLeft = g.max_members - currentCount;
+                      return (
+                        <option key={g.id} value={g.id} disabled={g.status !== 'Available' || slotsLeft <= 0}>
+                          {g.email} ({g.status === 'Available' ? 'متاح' : g.status === 'Full' ? 'ممتلئ' : g.status === 'Expired' ? 'منتهي' : 'ملغى'}) - المتبقي: {slotsLeft} مقاعد
+                        </option>
+                      );
+                    })}
+                </select>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setAssigningOrder(null)}
+                className="btn btn-secondary"
+                style={{ padding: '8px 16px' }}
+              >
+                إلغاء
+              </button>
+              <button
+                onClick={() => {
+                  const selectEl = document.getElementById('assign-gmail-select') as HTMLSelectElement;
+                  const val = selectEl?.value || null;
+                  handleApproveOrderWithAccount(assigningOrder, val);
+                }}
+                className="btn btn-primary"
+                style={{ padding: '8px 16px' }}
+              >
+                تنشيط وتفعيل
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reassign Gmail Account to Subscription Modal */}
+      {assigningSub && (
+        <div className="admin-modal-overlay">
+          <div className="admin-modal-card" style={{ maxWidth: '450px' }}>
+            <h3 style={{ marginBottom: '16px', color: 'var(--text)', fontWeight: 800 }}>
+              تعديل حساب Gmail للاشتراك
+            </h3>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '20px' }}>
+              تعديل أو تعيين حساب Gmail المرتبط باشتراك العميل:
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+              <div>
+                <label className="admin-form-label">حساب Gmail للمشاركة</label>
+                <select
+                  id="reassign-gmail-select"
+                  className="admin-input-text"
+                  defaultValue={assigningSub.gmail_account_id || ""}
+                >
+                  <option value="">إزالة تعيين الحساب...</option>
+                  {gmailAccountsList
+                    .filter(g => g.plan_id === assigningSub.plan_id)
+                    .map(g => {
+                      const currentCount = subscriptions.filter(s => s.gmail_account_id === g.id && s.status === 'active').length;
+                      const slotsLeft = g.max_members - currentCount;
+                      return (
+                        <option key={g.id} value={g.id} disabled={g.id !== assigningSub.gmail_account_id && (g.status !== 'Available' || slotsLeft <= 0)}>
+                          {g.email} ({g.status === 'Available' ? 'متاح' : g.status === 'Full' ? 'ممتلئ' : g.status === 'Expired' ? 'منتهي' : 'ملغى'}) - المتبقي: {slotsLeft} مقاعد
+                        </option>
+                      );
+                    })}
+                </select>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setAssigningSub(null)}
+                className="btn btn-secondary"
+                style={{ padding: '8px 16px' }}
+              >
+                إلغاء
+              </button>
+              <button
+                onClick={() => {
+                  const selectEl = document.getElementById('reassign-gmail-select') as HTMLSelectElement;
+                  const val = selectEl?.value || null;
+                  handleAssignGmailAccountToSubscription(assigningSub.id, val);
+                  setAssigningSub(null);
+                }}
+                className="btn btn-primary"
+                style={{ padding: '8px 16px' }}
+              >
+                تحديث
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Gmail Account Details Modal */}
+      {selectedGmailAccountDetails && (
+        <div className="admin-modal-overlay">
+          <div className="admin-modal-card" style={{ maxWidth: '700px', width: '90%' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ color: 'var(--text)', fontWeight: 800 }}>تفاصيل حساب Gmail للمشاركة</h3>
+              <button onClick={() => setSelectedGmailAccountDetails(null)} className="admin-table-action-btn delete" style={{ padding: '6px 12px' }}>إغلاق</button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
+              <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.01)' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>البريد الإلكتروني للـ Gmail</span>
+                <strong style={{ display: 'block', fontSize: '1rem', marginTop: '4px', color: 'var(--text)' }} className="number-latin">
+                  {selectedGmailAccountDetails.email}
+                </strong>
+              </div>
+              <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.01)' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>الباقة المرتبطة</span>
+                <strong style={{ display: 'block', fontSize: '1rem', marginTop: '4px', color: 'var(--text)' }}>
+                  {plans[selectedGmailAccountDetails.plan_id]?.name || 'غير معروف'}
+                </strong>
+              </div>
+              <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.01)' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>رمز الـ 2FA المؤقت (TOTP) والـ Secret</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '6px' }}>
+                  <strong className="number-latin" style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: '1.25rem', color: 'var(--success)', letterSpacing: '1px' }}>
+                    {(() => {
+                      const otp = generateTOTP(selectedGmailAccountDetails.twofa_secret);
+                      return otp.length === 6 ? `${otp.substring(0, 3)} ${otp.substring(3)}` : otp;
+                    })()}
+                  </strong>
+                  <button
+                    onClick={() => {
+                      const otp = generateTOTP(selectedGmailAccountDetails.twofa_secret);
+                      navigator.clipboard.writeText(otp);
+                      showSnackbar('تم نسخ رمز 2FA (2FA code copied).', 'success');
+                    }}
+                    className="admin-table-action-btn success"
+                    style={{ padding: '4px 8px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+                  >
+                    <Copy size={12} /> نسخ الرمز
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(selectedGmailAccountDetails.twofa_secret);
+                      showSnackbar('تم نسخ المفتاح السري (2FA Secret copied).', 'success');
+                    }}
+                    className="admin-table-action-btn"
+                    style={{ padding: '4px 8px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+                  >
+                    <Copy size={12} /> نسخ Secret
+                  </button>
+                </div>
+              </div>
+              <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.01)' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>صلاحية اشتراك الحساب</span>
+                <strong style={{ display: 'block', fontSize: '1rem', marginTop: '4px', color: 'var(--text)' }} className="number-latin">
+                  {selectedGmailAccountDetails.subscription_valid_until ? new Date(selectedGmailAccountDetails.subscription_valid_until).toLocaleDateString('en-GB') : '—'}
+                </strong>
+              </div>
+              <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.01)' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>حالة الحساب</span>
+                <strong style={{ display: 'block', fontSize: '1rem', marginTop: '4px' }}>
+                  <span className={`status-pill ${selectedGmailAccountDetails.status === 'Available' ? 'paid' : 'expired'}`} style={{ display: 'inline-flex' }}>
+                    {selectedGmailAccountDetails.status === 'Available' ? 'متاح' :
+                      selectedGmailAccountDetails.status === 'Full' ? 'ممتلئ' :
+                        selectedGmailAccountDetails.status === 'Expired' ? 'منتهي' : 'ملغى'}
+                  </span>
+                </strong>
+              </div>
+              <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.01)' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>الحد الأقصى للأعضاء</span>
+                <strong style={{ display: 'block', fontSize: '1rem', marginTop: '4px', color: 'var(--text)' }} className="number-latin">
+                  {selectedGmailAccountDetails.max_members} أعضاء
+                </strong>
+              </div>
+            </div>
+
+            {selectedGmailAccountDetails.notes && (
+              <div style={{ marginBottom: '24px' }}>
+                <h4 style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px' }}>ملاحظات المسؤول:</h4>
+                <div style={{ padding: '12px 16px', background: 'var(--background)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', fontSize: '0.85rem', color: 'var(--text)', whiteSpace: 'pre-wrap' }}>
+                  {selectedGmailAccountDetails.notes}
+                </div>
+              </div>
+            )}
+
+            <div>
+              <h4 style={{ color: 'var(--text)', fontSize: '1rem', fontWeight: 700, marginBottom: '12px' }}>العملاء النشطون المشتركون بالحساب</h4>
+              <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                <table className="admin-table">
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
+                      <th style={{ padding: '10px 16px', fontSize: '0.8rem' }}>اسم العميل</th>
+                      <th style={{ padding: '10px 16px', fontSize: '0.8rem' }}>البريد الإلكتروني للعميل</th>
+                      <th style={{ padding: '10px 16px', fontSize: '0.8rem' }}>رقم الهاتف</th>
+                      <th style={{ padding: '10px 16px', fontSize: '0.8rem' }}>تاريخ تفعيل الاشتراك</th>
+                      <th style={{ padding: '10px 16px', fontSize: '0.8rem' }}>الحالة</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {subscriptions.filter(s => s.gmail_account_id === selectedGmailAccountDetails.id).length > 0 ? (
+                      subscriptions
+                        .filter(s => s.gmail_account_id === selectedGmailAccountDetails.id)
+                        .map(sub => {
+                          const profileObj = users.find(u => u.id === sub.user_id);
+                          return (
+                            <tr key={sub.id} style={{ borderBottom: '1px solid var(--border)', fontSize: '0.8rem' }}>
+                              <td style={{ padding: '10px 16px' }}>{profileObj?.full_name || 'غير معروف'}</td>
+                              <td style={{ padding: '10px 16px' }} className="number-latin">{profileObj?.email || '—'}</td>
+                              <td style={{ padding: '10px 16px' }} className="number-latin">{profileObj?.phone || '—'}</td>
+                              <td style={{ padding: '10px 16px' }} className="number-latin">{new Date(sub.start_date).toLocaleDateString('en-GB')}</td>
+                              <td style={{ padding: '10px 16px' }}>
+                                <span className={`status-pill ${sub.status === 'active' ? 'paid' : 'expired'}`} style={{ fontSize: '0.7rem' }}>
+                                  {sub.status === 'active' ? 'نشط' : 'منتهي'}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })
+                    ) : (
+                      <tr>
+                        <td colSpan={5} style={{ padding: '16px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                          لا يوجد عملاء معينين على هذا الحساب حالياً.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
