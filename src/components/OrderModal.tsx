@@ -9,6 +9,7 @@ interface Plan {
   name: string;
   duration_months: number;
   price_iqd: number;
+  product_id: string;
 }
 
 interface OrderModalProps {
@@ -56,7 +57,22 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum: _what
     try {
       const orderEmail = user.email || profile.email || '';
 
-      // 1. Prevent duplicate pending orders for the same Gmail
+      // 1. Prevent ordering if the user already has an active subscription for this product
+      const { data: activeSubs, error: subCheckError } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('product_id', plan.product_id)
+        .eq('status', 'Active')
+        .gt('expires_at', new Date().toISOString());
+
+      if (subCheckError) throw subCheckError;
+
+      if (activeSubs && activeSubs.length > 0) {
+        throw new Error('لديك بالفعل اشتراك نشط لهذا المنتج. إذا كنت ترغب في تمديد اشتراكك الحالي، يرجى تقديم طلب تجديد من خلال لوحة التحكم الخاصة بك.');
+      }
+
+      // 2. Prevent duplicate pending orders for the same Gmail
       const { data: existingOrders, error: orderCheckError } = await supabase
         .from('orders')
         .select('*')
@@ -159,7 +175,22 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum: _what
       // Refresh the context state
       await refreshProfile();
 
-      // 2. Prevent duplicate pending orders for the same Gmail
+      // 2. Prevent ordering if the user already has an active subscription for this product
+      const { data: activeSubs, error: subCheckError } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('product_id', plan.product_id)
+        .eq('status', 'Active')
+        .gt('expires_at', new Date().toISOString());
+
+      if (subCheckError) throw subCheckError;
+
+      if (activeSubs && activeSubs.length > 0) {
+        throw new Error('لديك بالفعل اشتراك نشط لهذا المنتج. إذا كنت ترغب في تمديد اشتراكك الحالي، يرجى تقديم طلب تجديد من خلال لوحة التحكم الخاصة بك.');
+      }
+
+      // 3. Prevent duplicate pending orders for the same Gmail
       const orderEmail = user.email || '';
       const { data: existingOrders, error: orderCheckError } = await supabase
         .from('orders')

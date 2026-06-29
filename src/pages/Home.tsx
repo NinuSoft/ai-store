@@ -21,6 +21,7 @@ interface Plan {
   duration_months: number;
   price_iqd: number;
   official_price_iqd?: number;
+  product_id: string;
 }
 
 const WhatsAppIcon = ({ size = 24, ...props }: { size?: number;[key: string]: any }) => (
