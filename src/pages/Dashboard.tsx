@@ -80,8 +80,10 @@ export const Dashboard: React.FC = () => {
   const [cancellingOrder, setCancellingOrder] = useState<string | null>(null);
   const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null);
 
+  const userId = user?.id;
+
   const loadData = useCallback(async (silent = false) => {
-    if (!user) return;
+    if (!userId) return;
     if (!silent) setLoading(true);
     try {
       // 1. Fetch plans
@@ -108,7 +110,7 @@ export const Dashboard: React.FC = () => {
       const { data: ordersData } = await supabase
         .from('orders')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .order('created_at', { ascending: false });
       
       let mappedOrders: Order[] = [];
@@ -144,7 +146,7 @@ export const Dashboard: React.FC = () => {
       const { data: subsData } = await supabase
         .from('subscriptions')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .order('expires_at', { ascending: false });
       
       let mappedSubs: Subscription[] = [];
@@ -182,21 +184,21 @@ export const Dashboard: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [userId]);
 
   useEffect(() => {
+    if (!userId) return;
+    
     loadData();
-
-    if (!user) return;
 
     // Subscribe to realtime database updates for the logged-in user
     const channel = supabase
-      .channel(`dashboard-realtime-${user.id}`)
+      .channel(`dashboard-realtime-${userId}`)
       .on('postgres_changes', { 
         event: '*', 
         schema: 'public', 
         table: 'orders',
-        filter: `user_id=eq.${user.id}`
+        filter: `user_id=eq.${userId}`
       }, () => {
         loadData(true);
       })
@@ -204,7 +206,7 @@ export const Dashboard: React.FC = () => {
         event: '*', 
         schema: 'public', 
         table: 'subscriptions',
-        filter: `user_id=eq.${user.id}`
+        filter: `user_id=eq.${userId}`
       }, () => {
         loadData(true);
       })
@@ -213,7 +215,7 @@ export const Dashboard: React.FC = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, loadData]);
+  }, [userId, loadData]);
 
   const handleSignOut = async () => {
     await signOut();
