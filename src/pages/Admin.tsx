@@ -1051,11 +1051,9 @@ export const Admin: React.FC = () => {
           position: relative;
           border-radius: 24px;
           border: 1px solid var(--border);
-          background: linear-gradient(135deg, rgba(255, 255, 255, 0.015) 0%, rgba(255, 255, 255, 0.005) 100%);
+          background: var(--surface);
           padding: 24px;
           overflow: hidden;
-          backdrop-filter: blur(30px);
-          -webkit-backdrop-filter: blur(30px);
           transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
           box-shadow: var(--shadow);
         }
