@@ -93,8 +93,27 @@ export const Admin: React.FC = () => {
     }
   }, [profile, navigate]);
 
-  // Tab State
-  const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'users' | 'renewals' | 'subscriptions' | 'products' | 'plans' | 'faqs' | 'testimonials' | 'settings' | 'gmail_accounts'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'users' | 'renewals' | 'subscriptions' | 'products' | 'plans' | 'faqs' | 'testimonials' | 'settings' | 'gmail_accounts'>(() => {
+    const hash = window.location.hash.slice(1);
+    const validTabs = ['overview', 'orders', 'users', 'renewals', 'subscriptions', 'products', 'plans', 'faqs', 'testimonials', 'settings', 'gmail_accounts'];
+    return (hash && validTabs.includes(hash)) ? (hash as any) : 'overview';
+  });
+
+  useEffect(() => {
+    window.location.hash = activeTab;
+  }, [activeTab]);
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.slice(1);
+      const validTabs = ['overview', 'orders', 'users', 'renewals', 'subscriptions', 'products', 'plans', 'faqs', 'testimonials', 'settings', 'gmail_accounts'];
+      if (hash && validTabs.includes(hash)) {
+        setActiveTab(hash as any);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   // Data States
   const [loading, setLoading] = useState(true);
