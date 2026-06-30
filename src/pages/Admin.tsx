@@ -1291,8 +1291,10 @@ export const Admin: React.FC = () => {
         .metric-card {
           position: relative;
           border-radius: 24px;
-          border: 1px solid var(--border);
-          background: var(--surface);
+          border: 1px solid rgba(148, 163, 184, 0.12) !important;
+          background: rgba(30, 41, 59, 0.25) !important;
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
           transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
           box-shadow: var(--shadow);
           transform: translateZ(0);
@@ -1771,7 +1773,7 @@ export const Admin: React.FC = () => {
               {/* Revenue card */}
               <div className="metric-card" style={{ padding: '20px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                  <span style={{ display: 'flex', width: '44px', height: '44px', alignItems: 'center', justifyContent: 'center', borderRadius: '12px', background: 'var(--success-light)', color: 'var(--success)' }}>
+                  <span style={{ display: 'flex', width: '44px', height: '44px', alignItems: 'center', justifyContent: 'center', borderRadius: '12px', background: 'rgba(34, 197, 94, 0.15)', color: '#4ade80' }}>
                     <DollarSign size={20} />
                   </span>
                   <div style={{ width: '96px', height: '40px', opacity: 0.9 }}>
@@ -1794,7 +1796,7 @@ export const Admin: React.FC = () => {
               {/* Active subs card */}
               <div className="metric-card" style={{ padding: '20px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                  <span style={{ display: 'flex', width: '44px', height: '44px', alignItems: 'center', justifyContent: 'center', borderRadius: '12px', background: 'var(--primary-light)', color: 'var(--primary)' }}>
+                  <span style={{ display: 'flex', width: '44px', height: '44px', alignItems: 'center', justifyContent: 'center', borderRadius: '12px', background: 'rgba(99, 102, 241, 0.15)', color: '#818cf8' }}>
                     <Activity size={20} />
                   </span>
                   <div style={{ width: '96px', height: '40px', opacity: 0.9 }}>
@@ -1817,7 +1819,7 @@ export const Admin: React.FC = () => {
               {/* Pending orders card */}
               <div className="metric-card" style={{ padding: '20px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                  <span style={{ display: 'flex', width: '44px', height: '44px', alignItems: 'center', justifyContent: 'center', borderRadius: '12px', background: 'var(--warning-light)', color: 'var(--warning)' }}>
+                  <span style={{ display: 'flex', width: '44px', height: '44px', alignItems: 'center', justifyContent: 'center', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24' }}>
                     <ShoppingBag size={20} />
                   </span>
                   <div style={{ width: '96px', height: '40px', opacity: 0.9 }}>
@@ -1840,7 +1842,7 @@ export const Admin: React.FC = () => {
               {/* Total Users card */}
               <div className="metric-card" style={{ padding: '20px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                  <span style={{ display: 'flex', width: '44px', height: '44px', alignItems: 'center', justifyContent: 'center', borderRadius: '12px', background: 'rgba(139, 92, 246, 0.08)', color: 'var(--secondary)' }}>
+                  <span style={{ display: 'flex', width: '44px', height: '44px', alignItems: 'center', justifyContent: 'center', borderRadius: '12px', background: 'rgba(139, 92, 246, 0.15)', color: '#a78bfa' }}>
                     <Users size={20} />
                   </span>
                   <div style={{ width: '96px', height: '40px', opacity: 0.9 }}>
@@ -1906,8 +1908,8 @@ export const Admin: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
                   {/* Area Chart panel */}
-                  <div className="glass-panel md:col-span-2" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
+                  <div className="glass-panel md:col-span-2" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+                    <div style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.12)', paddingBottom: '12px' }}>
                       <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text)' }}>مخطط الإيرادات الشهرية</h4>
                       <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>آخر 6 أشهر · بالدينار العراقي</p>
                     </div>
@@ -1917,8 +1919,8 @@ export const Admin: React.FC = () => {
                   </div>
 
                   {/* Donut Chart panel */}
-                  <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
+                  <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+                    <div style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.12)', paddingBottom: '12px' }}>
                       <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text)' }}>توزيع حالات الطلبات</h4>
                       <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>حسب إجمالي الطلبات المستلمة</p>
                     </div>
@@ -2012,9 +2014,9 @@ export const Admin: React.FC = () => {
                   const productStatsList = Object.values(productSeatStatsMap).filter(p => p.totalCapacity > 0);
 
                   return (
-                    <div className="glass-panel" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                    <div className="glass-panel" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '32px', background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
                       {/* Header */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '16px', flexWrap: 'wrap', gap: '16px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(148, 163, 184, 0.12)', paddingBottom: '16px', flexWrap: 'wrap', gap: '16px' }}>
                         <div>
                           <h4 style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--text)', letterSpacing: '0.5px' }}>مؤشرات توزيع واستهلاك مقاعد الحسابات</h4>
                           <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>متابعة تفصيلية للقدرة الاستيعابية وسعة المقاعد الشاغرة لحسابات الـ Gmail للمشاركة</p>
@@ -2030,17 +2032,17 @@ export const Admin: React.FC = () => {
                       {/* Section 1: Giant Metrics Summary */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                          <div className="glass-panel" style={{ padding: '24px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                          <div className="glass-panel" style={{ padding: '24px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                             <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 800 }}>السعة الإجمالية للمقاعد</span>
                             <strong style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--text)' }} className="number-latin">{totalCapacity}</strong>
                             <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>مقعد متوفر كلياً</span>
                           </div>
-                          <div className="glass-panel" style={{ padding: '24px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                          <div className="glass-panel" style={{ padding: '24px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                             <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 800 }}>المقاعد المشغولة</span>
                             <strong style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--primary)' }} className="number-latin">{occupiedSeats}</strong>
                             <span style={{ fontSize: '0.75rem', color: 'var(--primary)', opacity: 0.8 }} className="number-latin">{occupancyRate}% إشغال</span>
                           </div>
-                          <div className="glass-panel" style={{ padding: '24px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                          <div className="glass-panel" style={{ padding: '24px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                             <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 800 }}>المقاعد الشاغرة</span>
                             <strong style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--success)' }} className="number-latin">{freeSeats}</strong>
                             <span style={{ fontSize: '0.75rem', color: 'var(--success)', opacity: 0.8 }} className="number-latin">{totalCapacity - occupiedSeats} مقعد متاح فورياً</span>
@@ -2048,7 +2050,7 @@ export const Admin: React.FC = () => {
                         </div>
 
                         {/* Large progress bar */}
-                        <div style={{ width: '100%', height: '14px', background: 'rgba(255,255,255,0.03)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border)', padding: '2px' }}>
+                        <div style={{ width: '100%', height: '14px', background: 'rgba(30, 41, 59, 0.45)', borderRadius: '999px', overflow: 'hidden', border: '1px solid rgba(148, 163, 184, 0.18)', padding: '2px' }}>
                           <div style={{ width: `${occupancyRate}%`, height: '100%', background: 'linear-gradient(90deg, var(--primary), var(--secondary))', borderRadius: '999px', boxShadow: '0 0 10px rgba(99, 102, 241, 0.5)' }} />
                         </div>
                       </div>
@@ -2062,14 +2064,14 @@ export const Admin: React.FC = () => {
                             {productStatsList.map((pStat, index) => {
                               const rate = pStat.totalCapacity > 0 ? Math.round((pStat.occupiedSeats / pStat.totalCapacity) * 100) : 0;
                               return (
-                                <div key={index} className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border)' }}>
+                                <div key={index} className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)' }}>
                                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <span style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text)' }}>{pStat.productName}</span>
                                     <span className="number-latin" style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-muted)' }}>
                                       {pStat.occupiedSeats} / {pStat.totalCapacity} مقعد
                                     </span>
                                   </div>
-                                  <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.04)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                                  <div style={{ width: '100%', height: '8px', background: 'rgba(30, 41, 59, 0.55)', borderRadius: '999px', overflow: 'hidden', border: '1px solid rgba(148, 163, 184, 0.18)' }}>
                                     <div style={{ width: `${rate}%`, height: '100%', background: 'var(--primary)', borderRadius: '999px' }} />
                                   </div>
                                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
@@ -2081,7 +2083,7 @@ export const Admin: React.FC = () => {
                             })}
                           </div>
                         ) : (
-                          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.88rem', background: 'rgba(255,255,255,0.01)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.88rem', background: 'rgba(30, 41, 59, 0.45)', borderRadius: '12px', border: '1px solid rgba(148, 163, 184, 0.18)' }}>
                             لا توجد حسابات نشطة أو مقاعد مدخلة حالياً لحساب توزيعها.
                           </div>
                         )}
@@ -2094,8 +2096,8 @@ export const Admin: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
                   {/* Recent Orders list */}
-                  <div className="glass-panel md:col-span-2" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
+                  <div className="glass-panel md:col-span-2" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(148, 163, 184, 0.12)', paddingBottom: '12px' }}>
                       <div>
                         <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text)' }}>أحدث الطلبات الواردة</h4>
                         <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>آخر 6 طلبات تم تسجيلها</p>
@@ -2118,9 +2120,9 @@ export const Admin: React.FC = () => {
                                           : o.status === 'rejected' ? 'var(--danger)' 
                                           : 'var(--text-muted)';
                         return (
-                          <div key={o.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border)', borderRadius: '12px' }}>
+                          <div key={o.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', borderRadius: '12px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--primary-light)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center', fontWeight: 800 }}>
+                              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(99, 102, 241, 0.15)', color: '#818cf8', display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center', fontWeight: 800 }}>
                                 {(getUserDisplayName(o.user_id) || o.gmail || '?')[0].toUpperCase()}
                               </div>
                               <div>
@@ -2147,8 +2149,8 @@ export const Admin: React.FC = () => {
                   </div>
 
                   {/* Top Plans bar chart */}
-                  <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
+                  <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+                    <div style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.12)', paddingBottom: '12px' }}>
                       <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text)' }}>أعلى الباقات إيراداً</h4>
                       <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>حسب إجمالي الطلبات المكتملة</p>
                     </div>
