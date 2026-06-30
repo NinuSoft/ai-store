@@ -1268,8 +1268,14 @@ export const Admin: React.FC = () => {
           transition: background 0.2s ease;
           vertical-align: middle;
         }
-        .admin-table tr:hover td {
+        .admin-table tbody tr:nth-child(even) td {
+          background: rgba(255, 255, 255, 0.005);
+        }
+        .admin-table tbody tr:nth-child(odd) td {
           background: rgba(255, 255, 255, 0.015);
+        }
+        .admin-table tbody tr:hover td {
+          background: rgba(255, 255, 255, 0.035) !important;
         }
         .admin-table tr:last-child td {
           border-bottom: none;
