@@ -84,6 +84,13 @@ interface UserProfile {
   created_at: string;
 }
 
+function formatNumberWithCommas(value: string | number | undefined | null): string {
+  if (value === undefined || value === null || value === '') return '';
+  const clean = String(value).replace(/,/g, '').replace(/\D/g, '');
+  if (!clean) return '';
+  return Number(clean).toLocaleString('en-US');
+}
+
 export const Admin: React.FC = () => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
@@ -809,9 +816,9 @@ export const Admin: React.FC = () => {
       const payload = {
         product_id: formFields.product_id,
         name: formFields.name,
-        duration_months: parseInt(formFields.duration_months),
-        price_iqd: parseInt(formFields.price_iqd),
-        official_price_iqd: formFields.official_price_iqd ? parseInt(formFields.official_price_iqd) : null,
+        duration_months: parseInt(String(formFields.duration_months || '').replace(/,/g, '')),
+        price_iqd: parseInt(String(formFields.price_iqd || '').replace(/,/g, '')),
+        official_price_iqd: formFields.official_price_iqd ? parseInt(String(formFields.official_price_iqd).replace(/,/g, '')) : null,
         badge: formFields.badge || null,
         is_featured: formFields.is_featured ?? false,
         display_order: parseInt(formFields.display_order ?? 0),
@@ -3482,8 +3489,12 @@ export const Admin: React.FC = () => {
                       <span>السعر المحلي (د.ع)</span>
                     </label>
                     <input
-                      type="number" value={formFields.price_iqd || ''}
-                      onChange={e => setFormFields({ ...formFields, price_iqd: Number(e.target.value) })}
+                      type="text"
+                      value={formatNumberWithCommas(formFields.price_iqd)}
+                      onChange={e => {
+                        const cleanVal = e.target.value.replace(/,/g, '').replace(/\D/g, '');
+                        setFormFields({ ...formFields, price_iqd: cleanVal });
+                      }}
                       className="redesign-input number-latin"
                     />
                   </div>
@@ -3493,8 +3504,12 @@ export const Admin: React.FC = () => {
                       <span>السعر الرسمي (د.ع)</span>
                     </label>
                     <input
-                      type="text" value={formFields.official_price_iqd || ''}
-                      onChange={e => setFormFields({ ...formFields, official_price_iqd: e.target.value })}
+                      type="text"
+                      value={formatNumberWithCommas(formFields.official_price_iqd)}
+                      onChange={e => {
+                        const cleanVal = e.target.value.replace(/,/g, '').replace(/\D/g, '');
+                        setFormFields({ ...formFields, official_price_iqd: cleanVal });
+                      }}
                       className="redesign-input number-latin"
                       placeholder="اختياري — يُعرض مشطوباً"
                       dir="ltr"
