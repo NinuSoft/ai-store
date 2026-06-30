@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   ShieldCheck, ArrowLeft, Users, ShoppingBag,
@@ -4505,7 +4505,8 @@ function buildSmoothPath(points: { x: number; y: number }[]): string {
 }
 
 /* ---------- Sparkline Component ---------- */
-const Sparkline: React.FC<{ data: number[]; color?: string }> = ({ data, color = "var(--primary)" }) => {
+const Sparkline: React.FC<{ data: number[]; color?: string }> = ({ data, color = "#6366f1" }) => {
+  const id = useId().replace(/:/g, "");
   const W = 100;
   const H = 32;
   const pad = 3;
@@ -4520,21 +4521,38 @@ const Sparkline: React.FC<{ data: number[]; color?: string }> = ({ data, color =
   const line = buildSmoothPath(pts);
   const area = `${line} L ${pts[pts.length - 1].x} ${H} L ${pts[0].x} ${H} Z`;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: "100%", height: "100%" }}>
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="none"
+      style={{ width: "100%", height: "100%" }}
+    >
       <defs>
-        <linearGradient id="sparkline-grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.25" />
+        <linearGradient id={`sp-${id}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.35" />
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
-      <path d={area} fill="url(#sparkline-grad)" />
-      <path d={line} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+      <path d={area} fill={`url(#sp-${id})`} />
+      <path
+        d={line}
+        fill="none"
+        stroke={color}
+        strokeWidth={2}
+        vectorEffect="non-scaling-stroke"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 };
 
 /* ---------- AreaChart Component ---------- */
-const AreaChart: React.FC<{ data: number[]; labels?: string[]; color?: string }> = ({ data, labels, color = "var(--primary)" }) => {
+const AreaChart: React.FC<{ data: number[]; labels?: string[]; color?: string }> = ({
+  data,
+  labels,
+  color = "#6366f1",
+}) => {
+  const id = useId().replace(/:/g, "");
   const W = 320;
   const H = 130;
   const padY = 12;
@@ -4549,10 +4567,14 @@ const AreaChart: React.FC<{ data: number[]; labels?: string[]; color?: string }>
 
   return (
     <div style={{ width: "100%" }}>
-      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: "100%", height: 160 }}>
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        preserveAspectRatio="none"
+        style={{ width: "100%", height: 160 }}
+      >
         <defs>
-          <linearGradient id="areachart-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity="0.25" />
+          <linearGradient id={`ar-${id}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={color} stopOpacity="0.32" />
             <stop offset="100%" stopColor={color} stopOpacity="0" />
           </linearGradient>
         </defs>
@@ -4563,13 +4585,22 @@ const AreaChart: React.FC<{ data: number[]; labels?: string[]; color?: string }>
             x2={W}
             y1={H * g}
             y2={H * g}
-            stroke="var(--border)"
+            stroke="rgba(148, 163, 184, 0.15)"
             strokeWidth={1}
             strokeDasharray="3 5"
+            vectorEffect="non-scaling-stroke"
           />
         ))}
-        <path d={area} fill="url(#areachart-grad)" />
-        <path d={line} fill="none" stroke={color} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+        <path d={area} fill={`url(#ar-${id})`} />
+        <path
+          d={line}
+          fill="none"
+          stroke={color}
+          strokeWidth={2.5}
+          vectorEffect="non-scaling-stroke"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
         {pts.map((p, i) => (
           <circle
             key={i}
@@ -4594,7 +4625,11 @@ const AreaChart: React.FC<{ data: number[]; labels?: string[]; color?: string }>
 };
 
 /* ---------- BarChart Component ---------- */
-const BarChart: React.FC<{ data: number[]; labels?: string[]; formatValue?: (n: number) => string }> = ({ data, labels, formatValue }) => {
+const BarChart: React.FC<{
+  data: number[];
+  labels?: string[];
+  formatValue?: (n: number) => string;
+}> = ({ data, labels, formatValue }) => {
   if (!data || data.length === 0) return null;
   const max = Math.max(...data, 1);
   return (
@@ -4602,7 +4637,10 @@ const BarChart: React.FC<{ data: number[]; labels?: string[]; formatValue?: (n: 
       <div style={{ height: "144px", display: "flex", alignItems: "end", justifyContent: "space-between", gap: "8px" }}>
         {data.map((v, i) => (
           <div key={i} style={{ display: "flex", height: "100%", flex: 1, flexDirection: "column", alignItems: "center", justifyContent: "end", gap: "6px" }} className="group">
-            <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--text-secondary)", transition: "opacity 0.2s" }} className="opacity-0 group-hover:opacity-100 number-latin">
+            <span
+              style={{ fontSize: "10px", fontWeight: 700, color: "var(--text-secondary)", transition: "opacity 0.2s" }}
+              className="opacity-0 group-hover:opacity-100 number-latin"
+            >
               {formatValue ? formatValue(v) : v}
             </span>
             <div style={{ display: "flex", width: "100%", maxWidth: "36px", flex: 1, alignItems: "end" }}>
@@ -4610,7 +4648,7 @@ const BarChart: React.FC<{ data: number[]; labels?: string[]; formatValue?: (n: 
                 style={{
                   width: "100%",
                   height: `${Math.max((v / max) * 100, 3)}%`,
-                  background: "linear-gradient(to top, var(--primary) 0%, var(--secondary) 100%)",
+                  background: "linear-gradient(to top, #6366f1 0%, #a78bfa 100%)",
                   borderRadius: "8px 8px 0 0",
                   transition: "all 0.5s ease"
                 }}
@@ -4631,7 +4669,10 @@ const BarChart: React.FC<{ data: number[]; labels?: string[]; formatValue?: (n: 
 };
 
 /* ---------- DonutChart Component ---------- */
-const DonutChart: React.FC<{ segments: { label: string; value: number; color: string }[]; center?: React.ReactNode }> = ({ segments, center }) => {
+const DonutChart: React.FC<{
+  segments: { label: string; value: number; color: string }[];
+  center?: React.ReactNode;
+}> = ({ segments, center }) => {
   const total = segments.reduce((s, x) => s + x.value, 0) || 1;
   const r = 42;
   const C = 2 * Math.PI * r;
