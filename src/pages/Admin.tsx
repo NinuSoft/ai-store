@@ -4,7 +4,8 @@ import {
   ShieldCheck, ArrowLeft, Users, ShoppingBag,
   DollarSign, Activity, Check, X, Search, PlusCircle,
   RotateCw, MessageSquare, Settings, Sparkles, Clock, User, Shield,
-  Edit2, Trash2, Star, Ban, Play, AlertTriangle, Mail, Copy
+  Edit2, Trash2, Star, Ban, Play, AlertTriangle, Mail, Copy, Save,
+  ChevronDown, LogOut
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -84,8 +85,13 @@ interface UserProfile {
 }
 
 export const Admin: React.FC = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   // Guard routing: redirect if not admin
   useEffect(() => {
@@ -1536,6 +1542,13 @@ export const Admin: React.FC = () => {
             <Link to="/" className="btn btn-outline" style={{ padding: '6px 16px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <ArrowLeft size={14} /> الصفحة الرئيسية
             </Link>
+            <button
+              onClick={handleSignOut}
+              className="btn btn-outline"
+              style={{ padding: '6px 16px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+            >
+              <LogOut size={14} /> تسجيل الخروج
+            </button>
           </div>
         </div>
       </header>
