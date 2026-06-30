@@ -1132,6 +1132,10 @@ export const Admin: React.FC = () => {
         .admin-page-wrapper .container {
           max-width: 1600px;
         }
+        select option {
+          background-color: #1e293b;
+          color: #f8fafc;
+        }
         @keyframes slide-in {
           from {
             transform: translateY(20px);
