@@ -1244,6 +1244,48 @@ export const Admin: React.FC = () => {
           color: #818cf8;
           box-shadow: 0 4px 20px rgba(99, 102, 241, 0.08);
         }
+        .redesign-input {
+          width: 100% !important;
+          padding: 12px 16px !important;
+          background: rgba(30, 41, 59, 0.45) !important;
+          border: 1px solid rgba(148, 163, 184, 0.18) !important;
+          border-radius: 12px !important;
+          color: #f8fafc !important;
+          font-size: 0.85rem !important;
+          outline: none !important;
+          transition: all 0.2s !important;
+        }
+        .redesign-input:focus {
+          border-color: #818cf8 !important;
+          background: rgba(30, 41, 59, 0.6) !important;
+          box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2) !important;
+        }
+        /* Hide spinner arrows on number inputs */
+        .redesign-input::-webkit-outer-spin-button,
+        .redesign-input::-webkit-inner-spin-button {
+          -webkit-appearance: none !important;
+          margin: 0 !important;
+        }
+        .redesign-input[type=number] {
+          -moz-appearance: textfield !important;
+        }
+
+        .redesign-search-input {
+          width: 100% !important;
+          padding: 12px 42px 12px 16px !important;
+          background: rgba(30, 41, 59, 0.45) !important;
+          border: 1px solid rgba(148, 163, 184, 0.18) !important;
+          border-radius: 12px !important;
+          color: #f8fafc !important;
+          font-size: 0.85rem !important;
+          outline: none !important;
+          transition: all 0.2s !important;
+        }
+        .redesign-search-input:focus {
+          border-color: #818cf8 !important;
+          background: rgba(30, 41, 59, 0.6) !important;
+          box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2) !important;
+        }
         
         .metric-card {
           position: relative;
@@ -1851,19 +1893,7 @@ export const Admin: React.FC = () => {
               </div>
 
 
-              {activeTab === 'gmail_accounts' && (
-                <button
-                  onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ max_members: 5, status: 'Available' }); }}
-                  style={{
-                    padding: '10px 18px', fontWeight: 800, borderRadius: '12px', fontSize: '0.8rem', cursor: 'pointer',
-                    transition: 'all 0.3s ease', border: 'none', background: 'var(--primary)', color: 'white',
-                    display: 'flex', alignItems: 'center', gap: '8px'
-                  }}
-                >
-                  <PlusCircle size={16} />
-                  <span>إضافة حساب Gmail جديد</span>
-                </button>
-              )}
+
             </div>
 
             {activeTab === 'overview' ? (
@@ -2362,7 +2392,7 @@ export const Admin: React.FC = () => {
             ) : (
               <>
                 {/* Filter and Search controls bar */}
-                {['products', 'plans', 'faqs', 'testimonials'].includes(activeTab) ? (
+                {['products', 'plans', 'faqs', 'testimonials', 'gmail_accounts', 'orders', 'renewals', 'subscriptions', 'users'].includes(activeTab) ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', padding: '12px 16px', borderRadius: '16px', width: '100%', marginBottom: '16px' }}>
                     <div style={{ position: 'relative', flex: 1 }}>
                       <Search size={16} style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
@@ -2374,16 +2404,67 @@ export const Admin: React.FC = () => {
                           activeTab === 'products' ? 'ابحث عن منتج...' :
                           activeTab === 'plans' ? 'ابحث عن باقة...' :
                           activeTab === 'faqs' ? 'ابحث عن سؤال...' :
-                          'ابحث عن تقييم...'
+                          activeTab === 'gmail_accounts' ? 'ابحث عن حساب Gmail...' :
+                          activeTab === 'testimonials' ? 'ابحث عن تقييم...' :
+                          activeTab === 'orders' ? 'ابحث عن طلب (Gmail، الاسم، أو رقم الهاتف)...' :
+                          activeTab === 'renewals' ? 'ابحث عن طلب تجديد (Gmail، الاسم، أو رقم الهاتف)...' :
+                          activeTab === 'subscriptions' ? 'ابحث عن اشتراك نشط...' :
+                          activeTab === 'users' ? 'ابحث عن مستخدم (Gmail، الاسم، أو رقم الهاتف)...' :
+                          'ابحث...'
                         }
                         dir={searchTerm ? 'auto' : 'rtl'}
-                        style={{
-                          width: '100%', padding: '10px 42px 10px 16px',
-                          background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)',
-                          borderRadius: '12px', color: 'var(--text)', fontSize: '0.85rem', outline: 'none'
-                        }}
+                        className="redesign-search-input"
                       />
                     </div>
+
+                    {['orders', 'renewals', 'subscriptions', 'gmail_accounts', 'users'].includes(activeTab) && (
+                      <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        style={{
+                          padding: '10px 16px',
+                          background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)',
+                          borderRadius: '12px', color: 'var(--text)', fontSize: '0.85rem',
+                          outline: 'none', width: '180px', flexShrink: 0, cursor: 'pointer'
+                        }}
+                      >
+                        <option value="all">جميع الحالات</option>
+                        {activeTab === 'orders' ? (
+                          <>
+                            <option value="pending">قيد المراجعة</option>
+                            <option value="processing">جاري التفعيل</option>
+                            <option value="awaiting_payment">بانتظار الدفع</option>
+                            <option value="paid">تم الدفع ونشط</option>
+                            <option value="rejected">مرفوض</option>
+                            <option value="cancelled">ملغي</option>
+                            <option value="expired">منتهي الصلاحية</option>
+                          </>
+                        ) : activeTab === 'renewals' ? (
+                          <>
+                            <option value="pending">معلق</option>
+                            <option value="approved">تم التجديد</option>
+                            <option value="rejected">مرفوض</option>
+                          </>
+                        ) : activeTab === 'gmail_accounts' ? (
+                          <>
+                            <option value="Available">متاح</option>
+                            <option value="Full">ممتلئ</option>
+                            <option value="Expired">منتهي</option>
+                            <option value="Disabled">ملغي</option>
+                          </>
+                        ) : activeTab === 'users' ? (
+                          <>
+                            <option value="admin">المشرفين (Admins)</option>
+                            <option value="customer">العملاء (Customers)</option>
+                          </>
+                        ) : (
+                          <>
+                            <option value="active">نشط</option>
+                            <option value="expired">منتهي الصلاحية</option>
+                          </>
+                        )}
+                      </select>
+                    )}
 
                     {activeTab === 'products' && (
                       <button
@@ -2437,6 +2518,19 @@ export const Admin: React.FC = () => {
                         <span>إضافة رأي عميل</span>
                       </button>
                     )}
+                    {activeTab === 'gmail_accounts' && (
+                      <button
+                        onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ max_members: 5, status: 'Available' }); }}
+                        style={{
+                          padding: '10px 18px', fontWeight: 800, borderRadius: '12px', fontSize: '0.8rem', cursor: 'pointer',
+                          border: 'none', background: '#4f46e5', color: 'white',
+                          display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0
+                        }}
+                      >
+                        <PlusCircle size={16} />
+                        <span>إضافة حساب Gmail جديد</span>
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <div style={{ display: 'flex', gap: '12px', width: '100%', flexWrap: 'wrap', marginBottom: '16px' }}>
@@ -2448,11 +2542,7 @@ export const Admin: React.FC = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         placeholder="ابحث بالـ Gmail، الاسم، أو رقم الهاتف..."
                         dir={searchTerm ? 'auto' : 'rtl'}
-                        style={{
-                          width: '100%', padding: '12px 42px 12px 16px',
-                          background: 'var(--background-alt)', border: '1px solid var(--border)',
-                          borderRadius: '12px', color: 'var(--text)', fontSize: '0.85rem'
-                        }}
+                        className="redesign-search-input"
                       />
                     </div>
 
@@ -2632,7 +2722,7 @@ export const Admin: React.FC = () => {
                             ))
                           ) : (
                             <tr>
-                              <td colSpan={9} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد طلبات تطابق معايير البحث.</td>
+                              <td colSpan={10} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد طلبات تطابق معايير البحث.</td>
                             </tr>
                           )}
                         </tbody>
@@ -2777,7 +2867,7 @@ export const Admin: React.FC = () => {
                             ))
                           ) : (
                             <tr>
-                              <td colSpan={6} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد اشتراكات نشطة تطابق معايير البحث.</td>
+                              <td colSpan={7} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد اشتراكات نشطة تطابق معايير البحث.</td>
                             </tr>
                           )}
                         </tbody>
