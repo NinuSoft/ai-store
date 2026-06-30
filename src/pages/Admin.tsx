@@ -180,6 +180,7 @@ export const Admin: React.FC = () => {
 
   // Search & Filters
   const [searchTerm, setSearchTerm] = useState('');
+  const [productSearch, setProductSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
   // Snackbar State
@@ -1849,59 +1850,7 @@ export const Admin: React.FC = () => {
                 </p>
               </div>
 
-              {/* Dynamic CTA button for additions */}
-              {activeTab === 'products' && (
-                <button
-                  onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ name: '', slug: '', description: '', is_active: true }); }}
-                  style={{
-                    padding: '10px 18px', fontWeight: 800, borderRadius: '12px', fontSize: '0.8rem', cursor: 'pointer',
-                    transition: 'all 0.3s ease', border: 'none', background: 'var(--primary)', color: 'white',
-                    display: 'flex', alignItems: 'center', gap: '8px'
-                  }}
-                >
-                  <PlusCircle size={16} />
-                  <span>إضافة منتج</span>
-                </button>
-              )}
-              {activeTab === 'plans' && (
-                <button
-                  onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ name: '', product_id: productsList[0]?.id || '', duration_months: 1, price_iqd: 15000, official_price_iqd: null, badge: '', is_featured: false, display_order: 0, is_active: true }); }}
-                  style={{
-                    padding: '10px 18px', fontWeight: 800, borderRadius: '12px', fontSize: '0.8rem', cursor: 'pointer',
-                    transition: 'all 0.3s ease', border: 'none', background: 'var(--primary)', color: 'white',
-                    display: 'flex', alignItems: 'center', gap: '8px'
-                  }}
-                >
-                  <PlusCircle size={16} />
-                  <span>إضافة باقة جديدة</span>
-                </button>
-              )}
-              {activeTab === 'faqs' && (
-                <button
-                  onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ question: '', answer: '', display_order: 0, is_active: true }); }}
-                  style={{
-                    padding: '10px 18px', fontWeight: 800, borderRadius: '12px', fontSize: '0.8rem', cursor: 'pointer',
-                    transition: 'all 0.3s ease', border: 'none', background: 'var(--primary)', color: 'white',
-                    display: 'flex', alignItems: 'center', gap: '8px'
-                  }}
-                >
-                  <PlusCircle size={16} />
-                  <span>إضافة سؤال</span>
-                </button>
-              )}
-              {activeTab === 'testimonials' && (
-                <button
-                  onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ name: '', rating: 5, comment: '', display_order: 0, is_active: true }); }}
-                  style={{
-                    padding: '10px 18px', fontWeight: 800, borderRadius: '12px', fontSize: '0.8rem', cursor: 'pointer',
-                    transition: 'all 0.3s ease', border: 'none', background: 'var(--primary)', color: 'white',
-                    display: 'flex', alignItems: 'center', gap: '8px'
-                  }}
-                >
-                  <PlusCircle size={16} />
-                  <span>إضافة رأي عميل</span>
-                </button>
-              )}
+
               {activeTab === 'gmail_accounts' && (
                 <button
                   onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ max_members: 5, status: 'Available' }); }}
@@ -2413,72 +2362,150 @@ export const Admin: React.FC = () => {
             ) : (
               <>
                 {/* Filter and Search controls bar */}
-                <div style={{ display: 'flex', gap: '12px', width: '100%', flexWrap: 'wrap' }}>
-                  <div style={{ position: 'relative', flex: '1', minWidth: '240px' }}>
-                    <Search size={16} style={{ position: 'absolute', top: '50%', right: '14px', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                    <input
-                      type="text"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="ابحث بالـ Gmail، الاسم، أو رقم الهاتف..."
-                      dir={searchTerm ? 'auto' : 'rtl'}
-                      style={{
-                        width: '100%', padding: '12px 42px 12px 16px',
-                        background: 'var(--background-alt)', border: '1px solid var(--border)',
-                        borderRadius: '12px', color: 'var(--text)', fontSize: '0.85rem'
-                      }}
-                    />
-                  </div>
+                {['products', 'plans', 'faqs', 'testimonials'].includes(activeTab) ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', padding: '12px 16px', borderRadius: '16px', width: '100%', marginBottom: '16px' }}>
+                    <div style={{ position: 'relative', flex: 1 }}>
+                      <Search size={16} style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                      <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder={
+                          activeTab === 'products' ? 'ابحث عن منتج...' :
+                          activeTab === 'plans' ? 'ابحث عن باقة...' :
+                          activeTab === 'faqs' ? 'ابحث عن سؤال...' :
+                          'ابحث عن تقييم...'
+                        }
+                        dir={searchTerm ? 'auto' : 'rtl'}
+                        style={{
+                          width: '100%', padding: '10px 42px 10px 16px',
+                          background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)',
+                          borderRadius: '12px', color: 'var(--text)', fontSize: '0.85rem', outline: 'none'
+                        }}
+                      />
+                    </div>
 
-                  {['orders', 'renewals', 'subscriptions', 'gmail_accounts', 'users'].includes(activeTab) && (
-                    <select
-                      value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value)}
-                      style={{
-                        padding: '12px 16px',
-                        background: 'var(--background-alt)', border: '1px solid var(--border)',
-                        borderRadius: '12px', color: 'var(--text)', fontSize: '0.85rem',
-                        outline: 'none', minWidth: '150px', cursor: 'pointer'
-                      }}
-                    >
-                      <option value="all">جميع الحالات</option>
-                      {activeTab === 'orders' ? (
-                        <>
-                          <option value="pending">قيد المراجعة</option>
-                          <option value="processing">جاري التفعيل</option>
-                          <option value="awaiting_payment">بانتظار الدفع</option>
-                          <option value="paid">تم الدفع ونشط</option>
-                          <option value="rejected">مرفوض</option>
-                          <option value="cancelled">ملغي</option>
-                          <option value="expired">منتهي الصلاحية</option>
-                        </>
-                      ) : activeTab === 'renewals' ? (
-                        <>
-                          <option value="pending">معلق</option>
-                          <option value="approved">تم التجديد</option>
-                          <option value="rejected">مرفوض</option>
-                        </>
-                      ) : activeTab === 'gmail_accounts' ? (
-                        <>
-                          <option value="Available">متاح</option>
-                          <option value="Full">ممتلئ</option>
-                          <option value="Expired">منتهي</option>
-                          <option value="Disabled">ملغي</option>
-                        </>
-                      ) : activeTab === 'users' ? (
-                        <>
-                          <option value="admin">المشرفين (Admins)</option>
-                          <option value="customer">العملاء (Customers)</option>
-                        </>
-                      ) : (
-                        <>
-                          <option value="active">نشط</option>
-                          <option value="expired">منتهي الصلاحية</option>
-                        </>
-                      )}
-                    </select>
-                  )}
-                </div>
+                    {activeTab === 'products' && (
+                      <button
+                        onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ name: '', slug: '', description: '', is_active: true }); }}
+                        style={{
+                          padding: '10px 18px', fontWeight: 800, borderRadius: '12px', fontSize: '0.8rem', cursor: 'pointer',
+                          border: 'none', background: '#4f46e5', color: 'white',
+                          display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0
+                        }}
+                      >
+                        <PlusCircle size={16} />
+                        <span>إضافة منتج</span>
+                      </button>
+                    )}
+                    {activeTab === 'plans' && (
+                      <button
+                        onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ name: '', product_id: productsList[0]?.id || '', duration_months: 1, price_iqd: 15000, official_price_iqd: null, badge: '', is_featured: false, display_order: 0, is_active: true }); }}
+                        style={{
+                          padding: '10px 18px', fontWeight: 800, borderRadius: '12px', fontSize: '0.8rem', cursor: 'pointer',
+                          border: 'none', background: '#4f46e5', color: 'white',
+                          display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0
+                        }}
+                      >
+                        <PlusCircle size={16} />
+                        <span>إضافة باقة جديدة</span>
+                      </button>
+                    )}
+                    {activeTab === 'faqs' && (
+                      <button
+                        onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ question: '', answer: '', display_order: 0, is_active: true }); }}
+                        style={{
+                          padding: '10px 18px', fontWeight: 800, borderRadius: '12px', fontSize: '0.8rem', cursor: 'pointer',
+                          border: 'none', background: '#4f46e5', color: 'white',
+                          display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0
+                        }}
+                      >
+                        <PlusCircle size={16} />
+                        <span>إضافة سؤال</span>
+                      </button>
+                    )}
+                    {activeTab === 'testimonials' && (
+                      <button
+                        onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ name: '', rating: 5, comment: '', display_order: 0, is_active: true }); }}
+                        style={{
+                          padding: '10px 18px', fontWeight: 800, borderRadius: '12px', fontSize: '0.8rem', cursor: 'pointer',
+                          border: 'none', background: '#4f46e5', color: 'white',
+                          display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0
+                        }}
+                      >
+                        <PlusCircle size={16} />
+                        <span>إضافة رأي عميل</span>
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', gap: '12px', width: '100%', flexWrap: 'wrap', marginBottom: '16px' }}>
+                    <div style={{ position: 'relative', flex: '1', minWidth: '240px' }}>
+                      <Search size={16} style={{ position: 'absolute', top: '50%', right: '14px', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                      <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="ابحث بالـ Gmail، الاسم، أو رقم الهاتف..."
+                        dir={searchTerm ? 'auto' : 'rtl'}
+                        style={{
+                          width: '100%', padding: '12px 42px 12px 16px',
+                          background: 'var(--background-alt)', border: '1px solid var(--border)',
+                          borderRadius: '12px', color: 'var(--text)', fontSize: '0.85rem'
+                        }}
+                      />
+                    </div>
+
+                    {['orders', 'renewals', 'subscriptions', 'gmail_accounts', 'users'].includes(activeTab) && (
+                      <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        style={{
+                          padding: '12px 16px',
+                          background: 'var(--background-alt)', border: '1px solid var(--border)',
+                          borderRadius: '12px', color: 'var(--text)', fontSize: '0.85rem',
+                          outline: 'none', minWidth: '150px', cursor: 'pointer'
+                        }}
+                      >
+                        <option value="all">جميع الحالات</option>
+                        {activeTab === 'orders' ? (
+                          <>
+                            <option value="pending">قيد المراجعة</option>
+                            <option value="processing">جاري التفعيل</option>
+                            <option value="awaiting_payment">بانتظار الدفع</option>
+                            <option value="paid">تم الدفع ونشط</option>
+                            <option value="rejected">مرفوض</option>
+                            <option value="cancelled">ملغي</option>
+                            <option value="expired">منتهي الصلاحية</option>
+                          </>
+                        ) : activeTab === 'renewals' ? (
+                          <>
+                            <option value="pending">معلق</option>
+                            <option value="approved">تم التجديد</option>
+                            <option value="rejected">مرفوض</option>
+                          </>
+                        ) : activeTab === 'gmail_accounts' ? (
+                          <>
+                            <option value="Available">متاح</option>
+                            <option value="Full">ممتلئ</option>
+                            <option value="Expired">منتهي</option>
+                            <option value="Disabled">ملغي</option>
+                          </>
+                        ) : activeTab === 'users' ? (
+                          <>
+                            <option value="admin">المشرفين (Admins)</option>
+                            <option value="customer">العملاء (Customers)</option>
+                          </>
+                        ) : (
+                          <>
+                            <option value="active">نشط</option>
+                            <option value="expired">منتهي الصلاحية</option>
+                          </>
+                        )}
+                      </select>
+                    )}
+                  </div>
+                )}
 
                 {/* DYNAMIC DATA TABLE PANEL */}
                 <div className="admin-table-container">
@@ -2941,58 +2968,154 @@ export const Admin: React.FC = () => {
 
                     {/* TAB 5: PRODUCTS */}
                     {activeTab === 'products' && (
-                      <div>
-                        <table className="admin-table">
-                          <thead>
-                            <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
-                              <th style={{ padding: '16px', color: 'var(--text)' }}>الاسم</th>
-                              <th style={{ padding: '16px', color: 'var(--text)' }}>المعرف (Slug)</th>
-                              <th style={{ padding: '16px', color: 'var(--text)' }}>الوصف</th>
-                              <th style={{ padding: '16px', color: 'var(--text)' }}>الحالة</th>
-                              <th style={{ padding: '16px', color: 'var(--text)', textAlign: 'center' }}>العمليات</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {productsList.length > 0 ? (
-                              productsList.map((p) => (
-                                <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                                  <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{p.name}</td>
-                                  <td style={{ padding: '16px' }} className="number-latin">{p.slug}</td>
-                                  <td style={{ padding: '16px', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.description}</td>
-                                  <td style={{ padding: '16px' }}>
-                                    <span className={`status-pill ${p.is_active ? 'paid' : 'rejected'}`}>
-                                      {p.is_active ? <Check size={12} /> : <X size={12} />}
-                                      <span>{p.is_active ? 'نشط' : 'معطل'}</span>
-                                    </span>
-                                  </td>
-                                  <td style={{ padding: '16px' }}>
-                                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                      <button
-                                        onClick={() => { setEditingItem(p); setIsAdding(false); setFormFields(p); }}
-                                        className="admin-table-action-btn"
-                                      >
-                                        <Edit2 size={12} />
-                                        <span>تعديل</span>
-                                      </button>
-                                      <button
-                                        onClick={() => handleDeleteProduct(p.id)}
-                                        className="admin-table-action-btn delete"
-                                      >
-                                        <Trash2 size={12} />
-                                        <span>حذف</span>
-                                      </button>
-                                    </div>
+                      <table className="admin-table">
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.12)', background: 'rgba(30, 41, 59, 0.45)' }}>
+                            <th style={{ padding: '14px 16px', fontSize: '0.8rem', fontWeight: 800, color: '#94a3b8', textAlign: 'right' }}>المنتج</th>
+                            <th style={{ padding: '14px 16px', fontSize: '0.8rem', fontWeight: 800, color: '#94a3b8', textAlign: 'right' }}>المعرّف (Slug)</th>
+                            <th style={{ padding: '14px 16px', fontSize: '0.8rem', fontWeight: 800, color: '#94a3b8', textAlign: 'right' }}>الوصف</th>
+                            <th style={{ padding: '14px 16px', fontSize: '0.8rem', fontWeight: 800, color: '#94a3b8', textAlign: 'right' }}>الحالة</th>
+                            <th style={{ padding: '14px 16px', fontSize: '0.8rem', fontWeight: 800, color: '#94a3b8', textAlign: 'center' }}>العمليات</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(() => {
+                            const filtered = productsList.filter(p => {
+                              const q = searchTerm.trim().toLowerCase();
+                              return !q || p.name.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q);
+                            });
+                            if (filtered.length === 0) {
+                              return (
+                                <tr>
+                                  <td colSpan={5} style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>
+                                    <ShoppingBag size={32} style={{ color: '#475569', marginBottom: '12px' }} />
+                                    <div style={{ fontSize: '0.9rem', fontWeight: 800 }}>لا توجد منتجات مطابقة للبحث.</div>
                                   </td>
                                 </tr>
-                              ))
-                            ) : (
-                              <tr>
-                                <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد منتجات مسجلة.</td>
+                              );
+                            }
+                            return filtered.map((p) => (
+                              <tr key={p.id} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.08)' }} className="transition-colors hover:bg-slate-800/20">
+                                <td style={{ padding: '14px 16px' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <span style={{
+                                      width: '36px',
+                                      height: '36px',
+                                      borderRadius: '10px',
+                                      background: 'rgba(99, 102, 241, 0.15)',
+                                      color: '#818cf8',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      flexShrink: 0
+                                    }}>
+                                      <ShoppingBag size={17} />
+                                    </span>
+                                    <span style={{ fontWeight: 800, color: '#f8fafc' }}>{p.name}</span>
+                                  </div>
+                                </td>
+                                <td style={{ padding: '14px 16px' }}>
+                                  <code style={{
+                                    background: 'rgba(30, 41, 59, 0.6)',
+                                    border: '1px solid rgba(148, 163, 184, 0.15)',
+                                    borderRadius: '6px',
+                                    padding: '4px 8px',
+                                    fontSize: '0.75rem',
+                                    color: '#a78bfa',
+                                    fontFamily: 'monospace'
+                                  }}>
+                                    {p.slug}
+                                  </code>
+                                </td>
+                                <td style={{ padding: '14px 16px', maxWidth: '280px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#94a3b8', fontSize: '0.82rem' }}>
+                                  {p.description}
+                                </td>
+                                <td style={{ padding: '14px 16px' }}>
+                                  <span
+                                    className="status-pill"
+                                    style={{
+                                      background: p.is_active ? 'rgba(16, 185, 129, 0.15)' : 'rgba(148, 163, 184, 0.15)',
+                                      color: p.is_active ? '#34d399' : '#cbd5e1',
+                                      border: p.is_active ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid rgba(148, 163, 184, 0.2)',
+                                      padding: '4px 10px',
+                                      borderRadius: '20px',
+                                      fontSize: '0.72rem',
+                                      fontWeight: 800,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '4px',
+                                      width: 'fit-content'
+                                    }}
+                                  >
+                                    <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: p.is_active ? '#10b981' : '#94a3b8' }}></span>
+                                    {p.is_active ? 'نشط' : 'معطّل'}
+                                  </span>
+                                </td>
+                                <td style={{ padding: '14px 16px' }}>
+                                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                    <button
+                                      onClick={() => { setEditingItem(p); setIsAdding(false); setFormFields(p); }}
+                                      style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        padding: '6px 12px',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 800,
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        border: '1px solid rgba(148, 163, 184, 0.15)',
+                                        background: 'rgba(255, 255, 255, 0.03)',
+                                        color: '#cbd5e1',
+                                        transition: 'all 0.2s'
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                                        e.currentTarget.style.color = '#f8fafc';
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+                                        e.currentTarget.style.color = '#cbd5e1';
+                                      }}
+                                    >
+                                      <Edit2 size={12} />
+                                      <span>تعديل</span>
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteProduct(p.id)}
+                                      style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        padding: '6px 12px',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 800,
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        border: '1px solid rgba(239, 68, 68, 0.15)',
+                                        background: 'rgba(239, 68, 68, 0.05)',
+                                        color: '#f87171',
+                                        transition: 'all 0.2s'
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                                        e.currentTarget.style.color = '#fca5a5';
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.05)';
+                                        e.currentTarget.style.color = '#f87171';
+                                      }}
+                                    >
+                                      <Trash2 size={12} />
+                                      <span>حذف</span>
+                                    </button>
+                                  </div>
+                                </td>
                               </tr>
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
+                            ));
+                          })()}
+                        </tbody>
+                      </table>
                     )}
 
                     {/* TAB 6: PLANS */}
