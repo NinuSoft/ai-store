@@ -251,8 +251,10 @@ export const OrderModal: React.FC<OrderModalProps> = ({ plan, whatsappNum: _what
           overflowY: 'auto',
           maxHeight: '90vh',
           animation: 'fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-          border: '1px solid var(--border)',
-          background: 'var(--surface-glass)'
+          border: '1px solid rgba(148, 163, 184, 0.18)',
+          background: 'rgba(15, 23, 42, 0.75)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)'
         }}
       >
         {/* Close Button */}

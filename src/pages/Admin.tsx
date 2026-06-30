@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useId } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  ShieldCheck, ArrowLeft, Users, ShoppingBag,
+  ShieldCheck, ArrowRight, Users, ShoppingBag,
   DollarSign, Activity, Check, X, Search, PlusCircle,
   RotateCw, MessageSquare, Settings, Sparkles, Clock, User, Shield,
   Edit2, Trash2, Star, Ban, Play, AlertTriangle, Mail, Copy, Save,
@@ -1510,15 +1510,17 @@ export const Admin: React.FC = () => {
         }
         .admin-modal-card {
           position: relative;
-          background: var(--surface-raised);
-          border: 1px solid var(--border);
+          background: rgba(15, 23, 42, 0.75) !important;
+          border: 1px solid rgba(148, 163, 184, 0.18) !important;
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
           border-radius: 24px;
           padding: 32px;
           width: 100%;
           max-width: 600px;
           max-height: 90vh;
           overflow-y: auto;
-          box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3), 0 0 0 1px var(--border);
+          box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(148, 163, 184, 0.18) !important;
           color: var(--text);
           animation: modal-scale-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
@@ -1617,7 +1619,7 @@ export const Admin: React.FC = () => {
           <div className="flex items-center gap-4">
             <ThemeToggle />
             <Link to="/" className="btn btn-outline" style={{ padding: '6px 16px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <ArrowLeft size={14} /> الصفحة الرئيسية
+              <ArrowRight size={14} /> الصفحة الرئيسية
             </Link>
             <button
               onClick={handleSignOut}
@@ -4177,21 +4179,27 @@ export const Admin: React.FC = () => {
             {activeTab === 'gmail_accounts' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div>
-                  <label className="admin-form-label">البريد الإلكتروني للـ Gmail</label>
+                  <label className="redesign-label">
+                    <Mail size={14} style={{ color: '#818cf8' }} />
+                    <span>البريد الإلكتروني للـ Gmail</span>
+                  </label>
                   <input
                     type="email" value={formFields.email || ''}
                     onChange={e => setFormFields({ ...formFields, email: e.target.value })}
-                    className="admin-input-text"
+                    className="redesign-input"
                     dir="auto"
                     placeholder="example@gmail.com"
                   />
                 </div>
                 <div>
-                  <label className="admin-form-label">الباقة المرتبطة</label>
+                  <label className="redesign-label">
+                    <ShoppingBag size={14} style={{ color: '#818cf8' }} />
+                    <span>الباقة المرتبطة</span>
+                  </label>
                   <select
                     value={formFields.plan_id || ''}
                     onChange={e => setFormFields({ ...formFields, plan_id: e.target.value })}
-                    className="admin-input-text"
+                    className="redesign-input"
                   >
                     <option value="">اختر الباقة...</option>
                     {Object.values(plans).map((p: any) => (
@@ -4200,33 +4208,42 @@ export const Admin: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="admin-form-label">2FA Secret (مفتاح المصادقة الثنائية)</label>
+                  <label className="redesign-label">
+                    <Shield size={14} style={{ color: '#818cf8' }} />
+                    <span>2FA Secret (مفتاح المصادقة الثنائية)</span>
+                  </label>
                   <input
                     type="text" value={formFields.twofa_secret || ''}
                     onChange={e => {
                       const sanitized = e.target.value.replace(/\s/g, '').toUpperCase();
                       setFormFields({ ...formFields, twofa_secret: sanitized });
                     }}
-                    className="admin-input-text"
+                    className="redesign-input"
                     placeholder="Base32 Key"
                   />
                 </div>
                 <div>
-                  <label className="admin-form-label">صلاحية الاشتراك (اختياري)</label>
+                  <label className="redesign-label">
+                    <Clock size={14} style={{ color: '#818cf8' }} />
+                    <span>صلاحية الاشتراك (اختياري)</span>
+                  </label>
                   <input
                     type="date"
                     value={formFields.subscription_valid_until ? formFields.subscription_valid_until.substring(0, 10) : ''}
                     onChange={e => setFormFields({ ...formFields, subscription_valid_until: e.target.value })}
-                    className="admin-input-text"
+                    className="redesign-input"
                     style={{ colorScheme: 'dark' }}
                   />
                 </div>
                 <div>
-                  <label className="admin-form-label">حالة الحساب</label>
+                  <label className="redesign-label">
+                    <Activity size={14} style={{ color: '#818cf8' }} />
+                    <span>حالة الحساب</span>
+                  </label>
                   <select
                     value={formFields.status || 'Available'}
                     onChange={e => setFormFields({ ...formFields, status: e.target.value })}
-                    className="admin-input-text"
+                    className="redesign-input"
                   >
                     <option value="Available">متاح</option>
                     <option value="Full">ممتلئ</option>
@@ -4235,18 +4252,21 @@ export const Admin: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="admin-form-label">ملاحظات إضافية (اختياري)</label>
+                  <label className="redesign-label">
+                    <MessageSquare size={14} style={{ color: '#818cf8' }} />
+                    <span>ملاحظات إضافية (اختياري)</span>
+                  </label>
                   <textarea
                     value={formFields.notes || ''}
                     onChange={e => setFormFields({ ...formFields, notes: e.target.value })}
-                    className="admin-input-text"
+                    className="redesign-input"
                     dir="auto"
-                    style={{ minHeight: '60px' }}
+                    style={{ minHeight: '70px', resize: 'vertical' }}
                   />
                 </div>
-                <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
-                  <button onClick={handleSaveGmailAccount} className="btn btn-primary" style={{ padding: '8px 20px' }}>حفظ</button>
-                  <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="btn btn-outline" style={{ padding: '8px 20px' }}>إلغاء</button>
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px', borderTop: '1px solid rgba(148, 163, 184, 0.18)', paddingTop: '16px' }}>
+                  <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="redesign-btn-outline">إلغاء</button>
+                  <button onClick={handleSaveGmailAccount} className="redesign-btn-primary">حفظ</button>
                 </div>
               </div>
             )}
@@ -4465,10 +4485,13 @@ export const Admin: React.FC = () => {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
               <div>
-                <label className="admin-form-label">حساب Gmail للمشاركة</label>
+                <label className="redesign-label">
+                  <Mail size={14} style={{ color: '#818cf8' }} />
+                  <span>حساب Gmail للمشاركة</span>
+                </label>
                 <select
                   id="assign-gmail-select"
-                  className="admin-input-text"
+                  className="redesign-input"
                   defaultValue=""
                 >
                   <option value="">بدون تعيين حساب (تنشيط فقط)...</option>
@@ -4493,11 +4516,10 @@ export const Admin: React.FC = () => {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px', borderTop: '1px solid rgba(148, 163, 184, 0.18)', paddingTop: '16px' }}>
               <button
                 onClick={() => setAssigningOrder(null)}
-                className="btn btn-secondary"
-                style={{ padding: '8px 16px' }}
+                className="redesign-btn-outline"
               >
                 إلغاء
               </button>
@@ -4507,8 +4529,7 @@ export const Admin: React.FC = () => {
                   const val = selectEl?.value || null;
                   handleApproveOrderWithAccount(assigningOrder, val);
                 }}
-                className="btn btn-primary"
-                style={{ padding: '8px 16px' }}
+                className="redesign-btn-primary"
               >
                 تنشيط وتفعيل
               </button>
