@@ -3178,6 +3178,81 @@ export const Admin: React.FC = () => {
       {(isAdding || editingItem) && (
         <div className="admin-modal-overlay" onClick={() => { setIsAdding(false); setEditingItem(null); }}>
           <div className="admin-modal-card" onClick={e => e.stopPropagation()}>
+            <style>{`
+              .redesign-input {
+                width: 100% !important;
+                padding: 12px 16px !important;
+                background: rgba(30, 41, 59, 0.45) !important;
+                border: 1px solid rgba(148, 163, 184, 0.18) !important;
+                border-radius: 12px !important;
+                color: #f8fafc !important;
+                font-size: 0.85rem !important;
+                outline: none !important;
+                transition: all 0.2s !important;
+              }
+              .redesign-input:focus {
+                border-color: #818cf8 !important;
+                background: rgba(30, 41, 59, 0.6) !important;
+                box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2) !important;
+              }
+              /* Hide spinner arrows on number inputs */
+              .redesign-input::-webkit-outer-spin-button,
+              .redesign-input::-webkit-inner-spin-button {
+                -webkit-appearance: none !important;
+                margin: 0 !important;
+              }
+              .redesign-input[type=number] {
+                -moz-appearance: textfield !important;
+              }
+              .redesign-panel {
+                background: rgba(30, 41, 59, 0.4) !important;
+                border: 1px solid rgba(148, 163, 184, 0.18) !important;
+                border-radius: 12px !important;
+              }
+              .redesign-label {
+                display: flex !important;
+                align-items: center !important;
+                gap: 6px !important;
+                margin-bottom: 8px !important;
+                font-size: 0.82rem !important;
+                font-weight: 700 !important;
+                color: #cbd5e1 !important;
+              }
+              .redesign-btn-primary {
+                padding: 10px 24px !important;
+                border-radius: 12px !important;
+                font-size: 0.85rem !important;
+                font-weight: 800 !important;
+                cursor: pointer !important;
+                background: #4f46e5 !important;
+                border: 1px solid #4f46e5 !important;
+                color: #ffffff !important;
+                box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25) !important;
+                transition: all 0.2s !important;
+              }
+              .redesign-btn-primary:hover {
+                background: #4338ca !important;
+                border-color: #4338ca !important;
+                transform: translateY(-1px) !important;
+                box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35) !important;
+              }
+              .redesign-btn-outline {
+                padding: 10px 24px !important;
+                border-radius: 12px !important;
+                font-size: 0.85rem !important;
+                font-weight: 800 !important;
+                cursor: pointer !important;
+                background: transparent !important;
+                border: 1px solid rgba(148, 163, 184, 0.25) !important;
+                color: #cbd5e1 !important;
+                transition: all 0.2s !important;
+              }
+              .redesign-btn-outline:hover {
+                background: rgba(255, 255, 255, 0.05) !important;
+                color: #f8fafc !important;
+                border-color: rgba(148, 163, 184, 0.4) !important;
+              }
+            `}</style>
             <button
               onClick={() => { setIsAdding(false); setEditingItem(null); }}
               style={{
@@ -3214,6 +3289,8 @@ export const Admin: React.FC = () => {
                 ? (editingItem ? 'تعديل السؤال' : 'إضافة سؤال شائع')
                 : activeTab === 'products'
                 ? (editingItem ? 'تعديل المنتج' : 'إضافة منتج جديد')
+                : activeTab === 'plans'
+                ? (editingItem ? 'تعديل الباقة' : 'إضافة باقة جديدة')
                 : (editingItem ? 'تعديل البيانات' : 'إضافة سجل جديد')}
             </h3>
             {activeTab === 'products' && (
@@ -3221,75 +3298,15 @@ export const Admin: React.FC = () => {
                 المنتجات تضم الباقات المعروضة على الموقع
               </p>
             )}
+            {activeTab === 'plans' && (
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '-12px', marginBottom: '20px' }}>
+                حدّد المنتج، المدة، والأسعار
+              </p>
+            )}
 
             {activeTab === 'products' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <style>{`
-                  .redesign-input {
-                    width: 100% !important;
-                    padding: 12px 16px !important;
-                    background: rgba(30, 41, 59, 0.45) !important;
-                    border: 1px solid rgba(148, 163, 184, 0.18) !important;
-                    border-radius: 12px !important;
-                    color: #f8fafc !important;
-                    font-size: 0.85rem !important;
-                    outline: none !important;
-                    transition: all 0.2s !important;
-                  }
-                  .redesign-input:focus {
-                    border-color: #818cf8 !important;
-                    background: rgba(30, 41, 59, 0.6) !important;
-                    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2) !important;
-                  }
-                  .redesign-panel {
-                    background: rgba(30, 41, 59, 0.4) !important;
-                    border: 1px solid rgba(148, 163, 184, 0.18) !important;
-                    border-radius: 12px !important;
-                  }
-                  .redesign-label {
-                    display: flex !important;
-                    align-items: center !important;
-                    gap: 6px !important;
-                    margin-bottom: 8px !important;
-                    font-size: 0.82rem !important;
-                    font-weight: 700 !important;
-                    color: #cbd5e1 !important;
-                  }
-                  .redesign-btn-primary {
-                    padding: 10px 24px !important;
-                    border-radius: 12px !important;
-                    font-size: 0.85rem !important;
-                    font-weight: 800 !important;
-                    cursor: pointer !important;
-                    background: #4f46e5 !important;
-                    border: 1px solid #4f46e5 !important;
-                    color: #ffffff !important;
-                    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25) !important;
-                    transition: all 0.2s !important;
-                  }
-                  .redesign-btn-primary:hover {
-                    background: #4338ca !important;
-                    border-color: #4338ca !important;
-                    transform: translateY(-1px) !important;
-                    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35) !important;
-                  }
-                  .redesign-btn-outline {
-                    padding: 10px 24px !important;
-                    border-radius: 12px !important;
-                    font-size: 0.85rem !important;
-                    font-weight: 800 !important;
-                    cursor: pointer !important;
-                    background: transparent !important;
-                    border: 1px solid rgba(148, 163, 184, 0.25) !important;
-                    color: #cbd5e1 !important;
-                    transition: all 0.2s !important;
-                  }
-                  .redesign-btn-outline:hover {
-                    background: rgba(255, 255, 255, 0.05) !important;
-                    color: #f8fafc !important;
-                    border-color: rgba(148, 163, 184, 0.4) !important;
-                  }
-                `}</style>
+
 
                 <div>
                   <label className="redesign-label">
@@ -3384,185 +3401,190 @@ export const Admin: React.FC = () => {
 
             {activeTab === 'plans' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div>
-                  <label className="admin-form-label">المنتج التابع له</label>
-                  <select
-                    value={formFields.product_id || ''}
-                    onChange={e => setFormFields({ ...formFields, product_id: e.target.value })}
-                    className="admin-input-text"
-                  >
-                    <option value="">اختر المنتج...</option>
-                    {productsList.map(p => (
-                      <option key={p.id} value={p.id}>{p.name}</option>
-                    ))}
-                  </select>
+
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div>
+                    <label className="redesign-label">
+                      <ShoppingBag size={14} style={{ color: '#818cf8' }} />
+                      <span>المنتج التابع له</span>
+                    </label>
+                    <select
+                      value={formFields.product_id || ''}
+                      onChange={e => setFormFields({ ...formFields, product_id: e.target.value })}
+                      className="redesign-input"
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <option value="">اختر المنتج...</option>
+                      {productsList.map(p => (
+                        <option key={p.id} value={p.id}>{p.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="redesign-label">
+                      <Activity size={14} style={{ color: '#818cf8' }} />
+                      <span>الترتيب في العرض</span>
+                    </label>
+                    <input
+                      type="number" value={formFields.display_order ?? 0}
+                      onChange={e => setFormFields({ ...formFields, display_order: Number(e.target.value) })}
+                      className="redesign-input number-latin"
+                    />
+                  </div>
                 </div>
+
                 <div>
-                  <label className="admin-form-label">اسم الباقة (مثال: 12 شهراً)</label>
+                  <label className="redesign-label">
+                    <Sparkles size={14} style={{ color: '#818cf8' }} />
+                    <span>اسم الباقة</span>
+                  </label>
                   <input
                     type="text" value={formFields.name || ''}
                     onChange={e => setFormFields({ ...formFields, name: e.target.value })}
-                    className="admin-input-text"
+                    className="redesign-input"
+                    placeholder="مثال: باقة 12 شهراً"
                     dir="auto"
                   />
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <div>
-                    <label className="admin-form-label">المدة بالأشهر</label>
+                    <label className="redesign-label">
+                      <Clock size={14} style={{ color: '#818cf8' }} />
+                      <span>المدة بالأشهر</span>
+                    </label>
                     <input
                       type="number" value={formFields.duration_months || ''}
-                      onChange={e => setFormFields({ ...formFields, duration_months: e.target.value })}
-                      className="admin-input-text"
+                      onChange={e => setFormFields({ ...formFields, duration_months: Number(e.target.value) })}
+                      className="redesign-input number-latin"
                     />
                   </div>
                   <div>
-                    <label className="admin-form-label">الترتيب في العرض</label>
+                    <label className="redesign-label">
+                      <Sparkles size={14} style={{ color: '#818cf8' }} />
+                      <span>شارة العرض (اختياري)</span>
+                    </label>
                     <input
-                      type="number" value={formFields.display_order ?? 0}
-                      onChange={e => setFormFields({ ...formFields, display_order: e.target.value })}
-                      className="admin-input-text"
+                      type="text" value={formFields.badge || ''}
+                      onChange={e => setFormFields({ ...formFields, badge: e.target.value })}
+                      className="redesign-input"
+                      placeholder="أفضل قيمة"
+                      dir="auto"
                     />
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <div>
-                    <label className="admin-form-label">السعر المحلي (د.ع)</label>
+                    <label className="redesign-label">
+                      <Coins size={14} style={{ color: '#818cf8' }} />
+                      <span>السعر المحلي (د.ع)</span>
+                    </label>
                     <input
                       type="number" value={formFields.price_iqd || ''}
-                      onChange={e => setFormFields({ ...formFields, price_iqd: e.target.value })}
-                      className="admin-input-text"
+                      onChange={e => setFormFields({ ...formFields, price_iqd: Number(e.target.value) })}
+                      className="redesign-input number-latin"
                     />
                   </div>
                   <div>
-                    <label className="admin-form-label">السعر الرسمي (د.ع - اختياري)</label>
+                    <label className="redesign-label">
+                      <Coins size={14} style={{ color: '#818cf8' }} />
+                      <span>السعر الرسمي (د.ع)</span>
+                    </label>
                     <input
-                      type="number" value={formFields.official_price_iqd || ''}
+                      type="text" value={formFields.official_price_iqd || ''}
                       onChange={e => setFormFields({ ...formFields, official_price_iqd: e.target.value })}
-                      className="admin-input-text"
+                      className="redesign-input number-latin"
+                      placeholder="اختياري — يُعرض مشطوباً"
+                      dir="ltr"
                     />
                   </div>
                 </div>
-                <div>
-                  <label className="admin-form-label">شارة العرض (مثل: العرض الأفضل - اختياري)</label>
-                  <input
-                    type="text" value={formFields.badge || ''}
-                    onChange={e => setFormFields({ ...formFields, badge: e.target.value })}
-                    className="admin-input-text"
-                    dir="auto"
-                  />
-                </div>
-                <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', margin: '4px 0' }}>
-                  <label className="flex items-center gap-3 cursor-pointer select-none">
-                    <div className="relative w-5 h-5 flex-shrink-0">
-                      <input
-                        type="checkbox"
-                        checked={formFields.is_featured ?? false}
-                        onChange={e => setFormFields({ ...formFields, is_featured: e.target.checked })}
-                        className="sr-only peer"
-                      />
-                      <div className="w-5 h-5 rounded-md border border-[var(--border)] bg-[var(--background-alt)] transition-all peer-checked:bg-[var(--primary)] peer-checked:border-[var(--primary)] peer-focus:ring-2 peer-focus:ring-[var(--primary)]/20"></div>
-                      <svg className="absolute inset-0 w-5 h-5 p-0.5 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                    <span className="text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text)] transition-colors">
-                      باقة مميزة وممتازة
-                    </span>
-                  </label>
 
-                  <label className="flex items-center gap-3 cursor-pointer select-none">
-                    <div className="relative w-5 h-5 flex-shrink-0">
-                      <input
-                        type="checkbox"
-                        checked={formFields.is_active ?? true}
-                        onChange={e => setFormFields({ ...formFields, is_active: e.target.checked })}
-                        className="sr-only peer"
-                      />
-                      <div className="w-5 h-5 rounded-md border border-[var(--border)] bg-[var(--background-alt)] transition-all peer-checked:bg-[var(--primary)] peer-checked:border-[var(--primary)] peer-focus:ring-2 peer-focus:ring-[var(--primary)]/20"></div>
-                      <svg className="absolute inset-0 w-5 h-5 p-0.5 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                    <span className="text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text)] transition-colors">
-                      نشطة ومتاحة
-                    </span>
-                  </label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div className="redesign-panel" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '10px 14px', height: '44px' }}>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#cbd5e1' }}>باقة مميزة</span>
+                    <button
+                      type="button"
+                      onClick={() => setFormFields({ ...formFields, is_featured: !(formFields.is_featured ?? false) })}
+                      style={{
+                        position: 'relative',
+                        width: '44px',
+                        height: '24px',
+                        borderRadius: '12px',
+                        background: (formFields.is_featured ?? false) ? '#4f46e5' : 'rgba(71, 85, 105, 0.6)',
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.2s',
+                        padding: 0
+                      }}
+                    >
+                      <div style={{
+                        position: 'absolute',
+                        top: '2px',
+                        right: (formFields.is_featured ?? false) ? '2px' : 'calc(100% - 22px)',
+                        width: '20px',
+                        height: '20px',
+                        borderRadius: '50%',
+                        background: '#ffffff',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                        transition: 'right 0.2s, left 0.2s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        {(formFields.is_featured ?? false) && <Check size={12} style={{ color: '#4f46e5' }} />}
+                      </div>
+                    </button>
+                  </div>
+                  <div className="redesign-panel" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '10px 14px', height: '44px' }}>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#cbd5e1' }}>نشطة ومتاحة</span>
+                    <button
+                      type="button"
+                      onClick={() => setFormFields({ ...formFields, is_active: !(formFields.is_active ?? true) })}
+                      style={{
+                        position: 'relative',
+                        width: '44px',
+                        height: '24px',
+                        borderRadius: '12px',
+                        background: (formFields.is_active ?? true) ? '#4f46e5' : 'rgba(71, 85, 105, 0.6)',
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.2s',
+                        padding: 0
+                      }}
+                    >
+                      <div style={{
+                        position: 'absolute',
+                        top: '2px',
+                        right: (formFields.is_active ?? true) ? '2px' : 'calc(100% - 22px)',
+                        width: '20px',
+                        height: '20px',
+                        borderRadius: '50%',
+                        background: '#ffffff',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                        transition: 'right 0.2s, left 0.2s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        {(formFields.is_active ?? true) && <Check size={12} style={{ color: '#4f46e5' }} />}
+                      </div>
+                    </button>
+                  </div>
                 </div>
-                <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
-                  <button onClick={handleSavePlan} className="btn btn-primary" style={{ padding: '8px 20px' }}>حفظ</button>
-                  <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="btn btn-outline" style={{ padding: '8px 20px' }}>إلغاء</button>
+
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px', borderTop: '1px solid rgba(148, 163, 184, 0.18)', paddingTop: '16px' }}>
+                  <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="redesign-btn-outline">إلغاء</button>
+                  <button onClick={handleSavePlan} className="redesign-btn-primary">{editingItem ? "حفظ التعديلات" : "إضافة الباقة"}</button>
                 </div>
               </div>
             )}
 
             {activeTab === 'faqs' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <style>{`
-                  .redesign-input {
-                    width: 100% !important;
-                    padding: 12px 16px !important;
-                    background: rgba(30, 41, 59, 0.45) !important;
-                    border: 1px solid rgba(148, 163, 184, 0.18) !important;
-                    border-radius: 12px !important;
-                    color: #f8fafc !important;
-                    font-size: 0.85rem !important;
-                    outline: none !important;
-                    transition: all 0.2s !important;
-                  }
-                  .redesign-input:focus {
-                    border-color: #818cf8 !important;
-                    background: rgba(30, 41, 59, 0.6) !important;
-                    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2) !important;
-                  }
-                  .redesign-panel {
-                    background: rgba(30, 41, 59, 0.4) !important;
-                    border: 1px solid rgba(148, 163, 184, 0.18) !important;
-                    border-radius: 12px !important;
-                  }
-                  .redesign-label {
-                    display: flex !important;
-                    align-items: center !important;
-                    gap: 6px !important;
-                    margin-bottom: 8px !important;
-                    font-size: 0.82rem !important;
-                    font-weight: 700 !important;
-                    color: #cbd5e1 !important;
-                  }
-                  .redesign-btn-primary {
-                    padding: 10px 24px !important;
-                    border-radius: 12px !important;
-                    font-size: 0.85rem !important;
-                    font-weight: 800 !important;
-                    cursor: pointer !important;
-                    background: #4f46e5 !important;
-                    border: 1px solid #4f46e5 !important;
-                    color: #ffffff !important;
-                    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25) !important;
-                    transition: all 0.2s !important;
-                  }
-                  .redesign-btn-primary:hover {
-                    background: #4338ca !important;
-                    border-color: #4338ca !important;
-                    transform: translateY(-1px) !important;
-                    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35) !important;
-                  }
-                  .redesign-btn-outline {
-                    padding: 10px 24px !important;
-                    border-radius: 12px !important;
-                    font-size: 0.85rem !important;
-                    font-weight: 800 !important;
-                    cursor: pointer !important;
-                    background: transparent !important;
-                    border: 1px solid rgba(148, 163, 184, 0.25) !important;
-                    color: #cbd5e1 !important;
-                    transition: all 0.2s !important;
-                  }
-                  .redesign-btn-outline:hover {
-                    background: rgba(255, 255, 255, 0.05) !important;
-                    color: #f8fafc !important;
-                    border-color: rgba(148, 163, 184, 0.4) !important;
-                  }
-                `}</style>
+
 
                 <div>
                   <label className="redesign-label">
@@ -3654,72 +3676,7 @@ export const Admin: React.FC = () => {
 
             {activeTab === 'testimonials' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <style>{`
-                  .redesign-input {
-                    width: 100% !important;
-                    padding: 12px 16px !important;
-                    background: rgba(30, 41, 59, 0.45) !important;
-                    border: 1px solid rgba(148, 163, 184, 0.18) !important;
-                    border-radius: 12px !important;
-                    color: #f8fafc !important;
-                    font-size: 0.85rem !important;
-                    outline: none !important;
-                    transition: all 0.2s !important;
-                  }
-                  .redesign-input:focus {
-                    border-color: #818cf8 !important;
-                    background: rgba(30, 41, 59, 0.6) !important;
-                    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2) !important;
-                  }
-                  .redesign-panel {
-                    background: rgba(30, 41, 59, 0.4) !important;
-                    border: 1px solid rgba(148, 163, 184, 0.18) !important;
-                    border-radius: 12px !important;
-                  }
-                  .redesign-label {
-                    display: flex !important;
-                    align-items: center !important;
-                    gap: 6px !important;
-                    margin-bottom: 8px !important;
-                    font-size: 0.82rem !important;
-                    font-weight: 700 !important;
-                    color: #cbd5e1 !important;
-                  }
-                  .redesign-btn-primary {
-                    padding: 10px 24px !important;
-                    border-radius: 12px !important;
-                    font-size: 0.85rem !important;
-                    font-weight: 800 !important;
-                    cursor: pointer !important;
-                    background: #4f46e5 !important;
-                    border: 1px solid #4f46e5 !important;
-                    color: #ffffff !important;
-                    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25) !important;
-                    transition: all 0.2s !important;
-                  }
-                  .redesign-btn-primary:hover {
-                    background: #4338ca !important;
-                    border-color: #4338ca !important;
-                    transform: translateY(-1px) !important;
-                    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35) !important;
-                  }
-                  .redesign-btn-outline {
-                    padding: 10px 24px !important;
-                    border-radius: 12px !important;
-                    font-size: 0.85rem !important;
-                    font-weight: 800 !important;
-                    cursor: pointer !important;
-                    background: transparent !important;
-                    border: 1px solid rgba(148, 163, 184, 0.25) !important;
-                    color: #cbd5e1 !important;
-                    transition: all 0.2s !important;
-                  }
-                  .redesign-btn-outline:hover {
-                    background: rgba(255, 255, 255, 0.05) !important;
-                    color: #f8fafc !important;
-                    border-color: rgba(148, 163, 184, 0.4) !important;
-                  }
-                `}</style>
+
 
                 <div>
                   <label className="redesign-label">
