@@ -2102,7 +2102,13 @@ export const Admin: React.FC = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                       {recentOrders.map((o) => {
                         const plan = plans[o.plan_id];
-                        const statusColor = o.status === 'paid' ? 'var(--success)' : o.status === 'pending' ? 'var(--warning)' : o.status === 'rejected' ? 'var(--danger)' : o.status === 'cancelled' ? 'var(--text-muted)' : 'var(--text-muted)';
+                        const statusDetails = getOrderStatusDetails(o.status);
+                        const statusColor = o.status === 'paid' ? 'var(--success)' 
+                                          : o.status === 'pending' ? 'var(--warning)' 
+                                          : o.status === 'processing' ? 'var(--primary)' 
+                                          : o.status === 'awaiting_payment' ? 'var(--warning)' 
+                                          : o.status === 'rejected' ? 'var(--danger)' 
+                                          : 'var(--text-muted)';
                         return (
                           <div key={o.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border)', borderRadius: '12px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -2118,7 +2124,7 @@ export const Admin: React.FC = () => {
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                               <span style={{ fontSize: '0.75rem', fontWeight: 800, color: statusColor }}>
-                                {o.status === 'paid' ? 'مكتمل' : o.status === 'pending' ? 'معلق' : o.status === 'rejected' ? 'مرفوض' : o.status === 'cancelled' ? 'ملغي' : o.status}
+                                {statusDetails.label}
                               </span>
                               {plan && (
                                <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text)' }}>
