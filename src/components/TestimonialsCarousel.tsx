@@ -254,7 +254,7 @@ export const TestimonialsCarousel: React.FC = () => {
                 </div>
                 
                 {/* Author details */}
-                <div style={{ borderTop: '1px solid var(--border)', paddingTop: '14px', marginTop: '12px' }}>
+                <div style={{ borderTop: '1px solid rgba(148, 163, 184, 0.12)', paddingTop: '14px', marginTop: '12px' }}>
                   <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text)', marginBottom: '3px' }}>
                     {t.name}
                   </h4>

@@ -1325,8 +1325,8 @@ export const Admin: React.FC = () => {
         .admin-table-container {
           border-radius: 20px;
           overflow: hidden;
-          border: 1px solid var(--border);
-          background: rgba(255, 255, 255, 0.005);
+          border: 1px solid rgba(148, 163, 184, 0.12) !important;
+          background: rgba(30, 41, 59, 0.25) !important;
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
           box-shadow: var(--shadow-sm);
@@ -1342,40 +1342,43 @@ export const Admin: React.FC = () => {
           font-size: 0.85rem;
           white-space: nowrap;
         }
+        .admin-table thead tr {
+          border-bottom: 1px solid rgba(148, 163, 184, 0.12) !important;
+          background: rgba(30, 41, 59, 0.45) !important;
+        }
         .admin-table th {
-          padding: 18px 16px;
-          font-weight: 800;
-          color: var(--text-secondary);
-          border-bottom: 2px solid var(--border);
-          background: rgba(255, 255, 255, 0.012);
-          font-size: 0.8rem;
+          padding: 14px 16px !important;
+          font-weight: 800 !important;
+          color: #94a3b8 !important;
+          border-bottom: none !important;
+          background: transparent !important;
+          font-size: 0.8rem !important;
           text-transform: uppercase;
           letter-spacing: 0.02em;
         }
+        .admin-table tbody tr {
+          border-bottom: 1px solid rgba(148, 163, 184, 0.08) !important;
+          transition: background-color 0.2s ease !important;
+        }
+        .admin-table tbody tr:nth-child(even) {
+          background: transparent !important;
+        }
+        .admin-table tbody tr:nth-child(odd) {
+          background: rgba(148, 163, 184, 0.03) !important;
+        }
+        .admin-table tbody tr:hover {
+          background: rgba(99, 102, 241, 0.08) !important;
+        }
         .admin-table td {
-          padding: 16px;
-          border-bottom: 1px solid var(--border);
-          color: var(--text);
-          transition: background 0.2s ease;
+          padding: 14px 16px !important;
+          border-bottom: none !important;
+          color: var(--text) !important;
           vertical-align: middle;
         }
-        .admin-table tbody tr:nth-child(even) td {
-          background: rgba(255, 255, 255, 0.005);
-        }
-        .admin-table tbody tr:nth-child(odd) td {
-          background: rgba(255, 255, 255, 0.015);
-        }
+        .admin-table tbody tr:nth-child(even) td,
+        .admin-table tbody tr:nth-child(odd) td,
         .admin-table tbody tr:hover td {
-          background: rgba(255, 255, 255, 0.035) !important;
-        }
-        html:not(.dark) .admin-table tbody tr:nth-child(even) td {
-          background: rgba(0, 0, 0, 0.005);
-        }
-        html:not(.dark) .admin-table tbody tr:nth-child(odd) td {
-          background: rgba(0, 0, 0, 0.018);
-        }
-        html:not(.dark) .admin-table tbody tr:hover td {
-          background: rgba(0, 0, 0, 0.04) !important;
+          background: transparent !important;
         }
         .admin-table tr:last-child td {
           border-bottom: none;
@@ -3468,7 +3471,7 @@ export const Admin: React.FC = () => {
                                     </div>
                                   </td>
                                   <td style={{ padding: '16px' }}>
-                                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '26px', height: '26px', borderRadius: '50%', background: 'var(--background-alt)', border: '1px solid var(--border)', fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 800 }} className="number-latin">
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '26px', height: '26px', borderRadius: '50%', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 800 }} className="number-latin">
                                       {t.display_order}
                                     </span>
                                   </td>
