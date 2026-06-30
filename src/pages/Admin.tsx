@@ -1216,6 +1216,15 @@ export const Admin: React.FC = () => {
             min-width: 0;
           }
         }
+        /* Hide spinner arrows on number inputs globally */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+          -webkit-appearance: none !important;
+          margin: 0 !important;
+        }
+        input[type=number] {
+          -moz-appearance: textfield !important;
+        }
         .admin-tab-item {
           display: flex;
           align-items: center;
@@ -1260,15 +1269,7 @@ export const Admin: React.FC = () => {
           background: rgba(30, 41, 59, 0.6) !important;
           box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2) !important;
         }
-        /* Hide spinner arrows on number inputs */
-        .redesign-input::-webkit-outer-spin-button,
-        .redesign-input::-webkit-inner-spin-button {
-          -webkit-appearance: none !important;
-          margin: 0 !important;
-        }
-        .redesign-input[type=number] {
-          -moz-appearance: textfield !important;
-        }
+
 
         .redesign-search-input {
           width: 100% !important;
@@ -1862,7 +1863,7 @@ export const Admin: React.FC = () => {
             </section>
 
             {/* Header for dynamic section */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap', background: 'var(--background-alt)', padding: '20px 24px', borderRadius: '16px', border: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap', background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', padding: '20px 24px', borderRadius: '16px', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
               <div>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text)' }}>
                   {activeTab === 'overview' ? 'لوحة التحكم والمؤشرات الرئيسية' :
@@ -2168,9 +2169,9 @@ export const Admin: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{ width: '100%', direction: 'rtl' }}>
                   
                   {/* Section 1: Support & Communication */}
-                  <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', border: '1px solid var(--border)' }}>
-                    <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <div style={{ background: 'var(--primary-light)', color: 'var(--primary)', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+                    <div style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.12)', paddingBottom: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ background: 'rgba(99, 102, 241, 0.15)', color: '#818cf8', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <MessageSquare size={18} />
                       </div>
                       <div>
@@ -2193,8 +2194,8 @@ export const Admin: React.FC = () => {
                             <div style={{
                               display: 'flex',
                               alignItems: 'center',
-                              background: 'var(--background-alt)',
-                              border: isDirty ? '1.5px solid var(--warning)' : '1px solid var(--border)',
+                              background: 'rgba(30, 41, 59, 0.45)',
+                              border: isDirty ? '1.5px solid var(--warning)' : '1px solid rgba(148, 163, 184, 0.18)',
                               borderRadius: '12px',
                               padding: '4px 12px',
                               transition: 'all 0.2s ease',
@@ -2251,16 +2252,19 @@ export const Admin: React.FC = () => {
                                     await handleSaveSetting(s.key, updatedVal);
                                   }}
                                   disabled={!isDirty}
-                                  className="admin-table-action-btn success"
+                                  className={`admin-table-action-btn ${isDirty ? 'success' : ''}`}
                                   style={{
                                     padding: '6px 12px',
                                     fontSize: '0.78rem',
                                     borderRadius: '8px',
-                                    opacity: isDirty ? 1 : 0.3,
+                                    opacity: isDirty ? 1 : 0.35,
                                     pointerEvents: isDirty ? 'auto' : 'none',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '4px'
+                                    gap: '4px',
+                                    background: isDirty ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255, 255, 255, 0.02)',
+                                    borderColor: isDirty ? 'rgba(34, 197, 94, 0.4)' : 'rgba(255, 255, 255, 0.08)',
+                                    color: isDirty ? '#4ade80' : 'var(--text-muted)'
                                   }}
                                 >
                                   <Save size={12} />
@@ -2276,9 +2280,9 @@ export const Admin: React.FC = () => {
                   </div>
 
                   {/* Section 2: Financial & Pricing */}
-                  <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', border: '1px solid var(--border)' }}>
-                    <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <div style={{ background: 'var(--success-light)', color: 'var(--success)', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+                    <div style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.12)', paddingBottom: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ background: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Coins size={18} />
                       </div>
                       <div>
@@ -2301,8 +2305,8 @@ export const Admin: React.FC = () => {
                             <div style={{
                               display: 'flex',
                               alignItems: 'center',
-                              background: 'var(--background-alt)',
-                              border: isDirty ? '1.5px solid var(--warning)' : '1px solid var(--border)',
+                              background: 'rgba(30, 41, 59, 0.45)',
+                              border: isDirty ? '1.5px solid var(--warning)' : '1px solid rgba(148, 163, 184, 0.18)',
                               borderRadius: '12px',
                               padding: '4px 12px',
                               transition: 'all 0.2s ease',
@@ -2363,16 +2367,19 @@ export const Admin: React.FC = () => {
                                     await handleSaveSetting(s.key, updatedVal);
                                   }}
                                   disabled={!isDirty}
-                                  className="admin-table-action-btn success"
+                                  className={`admin-table-action-btn ${isDirty ? 'success' : ''}`}
                                   style={{
                                     padding: '6px 12px',
                                     fontSize: '0.78rem',
                                     borderRadius: '8px',
-                                    opacity: isDirty ? 1 : 0.3,
+                                    opacity: isDirty ? 1 : 0.35,
                                     pointerEvents: isDirty ? 'auto' : 'none',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '4px'
+                                    gap: '4px',
+                                    background: isDirty ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255, 255, 255, 0.02)',
+                                    borderColor: isDirty ? 'rgba(34, 197, 94, 0.4)' : 'rgba(255, 255, 255, 0.08)',
+                                    color: isDirty ? '#4ade80' : 'var(--text-muted)'
                                   }}
                                 >
                                   <Save size={12} />
