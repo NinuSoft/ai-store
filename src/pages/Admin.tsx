@@ -1602,7 +1602,7 @@ export const Admin: React.FC = () => {
       `}</style>
 
       {/* HEADER */}
-      <header style={{ borderBottom: '1px solid var(--border)', background: 'var(--background-alt)', padding: '16px 0' }}>
+      <header style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.12)', background: 'rgba(30, 41, 59, 0.25)', padding: '16px 0', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
         <div className="container flex justify-between items-center">
           <div className="flex items-center gap-2">
             <ShieldCheck size={24} style={{ color: 'var(--secondary)' }} />
@@ -1636,8 +1636,8 @@ export const Admin: React.FC = () => {
 
 
             {/* NAVIGATION PANEL */}
-            <div className="glass-panel" style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <div style={{ padding: '0 8px 12px 8px', borderBottom: '1px solid var(--border)', marginBottom: '8px' }}>
+            <div className="glass-panel" style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '6px', background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+              <div style={{ padding: '0 8px 12px 8px', borderBottom: '1px solid rgba(148, 163, 184, 0.12)', marginBottom: '8px' }}>
                 <span style={{ fontSize: '0.78rem', fontWeight: 900, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>لوحات التحكم</span>
               </div>
 
@@ -1659,7 +1659,7 @@ export const Admin: React.FC = () => {
                   <ShoppingBag size={18} />
                   <span>الطلبات الواردة</span>
                 </div>
-                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{orders.length}</span>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', color: 'var(--text-secondary)', fontWeight: 800 }}>{orders.length}</span>
               </button>
 
               <button
@@ -1670,7 +1670,7 @@ export const Admin: React.FC = () => {
                   <RotateCw size={18} />
                   <span>طلبات التجديد</span>
                 </div>
-                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{renewals.length}</span>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', color: 'var(--text-secondary)', fontWeight: 800 }}>{renewals.length}</span>
               </button>
 
               <button
@@ -1681,7 +1681,7 @@ export const Admin: React.FC = () => {
                   <ShieldCheck size={18} />
                   <span>الاشتراكات</span>
                 </div>
-                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{subscriptions.length}</span>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', color: 'var(--text-secondary)', fontWeight: 800 }}>{subscriptions.length}</span>
               </button>
 
               <button
@@ -1692,7 +1692,7 @@ export const Admin: React.FC = () => {
                   <Users size={18} />
                   <span>المستخدمين</span>
                 </div>
-                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{users.length}</span>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', color: 'var(--text-secondary)', fontWeight: 800 }}>{users.length}</span>
               </button>
 
               <button
@@ -1703,7 +1703,7 @@ export const Admin: React.FC = () => {
                   <Mail size={18} />
                   <span>حسابات Gmail للمشاركة</span>
                 </div>
-                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{gmailAccountsList.length}</span>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', color: 'var(--text-secondary)', fontWeight: 800 }}>{gmailAccountsList.length}</span>
               </button>
 
               <button
@@ -1714,7 +1714,7 @@ export const Admin: React.FC = () => {
                   <DollarSign size={18} />
                   <span>المنتجات</span>
                 </div>
-                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{productsList.length}</span>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', color: 'var(--text-secondary)', fontWeight: 800 }}>{productsList.length}</span>
               </button>
 
               <button
@@ -1725,7 +1725,7 @@ export const Admin: React.FC = () => {
                   <PlusCircle size={18} />
                   <span>الباقات</span>
                 </div>
-                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{Object.keys(plans).length}</span>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', color: 'var(--text-secondary)', fontWeight: 800 }}>{Object.keys(plans).length}</span>
               </button>
 
               <button
@@ -1736,7 +1736,7 @@ export const Admin: React.FC = () => {
                   <MessageSquare size={18} />
                   <span>الأسئلة الشائعة</span>
                 </div>
-                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{faqsList.length}</span>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', color: 'var(--text-secondary)', fontWeight: 800 }}>{faqsList.length}</span>
               </button>
 
               <button
@@ -1747,7 +1747,7 @@ export const Admin: React.FC = () => {
                   <Sparkles size={18} />
                   <span>الآراء والتقييمات</span>
                 </div>
-                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{testimonialsList.length}</span>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', color: 'var(--text-secondary)', fontWeight: 800 }}>{testimonialsList.length}</span>
               </button>
 
               <button
