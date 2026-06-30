@@ -17,6 +17,7 @@ interface Plan {
   name: string;
   duration_months: number;
   price_iqd: number;
+  product_id: string;
 }
 
 interface Order {
@@ -3298,8 +3299,8 @@ export const Admin: React.FC = () => {
             <h3 style={{ marginBottom: '16px', color: 'var(--text)', fontWeight: 800 }}>
               تنشيط وتعيين حساب Gmail للطلب
             </h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '20px' }}>
-              اختر أحد الحسابات المتاحة للباقة <strong>{plans[assigningOrder.plan_id]?.name}</strong> لإضافة العميل إليها:
+             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '20px' }}>
+              اختر أحد الحسابات المتوافقة مع باقة <strong>{plans[assigningOrder.plan_id]?.name}</strong> (أو باقة أعلى لنفس المنتج) لإضافة العميل إليها:
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
@@ -3312,7 +3313,13 @@ export const Admin: React.FC = () => {
                 >
                   <option value="">بدون تعيين حساب (تنشيط فقط)...</option>
                   {gmailAccountsList
-                    .filter(g => g.plan_id === assigningOrder.plan_id)
+                    .filter(g => {
+                      const accountPlan = plans[g.plan_id];
+                      const orderPlan = plans[assigningOrder.plan_id];
+                      return accountPlan && orderPlan && 
+                             accountPlan.product_id === orderPlan.product_id && 
+                             accountPlan.duration_months >= orderPlan.duration_months;
+                    })
                     .map(g => {
                       const currentCount = subscriptions.filter(s => s.gmail_account_id === g.id && s.status === 'active').length;
                       const slotsLeft = g.max_members - currentCount;
@@ -3371,7 +3378,13 @@ export const Admin: React.FC = () => {
                 >
                   <option value="">إزالة تعيين الحساب...</option>
                   {gmailAccountsList
-                    .filter(g => g.plan_id === assigningSub.plan_id)
+                    .filter(g => {
+                      const accountPlan = plans[g.plan_id];
+                      const subPlan = plans[assigningSub.plan_id];
+                      return accountPlan && subPlan && 
+                             accountPlan.product_id === subPlan.product_id && 
+                             accountPlan.duration_months >= subPlan.duration_months;
+                    })
                     .map(g => {
                       const currentCount = subscriptions.filter(s => s.gmail_account_id === g.id && s.status === 'active').length;
                       const slotsLeft = g.max_members - currentCount;
