@@ -1884,6 +1884,140 @@ export const Admin: React.FC = () => {
 
                 </div>
 
+                {/* Seat Stats Grid/Panel */}
+                {(() => {
+                  // Calculate overall seat stats
+                  let totalCapacity = 0;
+                  let occupiedSeats = 0;
+
+                  gmailAccountsList.forEach((g: any) => {
+                    if (g.status !== 'Disabled') {
+                      totalCapacity += g.max_members;
+                    }
+                  });
+
+                  subscriptions.forEach((s: any) => {
+                    if (s.status === 'active' && s.gmail_account_id) {
+                      const acc = gmailAccountsList.find(g => g.id === s.gmail_account_id);
+                      if (acc && acc.status !== 'Disabled') {
+                        occupiedSeats += 1;
+                      }
+                    }
+                  });
+
+                  const freeSeats = Math.max(0, totalCapacity - occupiedSeats);
+                  const occupancyRate = totalCapacity > 0 ? Math.round((occupiedSeats / totalCapacity) * 100) : 0;
+
+                  // Calculate per product seat stats
+                  const productSeatStatsMap: Record<string, { productName: string; totalCapacity: number; occupiedSeats: number }> = {};
+                  
+                  // Initialize products
+                  productsList.forEach((p: any) => {
+                    productSeatStatsMap[p.id] = {
+                      productName: p.name,
+                      totalCapacity: 0,
+                      occupiedSeats: 0
+                    };
+                  });
+
+                  // Sum capacities
+                  gmailAccountsList.forEach((g: any) => {
+                    if (g.status !== 'Disabled') {
+                      const plan = plans[g.plan_id];
+                      if (plan && productSeatStatsMap[plan.product_id]) {
+                        productSeatStatsMap[plan.product_id].totalCapacity += g.max_members;
+                      }
+                    }
+                  });
+
+                  // Sum occupied
+                  subscriptions.forEach((s: any) => {
+                    if (s.status === 'active' && s.gmail_account_id) {
+                      const acc = gmailAccountsList.find(g => g.id === s.gmail_account_id);
+                      if (acc && acc.status !== 'Disabled') {
+                        const plan = plans[acc.plan_id];
+                        if (plan && productSeatStatsMap[plan.product_id]) {
+                          productSeatStatsMap[plan.product_id].occupiedSeats += 1;
+                        }
+                      }
+                    }
+                  });
+
+                  const productStatsList = Object.values(productSeatStatsMap).filter(p => p.totalCapacity > 0);
+
+                  return (
+                    <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
+                        <div>
+                          <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text)' }}>مؤشرات توزيع واستهلاك مقاعد الحسابات</h4>
+                          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>متابعة تفصيلية للقدرة الاستيعابية وسعة المقاعد الشاغرة لحسابات الـ Gmail للمشاركة</p>
+                        </div>
+                        <span className="status-pill paid" style={{ fontSize: '0.75rem', fontWeight: 800, padding: '4px 12px' }}>
+                          نسبة الإشغال الإجمالية: {occupancyRate}%
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Overall stats */}
+                        <div className="lg:col-span-1" style={{ display: 'flex', flexDirection: 'column', gap: '16px', background: 'rgba(255,255,255,0.01)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                          <h5 style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-secondary)' }}>نظرة إجمالية على المقاعد</h5>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', textAlign: 'center' }}>
+                            <div className="glass-panel" style={{ padding: '10px 4px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border)' }}>
+                              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>السعة الإجمالية</span>
+                              <strong style={{ display: 'block', fontSize: '1.2rem', color: 'var(--text)', marginTop: '2px' }} className="number-latin">{totalCapacity}</strong>
+                            </div>
+                            <div className="glass-panel" style={{ padding: '10px 4px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border)' }}>
+                              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>المقاعد المشغولة</span>
+                              <strong style={{ display: 'block', fontSize: '1.2rem', color: 'var(--primary)', marginTop: '2px' }} className="number-latin">{occupiedSeats}</strong>
+                            </div>
+                            <div className="glass-panel" style={{ padding: '10px 4px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border)' }}>
+                              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>المقاعد الشاغرة</span>
+                              <strong style={{ display: 'block', fontSize: '1.2rem', color: 'var(--success)', marginTop: '2px' }} className="number-latin">{freeSeats}</strong>
+                            </div>
+                          </div>
+                          
+                          {/* Progress bar */}
+                          <div style={{ marginTop: '8px' }}>
+                            <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                              <div style={{ width: `${occupancyRate}%`, height: '100%', background: 'linear-gradient(90deg, var(--primary), var(--secondary))', borderRadius: '999px' }} />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Breakdown per product */}
+                        <div className="lg:col-span-2" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                          <h5 style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-secondary)' }}>توزيع المقاعد لكل منتج</h5>
+                          
+                          {productStatsList.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {productStatsList.map((pStat, index) => {
+                                const rate = pStat.totalCapacity > 0 ? Math.round((pStat.occupiedSeats / pStat.totalCapacity) * 100) : 0;
+                                return (
+                                  <div key={index} className="glass-panel" style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '8px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border)' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                      <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text)' }}>{pStat.productName}</span>
+                                      <span className="number-latin" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>
+                                        {pStat.occupiedSeats} / {pStat.totalCapacity} مقعد
+                                      </span>
+                                    </div>
+                                    <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.04)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                                      <div style={{ width: `${rate}%`, height: '100%', background: 'var(--primary)', borderRadius: '999px' }} />
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                              لا توجد حسابات نشطة أو مقاعد مدخلة حالياً لحساب توزيعها.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 {/* Recent Orders + Top Plans Row */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
