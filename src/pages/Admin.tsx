@@ -1064,7 +1064,7 @@ export const Admin: React.FC = () => {
         if (p) m.set(p.name, (m.get(p.name) || 0) + p.price_iqd);
       }
     });
-    return [...m.entries()]
+    return Array.from(m.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 4)
       .map(([label, value]) => ({ label, value }));
