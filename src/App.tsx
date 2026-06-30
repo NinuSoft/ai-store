@@ -2,8 +2,8 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Home from './pages/Home';
-import Dashboard from './pages/Dashboard';
-import Admin from './pages/Admin';
+import UserDashboard from './pages/UserDashboard';
+import AdminDashboard from './pages/AdminDashboard';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import { RotateCw } from 'lucide-react';
@@ -79,7 +79,7 @@ export const App: React.FC = () => {
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <UserDashboard />
               </ProtectedRoute>
             }
           />
@@ -88,7 +88,7 @@ export const App: React.FC = () => {
             path="/admin"
             element={
               <AdminRoute>
-                <Admin />
+                <AdminDashboard />
               </AdminRoute>
             }
           />

@@ -63,7 +63,7 @@ interface Renewal {
   created_at: string;
 }
 
-export const Dashboard: React.FC = () => {
+export const UserDashboard: React.FC = () => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -1048,4 +1048,4 @@ export const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard;
+export default UserDashboard;
