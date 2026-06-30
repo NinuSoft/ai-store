@@ -1089,8 +1089,16 @@ export const Admin: React.FC = () => {
   });
 
   const filteredUsers = users.filter(u => {
-    return u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (u.phone && u.phone.includes(searchTerm));
+    const nameMatch = u.full_name?.toLowerCase().includes(searchTerm.toLowerCase());
+    const emailMatch = u.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const phoneMatch = u.phone && u.phone.includes(searchTerm);
+    let roleMatch = true;
+    if (statusFilter === 'admin') {
+      roleMatch = u.is_admin;
+    } else if (statusFilter === 'customer') {
+      roleMatch = !u.is_admin;
+    }
+    return (nameMatch || emailMatch || phoneMatch) && roleMatch;
   });
 
   const filteredRenewals = renewals.filter(r => {
@@ -1135,6 +1143,15 @@ export const Admin: React.FC = () => {
         select option {
           background-color: #1e293b;
           color: #f8fafc;
+        }
+        .clickable-email {
+          color: var(--text) !important;
+          text-decoration: none;
+          transition: color 0.2s ease, text-decoration 0.2s ease;
+        }
+        .clickable-email:hover {
+          color: var(--primary) !important;
+          text-decoration: underline;
         }
         @keyframes slide-in {
           from {
@@ -1276,6 +1293,15 @@ export const Admin: React.FC = () => {
         }
         .admin-table tbody tr:hover td {
           background: rgba(255, 255, 255, 0.035) !important;
+        }
+        html:not(.dark) .admin-table tbody tr:nth-child(even) td {
+          background: rgba(0, 0, 0, 0.005);
+        }
+        html:not(.dark) .admin-table tbody tr:nth-child(odd) td {
+          background: rgba(0, 0, 0, 0.018);
+        }
+        html:not(.dark) .admin-table tbody tr:hover td {
+          background: rgba(0, 0, 0, 0.04) !important;
         }
         .admin-table tr:last-child td {
           border-bottom: none;
@@ -1835,6 +1861,19 @@ export const Admin: React.FC = () => {
                   <span>إضافة رأي عميل</span>
                 </button>
               )}
+              {activeTab === 'gmail_accounts' && (
+                <button
+                  onClick={() => { setIsAdding(true); setEditingItem(null); setFormFields({ max_members: 5, status: 'Available' }); }}
+                  style={{
+                    padding: '10px 18px', fontWeight: 800, borderRadius: '12px', fontSize: '0.8rem', cursor: 'pointer',
+                    transition: 'all 0.3s ease', border: 'none', background: 'var(--primary)', color: 'white',
+                    display: 'flex', alignItems: 'center', gap: '8px'
+                  }}
+                >
+                  <PlusCircle size={16} />
+                  <span>إضافة حساب Gmail جديد</span>
+                </button>
+              )}
             </div>
 
             {activeTab === 'overview' ? (
@@ -2069,8 +2108,8 @@ export const Admin: React.FC = () => {
                                 {o.status === 'paid' ? 'مكتمل' : o.status === 'pending' ? 'معلق' : o.status === 'rejected' ? 'مرفوض' : o.status === 'cancelled' ? 'ملغي' : o.status}
                               </span>
                               {plan && (
-                                <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text)' }} className="number-latin">
-                                  {plan.price_iqd.toLocaleString('en-US')} د.ع
+                               <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text)' }}>
+                                  <span className="number-latin">{plan.price_iqd.toLocaleString('en-US')}</span> د.ع
                                 </span>
                               )}
                             </div>
@@ -2118,7 +2157,7 @@ export const Admin: React.FC = () => {
                     />
                   </div>
 
-                  {['orders', 'renewals', 'subscriptions', 'gmail_accounts'].includes(activeTab) && (
+                  {['orders', 'renewals', 'subscriptions', 'gmail_accounts', 'users'].includes(activeTab) && (
                     <select
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value)}
@@ -2152,6 +2191,11 @@ export const Admin: React.FC = () => {
                           <option value="Full">ممتلئ</option>
                           <option value="Expired">منتهي</option>
                           <option value="Disabled">ملغي</option>
+                        </>
+                      ) : activeTab === 'users' ? (
+                        <>
+                          <option value="admin">المشرفين (Admins)</option>
+                          <option value="customer">العملاء (Customers)</option>
                         </>
                       ) : (
                         <>
@@ -2442,21 +2486,6 @@ export const Admin: React.FC = () => {
 
                     {activeTab === 'gmail_accounts' && (
                       <div>
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
-                          <button
-                            onClick={() => {
-                              setIsAdding(true);
-                              setEditingItem(null);
-                              setFormFields({ max_members: 5, status: 'Available' });
-                            }}
-                            className="btn btn-primary"
-                            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px' }}
-                          >
-                            <PlusCircle size={16} />
-                            <span>إضافة حساب Gmail جديد</span>
-                          </button>
-                        </div>
-
                         <table className="admin-table">
                           <thead>
                             <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
@@ -2476,9 +2505,9 @@ export const Admin: React.FC = () => {
                                 return (
                                   <tr key={g.id} style={{ borderBottom: '1px solid var(--border)' }}>
                                     <td
-                                      style={{ padding: '16px', fontWeight: 600, color: 'var(--primary)', cursor: 'pointer' }}
+                                      style={{ padding: '16px', fontWeight: 600, cursor: 'pointer' }}
                                       onClick={() => setSelectedGmailAccountDetails(g)}
-                                      className="number-latin"
+                                      className="number-latin clickable-email"
                                     >
                                       {g.email}
                                     </td>
@@ -2717,7 +2746,7 @@ export const Admin: React.FC = () => {
                                     <td style={{ padding: '16px', fontWeight: 600, color: 'var(--text)' }}>{p.name} {p.is_featured && <span style={{ fontSize: '0.75rem', color: 'var(--primary)' }}>(مميزة)</span>}</td>
                                     <td style={{ padding: '16px' }}>{prod?.name || 'غير معروف'}</td>
                                     <td style={{ padding: '16px' }} className="number-latin">{p.duration_months} شهر</td>
-                                    <td style={{ padding: '16px' }} className="number-latin">{p.price_iqd.toLocaleString('en-US')} د.ع</td>
+                                    <td style={{ padding: '16px' }}><span className="number-latin">{p.price_iqd.toLocaleString('en-US')}</span> د.ع</td>
                                     <td style={{ padding: '16px' }}>{p.badge || '-'}</td>
                                     <td style={{ padding: '16px' }}>
                                       <span className={`status-pill ${p.is_active ? 'paid' : 'rejected'}`}>
@@ -3586,7 +3615,7 @@ export const Admin: React.FC = () => {
             <div className="glass-panel" style={{ padding: '20px', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '20px' }}>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>البريد الإلكتروني للـ Gmail</span>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
-                <strong style={{ fontSize: '1.35rem', color: 'var(--primary)', letterSpacing: '0.5px', fontFamily: 'monospace' }} className="number-latin">
+                <strong style={{ fontSize: '1.35rem', color: 'var(--text)', letterSpacing: '0.5px', fontFamily: 'monospace' }} className="number-latin">
                   {selectedGmailAccountDetails.email}
                 </strong>
                 <button
