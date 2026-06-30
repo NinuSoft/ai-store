@@ -1438,16 +1438,22 @@ export const Admin: React.FC = () => {
         .admin-modal-overlay {
           position: fixed;
           top: 0; left: 0; right: 0; bottom: 0;
-          background: rgba(15, 23, 42, 0.6);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
+          background: rgba(15, 23, 42, 0.4);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
           display: flex;
           align-items: center;
           justify-content: center;
           z-index: 1000;
           padding: 16px;
+          animation: overlay-fade-in 0.25s ease-out forwards;
+        }
+        @keyframes overlay-fade-in {
+          from { background: rgba(15, 23, 42, 0); }
+          to { background: rgba(15, 23, 42, 0.4); }
         }
         .admin-modal-card {
+          position: relative;
           background: var(--surface-raised);
           border: 1px solid var(--border);
           border-radius: 24px;
@@ -1456,13 +1462,13 @@ export const Admin: React.FC = () => {
           max-width: 600px;
           max-height: 90vh;
           overflow-y: auto;
-          box-shadow: var(--shadow-lg);
+          box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3), 0 0 0 1px var(--border);
           color: var(--text);
-          animation: modal-fade-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: modal-scale-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
-        @keyframes modal-fade-in {
+        @keyframes modal-scale-up {
           from {
-            transform: scale(0.95) translateY(10px);
+            transform: scale(0.92) translateY(12px);
             opacity: 0;
           }
           to {
@@ -3170,8 +3176,37 @@ export const Admin: React.FC = () => {
 
       {/* CRUD Form Modal */}
       {(isAdding || editingItem) && (
-        <div className="admin-modal-overlay">
-          <div className="admin-modal-card">
+        <div className="admin-modal-overlay" onClick={() => { setIsAdding(false); setEditingItem(null); }}>
+          <div className="admin-modal-card" onClick={e => e.stopPropagation()}>
+            <button
+              onClick={() => { setIsAdding(false); setEditingItem(null); }}
+              style={{
+                position: 'absolute',
+                top: '24px',
+                left: '24px',
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--text-muted)',
+                cursor: 'pointer',
+                padding: '6px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                e.currentTarget.style.color = 'var(--text)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = 'var(--text-muted)';
+              }}
+              title="إغلاق"
+            >
+              <X size={18} />
+            </button>
             <h3 style={{ marginBottom: '20px', color: 'var(--text)', fontWeight: 800 }}>
               {editingItem ? 'تعديل البيانات' : 'إضافة سجل جديد'}
             </h3>
@@ -3634,6 +3669,35 @@ export const Admin: React.FC = () => {
       {confirmConfig.isOpen && (
         <div className="admin-modal-overlay">
           <div className="admin-modal-card" style={{ maxWidth: '400px', textAlign: 'center', padding: '30px' }}>
+            <button
+              onClick={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+              style={{
+                position: 'absolute',
+                top: '20px',
+                left: '20px',
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--text-muted)',
+                cursor: 'pointer',
+                padding: '6px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                e.currentTarget.style.color = 'var(--text)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = 'var(--text-muted)';
+              }}
+              title="إلغاء"
+            >
+              <X size={16} />
+            </button>
             <div style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -3691,8 +3755,37 @@ export const Admin: React.FC = () => {
       )}
       {/* Assign Gmail Account to Order Modal */}
       {assigningOrder && (
-        <div className="admin-modal-overlay">
-          <div className="admin-modal-card" style={{ maxWidth: '450px' }}>
+        <div className="admin-modal-overlay" onClick={() => setAssigningOrder(null)}>
+          <div className="admin-modal-card" style={{ maxWidth: '450px' }} onClick={e => e.stopPropagation()}>
+            <button
+              onClick={() => setAssigningOrder(null)}
+              style={{
+                position: 'absolute',
+                top: '24px',
+                left: '24px',
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--text-muted)',
+                cursor: 'pointer',
+                padding: '6px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                e.currentTarget.style.color = 'var(--text)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = 'var(--text-muted)';
+              }}
+              title="إغلاق"
+            >
+              <X size={18} />
+            </button>
             <h3 style={{ marginBottom: '16px', color: 'var(--text)', fontWeight: 800 }}>
               تنشيط وتعيين حساب Gmail للطلب
             </h3>
@@ -3756,8 +3849,37 @@ export const Admin: React.FC = () => {
 
       {/* Reassign Gmail Account to Subscription Modal */}
       {assigningSub && (
-        <div className="admin-modal-overlay">
-          <div className="admin-modal-card" style={{ maxWidth: '450px' }}>
+        <div className="admin-modal-overlay" onClick={() => setAssigningSub(null)}>
+          <div className="admin-modal-card" style={{ maxWidth: '450px' }} onClick={e => e.stopPropagation()}>
+            <button
+              onClick={() => setAssigningSub(null)}
+              style={{
+                position: 'absolute',
+                top: '24px',
+                left: '24px',
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--text-muted)',
+                cursor: 'pointer',
+                padding: '6px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                e.currentTarget.style.color = 'var(--text)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = 'var(--text-muted)';
+              }}
+              title="إغلاق"
+            >
+              <X size={18} />
+            </button>
             <h3 style={{ marginBottom: '16px', color: 'var(--text)', fontWeight: 800 }}>
               تعديل حساب Gmail للاشتراك
             </h3>
@@ -3822,11 +3944,39 @@ export const Admin: React.FC = () => {
 
       {/* Gmail Account Details Modal */}
       {selectedGmailAccountDetails && (
-        <div className="admin-modal-overlay">
-          <div className="admin-modal-card" style={{ maxWidth: '700px', width: '90%' }}>
+        <div className="admin-modal-overlay" onClick={() => setSelectedGmailAccountDetails(null)}>
+          <div className="admin-modal-card" style={{ maxWidth: '700px', width: '90%' }} onClick={e => e.stopPropagation()}>
+            <button
+              onClick={() => setSelectedGmailAccountDetails(null)}
+              style={{
+                position: 'absolute',
+                top: '24px',
+                left: '24px',
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--text-muted)',
+                cursor: 'pointer',
+                padding: '6px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                e.currentTarget.style.color = 'var(--text)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = 'var(--text-muted)';
+              }}
+              title="إغلاق"
+            >
+              <X size={18} />
+            </button>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <h3 style={{ color: 'var(--text)', fontWeight: 800 }}>تفاصيل حساب Gmail للمشاركة</h3>
-              <button onClick={() => setSelectedGmailAccountDetails(null)} className="admin-table-action-btn delete" style={{ padding: '6px 12px' }}>إغلاق</button>
             </div>
 
             {/* Premium Email Banner */}
