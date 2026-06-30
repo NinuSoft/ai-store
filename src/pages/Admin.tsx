@@ -5,7 +5,7 @@ import {
   DollarSign, Activity, Check, X, Search, PlusCircle,
   RotateCw, MessageSquare, Settings, Sparkles, Clock, User, Shield,
   Edit2, Trash2, Star, Ban, Play, AlertTriangle, Mail, Copy, Save,
-  ChevronDown, LogOut, Phone, Send, Coins
+  ChevronDown, LogOut, Phone, Send, Coins, HelpCircle
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -3061,43 +3061,152 @@ export const Admin: React.FC = () => {
                     {/* TAB 7: FAQS */}
                     {activeTab === 'faqs' && (
                       <div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                          {faqsList.length > 0 ? (
-                            faqsList.map((f) => (
-                              <div key={f.id} style={{ border: '1px solid var(--border)', borderRadius: '6px', padding: '16px', background: 'rgba(255,255,255,0.01)' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '10px', marginBottom: '10px' }}>
-                                  <span style={{ fontWeight: 600, color: 'var(--text)' }}>{f.question}</span>
-                                  <div style={{ display: 'flex', gap: '8px' }}>
-                                    <span className={`status-pill ${f.is_active ? 'paid' : 'rejected'}`}>
-                                      {f.is_active ? <Check size={12} /> : <X size={12} />}
-                                      <span>{f.is_active ? 'نشط' : 'معطل'}</span>
+                        {faqsList.length > 0 ? (
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '16px' }}>
+                            {[...faqsList]
+                              .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
+                              .map((f) => (
+                                <div
+                                  key={f.id}
+                                  className="glass-panel"
+                                  style={{
+                                    borderRadius: '16px',
+                                    border: '1px solid rgba(148, 163, 184, 0.12)',
+                                    background: 'rgba(30, 41, 59, 0.4)',
+                                    padding: '20px',
+                                    boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.15)',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'space-between',
+                                    minHeight: '180px',
+                                    gap: '12px'
+                                  }}
+                                >
+                                  <div>
+                                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
+                                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                                        <span style={{
+                                          width: '32px',
+                                          height: '32px',
+                                          borderRadius: '8px',
+                                          background: 'rgba(99, 102, 241, 0.15)',
+                                          color: '#818cf8',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          flexShrink: 0,
+                                          marginTop: '2px'
+                                        }}>
+                                          <HelpCircle size={16} />
+                                        </span>
+                                        <h3 style={{ fontSize: '0.92rem', fontWeight: 800, color: '#f8fafc', lineHeight: 1.4 }}>
+                                          {f.question}
+                                        </h3>
+                                      </div>
+                                      <span
+                                        className="status-pill"
+                                        style={{
+                                          background: f.is_active ? 'rgba(16, 185, 129, 0.15)' : 'rgba(148, 163, 184, 0.15)',
+                                          color: f.is_active ? '#34d399' : '#cbd5e1',
+                                          border: f.is_active ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid rgba(148, 163, 184, 0.2)',
+                                          padding: '4px 10px',
+                                          borderRadius: '20px',
+                                          fontSize: '0.72rem',
+                                          fontWeight: 800,
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          gap: '4px',
+                                          height: 'fit-content',
+                                          whiteSpace: 'nowrap'
+                                        }}
+                                      >
+                                        <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: f.is_active ? '#10b981' : '#94a3b8' }}></span>
+                                        {f.is_active ? 'نشط' : 'معطّل'}
+                                      </span>
+                                    </div>
+                                    <p style={{ color: '#94a3b8', fontSize: '0.82rem', lineHeight: '1.6', marginTop: '12px', whiteSpace: 'pre-wrap' }}>
+                                      {f.answer}
+                                    </p>
+                                  </div>
+                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(148, 163, 184, 0.1)', paddingTop: '12px', marginTop: 'auto' }}>
+                                    <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700 }}>
+                                      الترتيب: <span className="number-latin" style={{ fontWeight: 800, color: '#94a3b8' }}>{f.display_order}</span>
                                     </span>
-                                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>الترتيب: {f.display_order}</span>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                      <button
+                                        onClick={() => { setEditingItem(f); setIsAdding(false); setFormFields(f); }}
+                                        style={{
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          gap: '4px',
+                                          padding: '6px 12px',
+                                          fontSize: '0.75rem',
+                                          fontWeight: 800,
+                                          borderRadius: '8px',
+                                          cursor: 'pointer',
+                                          border: '1px solid rgba(148, 163, 184, 0.15)',
+                                          background: 'rgba(255, 255, 255, 0.03)',
+                                          color: '#cbd5e1',
+                                          transition: 'all 0.2s'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                                          e.currentTarget.style.color = '#f8fafc';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+                                          e.currentTarget.style.color = '#cbd5e1';
+                                        }}
+                                      >
+                                        <Edit2 size={12} />
+                                        <span>تعديل</span>
+                                      </button>
+                                      <button
+                                        onClick={() => handleDeleteFaq(f.id)}
+                                        style={{
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          gap: '4px',
+                                          padding: '6px 12px',
+                                          fontSize: '0.75rem',
+                                          fontWeight: 800,
+                                          borderRadius: '8px',
+                                          cursor: 'pointer',
+                                          border: '1px solid rgba(239, 68, 68, 0.15)',
+                                          background: 'rgba(239, 68, 68, 0.05)',
+                                          color: '#f87171',
+                                          transition: 'all 0.2s'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                                          e.currentTarget.style.color = '#fca5a5';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.05)';
+                                          e.currentTarget.style.color = '#f87171';
+                                        }}
+                                      >
+                                        <Trash2 size={12} />
+                                        <span>حذف</span>
+                                      </button>
+                                    </div>
                                   </div>
                                 </div>
-                                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '12px' }}>{f.answer}</p>
-                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                  <button
-                                    onClick={() => { setEditingItem(f); setIsAdding(false); setFormFields(f); }}
-                                    className="admin-table-action-btn"
-                                  >
-                                    <Edit2 size={12} />
-                                    <span>تعديل</span>
-                                  </button>
-                                  <button
-                                    onClick={() => handleDeleteFaq(f.id)}
-                                    className="admin-table-action-btn delete"
-                                  >
-                                    <Trash2 size={12} />
-                                    <span>حذف</span>
-                                  </button>
-                                </div>
-                              </div>
-                            ))
-                          ) : (
-                            <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>لا توجد أسئلة شائعة مسجلة.</div>
-                          )}
-                        </div>
+                              ))}
+                          </div>
+                        ) : (
+                          <div style={{
+                            padding: '40px',
+                            textAlign: 'center',
+                            color: '#64748b',
+                            background: 'rgba(30, 41, 59, 0.2)',
+                            borderRadius: '16px',
+                            border: '1px dashed rgba(148, 163, 184, 0.12)'
+                          }}>
+                            <HelpCircle size={32} style={{ color: '#475569', marginBottom: '12px' }} />
+                            <div style={{ fontSize: '0.9rem', fontWeight: 800 }}>لا توجد أسئلة شائعة مسجلة.</div>
+                          </div>
+                        )}
                       </div>
                     )}
 
