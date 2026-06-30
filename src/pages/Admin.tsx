@@ -1946,73 +1946,79 @@ export const Admin: React.FC = () => {
                   const productStatsList = Object.values(productSeatStatsMap).filter(p => p.totalCapacity > 0);
 
                   return (
-                    <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
+                    <div className="glass-panel" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                      {/* Header */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '16px', flexWrap: 'wrap', gap: '16px' }}>
                         <div>
-                          <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text)' }}>مؤشرات توزيع واستهلاك مقاعد الحسابات</h4>
-                          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>متابعة تفصيلية للقدرة الاستيعابية وسعة المقاعد الشاغرة لحسابات الـ Gmail للمشاركة</p>
+                          <h4 style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--text)', letterSpacing: '0.5px' }}>مؤشرات توزيع واستهلاك مقاعد الحسابات</h4>
+                          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>متابعة تفصيلية للقدرة الاستيعابية وسعة المقاعد الشاغرة لحسابات الـ Gmail للمشاركة</p>
                         </div>
-                        <span className="status-pill paid" style={{ fontSize: '0.75rem', fontWeight: 800, padding: '4px 12px' }}>
-                          نسبة الإشغال الإجمالية: {occupancyRate}%
-                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>معدل الاستهلاك العام:</span>
+                          <span className="status-pill paid" style={{ fontSize: '0.95rem', fontWeight: 900, padding: '6px 16px', borderRadius: '10px' }}>
+                            {occupancyRate}%
+                          </span>
+                        </div>
                       </div>
 
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* Overall stats */}
-                        <div className="lg:col-span-1" style={{ display: 'flex', flexDirection: 'column', gap: '16px', background: 'rgba(255,255,255,0.01)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)' }}>
-                          <h5 style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-secondary)' }}>نظرة إجمالية على المقاعد</h5>
-                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', textAlign: 'center' }}>
-                            <div className="glass-panel" style={{ padding: '10px 4px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border)' }}>
-                              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>السعة الإجمالية</span>
-                              <strong style={{ display: 'block', fontSize: '1.2rem', color: 'var(--text)', marginTop: '2px' }} className="number-latin">{totalCapacity}</strong>
-                            </div>
-                            <div className="glass-panel" style={{ padding: '10px 4px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border)' }}>
-                              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>المقاعد المشغولة</span>
-                              <strong style={{ display: 'block', fontSize: '1.2rem', color: 'var(--primary)', marginTop: '2px' }} className="number-latin">{occupiedSeats}</strong>
-                            </div>
-                            <div className="glass-panel" style={{ padding: '10px 4px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border)' }}>
-                              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>المقاعد الشاغرة</span>
-                              <strong style={{ display: 'block', fontSize: '1.2rem', color: 'var(--success)', marginTop: '2px' }} className="number-latin">{freeSeats}</strong>
-                            </div>
+                      {/* Section 1: Giant Metrics Summary */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <div className="glass-panel" style={{ padding: '24px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 800 }}>السعة الإجمالية للمقاعد</span>
+                            <strong style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--text)' }} className="number-latin">{totalCapacity}</strong>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>مقعد متوفر كلياً</span>
                           </div>
-                          
-                          {/* Progress bar */}
-                          <div style={{ marginTop: '8px' }}>
-                            <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                              <div style={{ width: `${occupancyRate}%`, height: '100%', background: 'linear-gradient(90deg, var(--primary), var(--secondary))', borderRadius: '999px' }} />
-                            </div>
+                          <div className="glass-panel" style={{ padding: '24px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 800 }}>المقاعد المشغولة</span>
+                            <strong style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--primary)' }} className="number-latin">{occupiedSeats}</strong>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--primary)', opacity: 0.8 }} className="number-latin">{occupancyRate}% إشغال</span>
+                          </div>
+                          <div className="glass-panel" style={{ padding: '24px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 800 }}>المقاعد الشاغرة</span>
+                            <strong style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--success)' }} className="number-latin">{freeSeats}</strong>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--success)', opacity: 0.8 }} className="number-latin">{totalCapacity - occupiedSeats} مقعد متاح فورياً</span>
                           </div>
                         </div>
 
-                        {/* Breakdown per product */}
-                        <div className="lg:col-span-2" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                          <h5 style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-secondary)' }}>توزيع المقاعد لكل منتج</h5>
-                          
-                          {productStatsList.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              {productStatsList.map((pStat, index) => {
-                                const rate = pStat.totalCapacity > 0 ? Math.round((pStat.occupiedSeats / pStat.totalCapacity) * 100) : 0;
-                                return (
-                                  <div key={index} className="glass-panel" style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '8px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border)' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                      <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text)' }}>{pStat.productName}</span>
-                                      <span className="number-latin" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>
-                                        {pStat.occupiedSeats} / {pStat.totalCapacity} مقعد
-                                      </span>
-                                    </div>
-                                    <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.04)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                                      <div style={{ width: `${rate}%`, height: '100%', background: 'var(--primary)', borderRadius: '999px' }} />
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          ) : (
-                            <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                              لا توجد حسابات نشطة أو مقاعد مدخلة حالياً لحساب توزيعها.
-                            </div>
-                          )}
+                        {/* Large progress bar */}
+                        <div style={{ width: '100%', height: '14px', background: 'rgba(255,255,255,0.03)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border)', padding: '2px' }}>
+                          <div style={{ width: `${occupancyRate}%`, height: '100%', background: 'linear-gradient(90deg, var(--primary), var(--secondary))', borderRadius: '999px', boxShadow: '0 0 10px rgba(99, 102, 241, 0.5)' }} />
                         </div>
+                      </div>
+
+                      {/* Section 2: Product breakdown */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <h5 style={{ fontSize: '1.05rem', fontWeight: 900, color: 'var(--text)', borderRight: '3px solid var(--primary)', paddingRight: '8px' }}>توزيع المقاعد لكل منتج تفصيلياً</h5>
+                        
+                        {productStatsList.length > 0 ? (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {productStatsList.map((pStat, index) => {
+                              const rate = pStat.totalCapacity > 0 ? Math.round((pStat.occupiedSeats / pStat.totalCapacity) * 100) : 0;
+                              return (
+                                <div key={index} className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border)' }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text)' }}>{pStat.productName}</span>
+                                    <span className="number-latin" style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-muted)' }}>
+                                      {pStat.occupiedSeats} / {pStat.totalCapacity} مقعد
+                                    </span>
+                                  </div>
+                                  <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.04)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                                    <div style={{ width: `${rate}%`, height: '100%', background: 'var(--primary)', borderRadius: '999px' }} />
+                                  </div>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                                    <span>الإشغال: {rate}%</span>
+                                    <span>الشاغر: {pStat.totalCapacity - pStat.occupiedSeats}</span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.88rem', background: 'rgba(255,255,255,0.01)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                            لا توجد حسابات نشطة أو مقاعد مدخلة حالياً لحساب توزيعها.
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
