@@ -373,8 +373,8 @@ export const Dashboard: React.FC = () => {
         .dash-metric {
           position: relative;
           border-radius: 24px;
-          border: 1px solid rgba(148, 163, 184, 0.12) !important;
-          background: rgba(30, 41, 59, 0.25) !important;
+          border: 1px solid var(--glass-border) !important;
+          background: var(--glass-bg) !important;
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
           transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
@@ -406,8 +406,8 @@ export const Dashboard: React.FC = () => {
         .dash-welcome {
           position: relative;
           border-radius: 28px;
-          border: 1px solid rgba(148, 163, 184, 0.12) !important;
-          background: rgba(30, 41, 59, 0.25) !important;
+          border: 1px solid var(--glass-border) !important;
+          background: var(--glass-bg) !important;
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
           padding: 28px 32px;
@@ -451,12 +451,12 @@ export const Dashboard: React.FC = () => {
           padding: 10px 0;
         }
         .dash-profile-row + .dash-profile-row {
-          border-top: 1px solid rgba(148, 163, 184, 0.12);
+          border-top: 1px solid var(--glass-border);
         }
       `}</style>
       
       {/* HEADER */}
-      <header style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.12)', background: 'rgba(30, 41, 59, 0.25)', padding: '16px 0', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+      <header style={{ borderBottom: '1px solid var(--glass-border)', background: 'var(--glass-bg)', padding: '16px 0', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
         <div className="container flex justify-between items-center">
           <Link to="/" className="flex items-center gap-2">
             <div style={{ background: 'linear-gradient(135deg, var(--primary), var(--secondary))', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', color: 'white', justifyContent: 'center' }}>
@@ -555,7 +555,7 @@ export const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="dash-metric animate-fade-in animate-delay-3" style={{ border: pendingOrdersCount > 0 ? '1px solid rgba(245, 158, 11, 0.4) !important' : '1px solid rgba(148, 163, 184, 0.12) !important' }}>
+          <div className="dash-metric animate-fade-in animate-delay-3" style={{ border: pendingOrdersCount > 0 ? '1px solid rgba(245, 158, 11, 0.4) !important' : '1px solid var(--glass-border) !important' }}>
             <div className="dash-metric-inner">
               <div className="dash-metric-glow" style={{ background: '#fbbf24' }} />
               <div className="flex items-center justify-between mb-2">
@@ -603,7 +603,7 @@ export const Dashboard: React.FC = () => {
               style={{
                 borderColor: 'rgba(139, 92, 246, 0.4)',
                 borderWidth: '1px',
-                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(30, 41, 59, 0.25))',
+                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15), var(--glass-bg))',
                 padding: '24px',
                 marginBottom: '32px',
                 position: 'relative',
@@ -626,12 +626,12 @@ export const Dashboard: React.FC = () => {
                   </p>
                   
                   <div className="flex items-center gap-6 mt-2 flex-wrap">
-                    <div style={{ background: 'rgba(30, 41, 59, 0.45)', padding: '12px 20px', borderRadius: '12px', border: '1px solid rgba(148, 163, 184, 0.18)' }}>
+                    <div style={{ background: 'var(--glass-nested-bg)', padding: '12px 20px', borderRadius: '12px', border: '1px solid var(--glass-nested-border)' }}>
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>رقم التحويل (زين كاش / آسيا حوالة)</span>
                       <strong style={{ fontSize: '1.2rem', color: 'var(--text)' }} className="number-latin">07701234567</strong>
                     </div>
 
-                    <div style={{ background: 'rgba(30, 41, 59, 0.45)', padding: '12px 20px', borderRadius: '12px', border: '1px solid rgba(148, 163, 184, 0.18)' }}>
+                    <div style={{ background: 'var(--glass-nested-bg)', padding: '12px 20px', borderRadius: '12px', border: '1px solid var(--glass-nested-border)' }}>
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>المبلغ المطلوب</span>
                       <strong style={{ fontSize: '1.2rem', color: '#4ade80' }} className="number-latin">
                         {price.toLocaleString('en-US')} د.ع
@@ -674,7 +674,7 @@ export const Dashboard: React.FC = () => {
           <div style={{ gridColumn: 'span 2' }} className="flex flex-col gap-6">
             
             {/* ACTIVE SUBSCRIPTION CARD */}
-            <div className="glass-panel" style={{ border: activeSub ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(148, 163, 184, 0.12)', background: 'rgba(30, 41, 59, 0.25)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+            <div className="glass-panel" style={{ border: activeSub ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid var(--glass-border)', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text)' }}>حالة اشتراكك الحالي</h3>
@@ -705,7 +705,7 @@ export const Dashboard: React.FC = () => {
                 <div className="flex flex-col gap-6">
                   {/* Plan Meta Details */}
                   <div className="grid grid-cols-2 gap-4">
-                    <div style={{ background: 'rgba(30, 41, 59, 0.45)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(148, 163, 184, 0.18)' }} className="flex items-center gap-3">
+                    <div style={{ background: 'var(--glass-nested-bg)', padding: '16px', borderRadius: '12px', border: '1px solid var(--glass-nested-border)' }} className="flex items-center gap-3">
                       <Clock size={24} style={{ color: '#818cf8' }} />
                       <div>
                         <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>الباقة المفعلة</span>
@@ -713,7 +713,7 @@ export const Dashboard: React.FC = () => {
                       </div>
                     </div>
 
-                    <div style={{ background: 'rgba(30, 41, 59, 0.45)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(148, 163, 184, 0.18)' }} className="flex items-center gap-3">
+                    <div style={{ background: 'var(--glass-nested-bg)', padding: '16px', borderRadius: '12px', border: '1px solid var(--glass-nested-border)' }} className="flex items-center gap-3">
                       <Calendar size={24} style={{ color: '#a78bfa' }} />
                       <div>
                         <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>تاريخ انتهاء الصلاحية</span>
@@ -799,7 +799,7 @@ export const Dashboard: React.FC = () => {
             </div>
 
             {/* ORDER HISTORY LIST */}
-            <div className="glass-panel" style={{ background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+            <div className="glass-panel" style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text)', marginBottom: '20px' }}>سجل طلباتك</h3>
               
               {orders.length > 0 ? (
@@ -809,9 +809,9 @@ export const Dashboard: React.FC = () => {
                       key={o.id}
                       style={{
                         padding: '16px',
-                        border: '1px solid rgba(148, 163, 184, 0.18)',
+                        border: '1px solid var(--glass-nested-border)',
                         borderRadius: '12px',
-                        background: 'rgba(30, 41, 59, 0.45)'
+                        background: 'var(--glass-nested-bg)'
                       }}
                       className="flex items-center justify-between"
                     >
@@ -925,7 +925,7 @@ export const Dashboard: React.FC = () => {
           <div className="flex flex-col gap-6">
             
             {/* RENEWALS TRACKING PANEL */}
-            <div className="glass-panel" style={{ background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+            <div className="glass-panel" style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
               <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text)', marginBottom: '16px' }}>
                 متابعة طلبات التجديد
               </h3>
@@ -938,8 +938,8 @@ export const Dashboard: React.FC = () => {
                       style={{
                         padding: '12px',
                         borderRadius: '12px',
-                        border: '1px solid rgba(148, 163, 184, 0.18)',
-                        background: 'rgba(30, 41, 59, 0.45)'
+                        border: '1px solid var(--glass-nested-border)',
+                        background: 'var(--glass-nested-bg)'
                       }}
                       className="flex items-center justify-between"
                     >
@@ -972,8 +972,8 @@ export const Dashboard: React.FC = () => {
             <div 
               className="glass-panel glow-effect" 
               style={{ 
-                background: 'rgba(30, 41, 59, 0.25)',
-                border: '1px solid rgba(148, 163, 184, 0.12)',
+                background: 'var(--glass-bg)',
+                border: '1px solid var(--glass-border)',
                 padding: '24px',
                 backdropFilter: 'blur(16px)',
                 WebkitBackdropFilter: 'blur(16px)'

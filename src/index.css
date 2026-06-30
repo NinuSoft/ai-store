@@ -80,6 +80,15 @@
   --transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-sm: all 0.20s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-lg: all 0.50s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Dynamic Glassmorphism Tokens - Light Theme */
+  --glass-bg: rgba(255, 255, 255, 0.45);
+  --glass-border: rgba(148, 163, 184, 0.22);
+  --glass-nested-bg: rgba(255, 255, 255, 0.75);
+  --glass-nested-border: rgba(148, 163, 184, 0.35);
+  --glass-hover-bg: rgba(99, 102, 241, 0.05);
+  --glass-modal-bg: rgba(255, 255, 255, 0.95);
+  --glass-modal-border: rgba(148, 163, 184, 0.3);
 }
 
 html.dark {
@@ -106,6 +115,15 @@ html:not(.dark) {
 
   --border: rgba(255, 255, 255, 0.06);
   --border-hover: rgba(255, 255, 255, 0.14);
+
+  /* Dynamic Glassmorphism Tokens - Dark Theme */
+  --glass-bg: rgba(30, 41, 59, 0.25);
+  --glass-border: rgba(148, 163, 184, 0.12);
+  --glass-nested-bg: rgba(30, 41, 59, 0.45);
+  --glass-nested-border: rgba(148, 163, 184, 0.18);
+  --glass-hover-bg: rgba(99, 102, 241, 0.08);
+  --glass-modal-bg: rgba(15, 23, 42, 0.75);
+  --glass-modal-border: rgba(148, 163, 184, 0.18);
 
   --primary-light: hsla(237, 95%, 68%, 0.12);
   --primary-glow: hsla(237, 95%, 68%, 0.30);
@@ -1105,10 +1123,10 @@ td.number-latin {
 }
 
 .testimonial-card {
-  background: rgba(30, 41, 59, 0.25);
+  background: var(--glass-bg);
   backdrop-filter: blur(20px) saturate(1.4);
   -webkit-backdrop-filter: blur(20px) saturate(1.4);
-  border: 1px solid rgba(148, 163, 184, 0.12);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius);
   padding: 32px;
   box-shadow: var(--shadow);
@@ -1133,7 +1151,12 @@ td.number-latin {
 .testimonial-carousel-container {
   position: relative;
   width: 100%;
-  padding: 12px 0 24px;
+  padding: 12px 64px 24px;
+}
+@media (max-width: 768px) {
+  .testimonial-carousel-container {
+    padding: 12px 40px 24px;
+  }
 }
 
 .testimonial-carousel-track-wrapper {
@@ -1206,35 +1229,35 @@ td.number-latin {
 
 /* In RTL, next slides left (negative view shift) and prev slides right */
 .carousel-btn-prev {
-  right: -24px;
+  right: 12px;
 }
 
 .carousel-btn-next {
-  left: -24px;
+  left: 12px;
 }
 
 @media (max-width: 1200px) {
   .carousel-btn-prev {
-    right: -8px;
+    right: 8px;
   }
 
   .carousel-btn-next {
-    left: -8px;
+    left: 8px;
   }
 }
 
 @media (max-width: 768px) {
   .carousel-btn {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
   }
 
   .carousel-btn-prev {
-    right: -4px;
+    right: 4px;
   }
 
   .carousel-btn-next {
-    left: -4px;
+    left: 4px;
   }
 }
 

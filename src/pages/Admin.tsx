@@ -1170,8 +1170,8 @@ export const Admin: React.FC = () => {
           max-width: 1600px;
         }
         select option {
-          background-color: #1e293b;
-          color: #f8fafc;
+          background-color: var(--surface);
+          color: var(--text);
         }
         .clickable-email {
           color: var(--text) !important;
@@ -1243,30 +1243,30 @@ export const Admin: React.FC = () => {
           gap: 12px;
         }
         .admin-tab-item:hover:not(.active) {
-          background: rgba(255, 255, 255, 0.03);
+          background: var(--glass-hover-bg);
           color: var(--text);
           transform: translateX(-4px);
         }
         .admin-tab-item.active {
           background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.06) 100%);
           border: 1px solid rgba(99, 102, 241, 0.25);
-          color: #818cf8;
+          color: var(--primary);
           box-shadow: 0 4px 20px rgba(99, 102, 241, 0.08);
         }
         .redesign-input {
           width: 100% !important;
           padding: 12px 16px !important;
-          background: rgba(30, 41, 59, 0.45) !important;
-          border: 1px solid rgba(148, 163, 184, 0.18) !important;
+          background: var(--glass-nested-bg) !important;
+          border: 1px solid var(--glass-nested-border) !important;
           border-radius: 12px !important;
-          color: #f8fafc !important;
+          color: var(--text) !important;
           font-size: 0.85rem !important;
           outline: none !important;
           transition: all 0.2s !important;
         }
         .redesign-input:focus {
           border-color: #818cf8 !important;
-          background: rgba(30, 41, 59, 0.6) !important;
+          background: var(--glass-nested-bg) !important;
           box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2) !important;
         }
 
@@ -1274,25 +1274,25 @@ export const Admin: React.FC = () => {
         .redesign-search-input {
           width: 100% !important;
           padding: 12px 42px 12px 16px !important;
-          background: rgba(30, 41, 59, 0.45) !important;
-          border: 1px solid rgba(148, 163, 184, 0.18) !important;
+          background: var(--glass-nested-bg) !important;
+          border: 1px solid var(--glass-nested-border) !important;
           border-radius: 12px !important;
-          color: #f8fafc !important;
+          color: var(--text) !important;
           font-size: 0.85rem !important;
           outline: none !important;
           transition: all 0.2s !important;
         }
         .redesign-search-input:focus {
           border-color: #818cf8 !important;
-          background: rgba(30, 41, 59, 0.6) !important;
+          background: var(--glass-nested-bg) !important;
           box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2) !important;
         }
         
         .metric-card {
           position: relative;
           border-radius: 24px;
-          border: 1px solid rgba(148, 163, 184, 0.12) !important;
-          background: rgba(30, 41, 59, 0.25) !important;
+          border: 1px solid var(--glass-border) !important;
+          background: var(--glass-bg) !important;
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
           transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
@@ -1325,8 +1325,8 @@ export const Admin: React.FC = () => {
         .admin-table-container {
           border-radius: 20px;
           overflow: hidden;
-          border: 1px solid rgba(148, 163, 184, 0.12) !important;
-          background: rgba(30, 41, 59, 0.25) !important;
+          border: 1px solid var(--glass-border) !important;
+          background: var(--glass-bg) !important;
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
           box-shadow: var(--shadow-sm);
@@ -1343,13 +1343,13 @@ export const Admin: React.FC = () => {
           white-space: nowrap;
         }
         .admin-table thead tr {
-          border-bottom: 1px solid rgba(148, 163, 184, 0.12) !important;
-          background: rgba(30, 41, 59, 0.45) !important;
+          border-bottom: 1px solid var(--glass-border) !important;
+          background: var(--glass-nested-bg) !important;
         }
         .admin-table th {
           padding: 14px 16px !important;
           font-weight: 800 !important;
-          color: #94a3b8 !important;
+          color: var(--text-muted) !important;
           border-bottom: none !important;
           background: transparent !important;
           font-size: 0.8rem !important;
@@ -1367,7 +1367,7 @@ export const Admin: React.FC = () => {
           background: rgba(148, 163, 184, 0.03) !important;
         }
         .admin-table tbody tr:hover {
-          background: rgba(99, 102, 241, 0.08) !important;
+          background: var(--glass-hover-bg) !important;
         }
         .admin-table td {
           padding: 14px 16px !important;
@@ -1510,8 +1510,8 @@ export const Admin: React.FC = () => {
         }
         .admin-modal-card {
           position: relative;
-          background: rgba(15, 23, 42, 0.75) !important;
-          border: 1px solid rgba(148, 163, 184, 0.18) !important;
+          background: var(--glass-modal-bg) !important;
+          border: 1px solid var(--glass-modal-border) !important;
           backdrop-filter: blur(24px);
           -webkit-backdrop-filter: blur(24px);
           border-radius: 24px;
@@ -1520,7 +1520,7 @@ export const Admin: React.FC = () => {
           max-width: 600px;
           max-height: 90vh;
           overflow-y: auto;
-          box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(148, 163, 184, 0.18) !important;
+          box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--glass-nested-border) !important;
           color: var(--text);
           animation: modal-scale-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
@@ -1609,7 +1609,7 @@ export const Admin: React.FC = () => {
       `}</style>
 
       {/* HEADER */}
-      <header style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.12)', background: 'rgba(30, 41, 59, 0.25)', padding: '16px 0', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+      <header style={{ borderBottom: '1px solid var(--glass-border)', background: 'var(--glass-bg)', padding: '16px 0', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
         <div className="container flex justify-between items-center">
           <div className="flex items-center gap-2">
             <ShieldCheck size={24} style={{ color: 'var(--secondary)' }} />
@@ -1643,8 +1643,8 @@ export const Admin: React.FC = () => {
 
 
             {/* NAVIGATION PANEL */}
-            <div className="glass-panel" style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '6px', background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
-              <div style={{ padding: '0 8px 12px 8px', borderBottom: '1px solid rgba(148, 163, 184, 0.12)', marginBottom: '8px' }}>
+            <div className="glass-panel" style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '6px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+              <div style={{ padding: '0 8px 12px 8px', borderBottom: '1px solid var(--glass-border)', marginBottom: '8px' }}>
                 <span style={{ fontSize: '0.78rem', fontWeight: 900, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>لوحات التحكم</span>
               </div>
 
@@ -1666,7 +1666,7 @@ export const Admin: React.FC = () => {
                   <ShoppingBag size={18} />
                   <span>الطلبات الواردة</span>
                 </div>
-                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', color: 'var(--text-secondary)', fontWeight: 800 }}>{orders.length}</span>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'var(--glass-nested-bg)', border: '1px solid var(--glass-nested-border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{orders.length}</span>
               </button>
 
               <button
@@ -1677,7 +1677,7 @@ export const Admin: React.FC = () => {
                   <RotateCw size={18} />
                   <span>طلبات التجديد</span>
                 </div>
-                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', color: 'var(--text-secondary)', fontWeight: 800 }}>{renewals.length}</span>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'var(--glass-nested-bg)', border: '1px solid var(--glass-nested-border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{renewals.length}</span>
               </button>
 
               <button
@@ -1688,7 +1688,7 @@ export const Admin: React.FC = () => {
                   <ShieldCheck size={18} />
                   <span>الاشتراكات</span>
                 </div>
-                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', color: 'var(--text-secondary)', fontWeight: 800 }}>{subscriptions.length}</span>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'var(--glass-nested-bg)', border: '1px solid var(--glass-nested-border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{subscriptions.length}</span>
               </button>
 
               <button
@@ -1699,7 +1699,7 @@ export const Admin: React.FC = () => {
                   <Users size={18} />
                   <span>المستخدمين</span>
                 </div>
-                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', color: 'var(--text-secondary)', fontWeight: 800 }}>{users.length}</span>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'var(--glass-nested-bg)', border: '1px solid var(--glass-nested-border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{users.length}</span>
               </button>
 
               <button
@@ -1710,7 +1710,7 @@ export const Admin: React.FC = () => {
                   <Mail size={18} />
                   <span>حسابات Gmail للمشاركة</span>
                 </div>
-                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', color: 'var(--text-secondary)', fontWeight: 800 }}>{gmailAccountsList.length}</span>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'var(--glass-nested-bg)', border: '1px solid var(--glass-nested-border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{gmailAccountsList.length}</span>
               </button>
 
               <button
@@ -1721,7 +1721,7 @@ export const Admin: React.FC = () => {
                   <DollarSign size={18} />
                   <span>المنتجات</span>
                 </div>
-                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', color: 'var(--text-secondary)', fontWeight: 800 }}>{productsList.length}</span>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'var(--glass-nested-bg)', border: '1px solid var(--glass-nested-border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{productsList.length}</span>
               </button>
 
               <button
@@ -1732,7 +1732,7 @@ export const Admin: React.FC = () => {
                   <PlusCircle size={18} />
                   <span>الباقات</span>
                 </div>
-                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', color: 'var(--text-secondary)', fontWeight: 800 }}>{Object.keys(plans).length}</span>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'var(--glass-nested-bg)', border: '1px solid var(--glass-nested-border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{Object.keys(plans).length}</span>
               </button>
 
               <button
@@ -1743,7 +1743,7 @@ export const Admin: React.FC = () => {
                   <MessageSquare size={18} />
                   <span>الأسئلة الشائعة</span>
                 </div>
-                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', color: 'var(--text-secondary)', fontWeight: 800 }}>{faqsList.length}</span>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'var(--glass-nested-bg)', border: '1px solid var(--glass-nested-border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{faqsList.length}</span>
               </button>
 
               <button
@@ -1754,7 +1754,7 @@ export const Admin: React.FC = () => {
                   <Sparkles size={18} />
                   <span>الآراء والتقييمات</span>
                 </div>
-                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', color: 'var(--text-secondary)', fontWeight: 800 }}>{testimonialsList.length}</span>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px', background: 'var(--glass-nested-bg)', border: '1px solid var(--glass-nested-border)', color: 'var(--text-secondary)', fontWeight: 800 }}>{testimonialsList.length}</span>
               </button>
 
               <button
@@ -1870,7 +1870,7 @@ export const Admin: React.FC = () => {
             </section>
 
             {/* Header for dynamic section */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap', background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', padding: '20px 24px', borderRadius: '16px', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', padding: '20px 24px', borderRadius: '16px', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
               <div>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text)' }}>
                   {activeTab === 'overview' ? 'لوحة التحكم والمؤشرات الرئيسية' :
@@ -1913,8 +1913,8 @@ export const Admin: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
                   {/* Area Chart panel */}
-                  <div className="glass-panel md:col-span-2" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
-                    <div style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.12)', paddingBottom: '12px' }}>
+                  <div className="glass-panel md:col-span-2" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+                    <div style={{ borderBottom: '1px solid var(--glass-border)', paddingBottom: '12px' }}>
                       <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text)' }}>مخطط الإيرادات الشهرية</h4>
                       <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>آخر 6 أشهر · بالدينار العراقي</p>
                     </div>
@@ -1924,8 +1924,8 @@ export const Admin: React.FC = () => {
                   </div>
 
                   {/* Donut Chart panel */}
-                  <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
-                    <div style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.12)', paddingBottom: '12px' }}>
+                  <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+                    <div style={{ borderBottom: '1px solid var(--glass-border)', paddingBottom: '12px' }}>
                       <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text)' }}>توزيع حالات الطلبات</h4>
                       <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>حسب إجمالي الطلبات المستلمة</p>
                     </div>
@@ -2019,9 +2019,9 @@ export const Admin: React.FC = () => {
                   const productStatsList = Object.values(productSeatStatsMap).filter(p => p.totalCapacity > 0);
 
                   return (
-                    <div className="glass-panel" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '32px', background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+                    <div className="glass-panel" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '32px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
                       {/* Header */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(148, 163, 184, 0.12)', paddingBottom: '16px', flexWrap: 'wrap', gap: '16px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--glass-border)', paddingBottom: '16px', flexWrap: 'wrap', gap: '16px' }}>
                         <div>
                           <h4 style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--text)', letterSpacing: '0.5px' }}>مؤشرات توزيع واستهلاك مقاعد الحسابات</h4>
                           <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>متابعة تفصيلية للقدرة الاستيعابية وسعة المقاعد الشاغرة لحسابات الـ Gmail للمشاركة</p>
@@ -2037,17 +2037,17 @@ export const Admin: React.FC = () => {
                       {/* Section 1: Giant Metrics Summary */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                          <div className="glass-panel" style={{ padding: '24px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                          <div className="glass-panel" style={{ padding: '24px', background: 'var(--glass-nested-bg)', border: '1px solid var(--glass-nested-border)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                             <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 800 }}>السعة الإجمالية للمقاعد</span>
                             <strong style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--text)' }} className="number-latin">{totalCapacity}</strong>
                             <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>مقعد متوفر كلياً</span>
                           </div>
-                          <div className="glass-panel" style={{ padding: '24px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                          <div className="glass-panel" style={{ padding: '24px', background: 'var(--glass-nested-bg)', border: '1px solid var(--glass-nested-border)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                             <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 800 }}>المقاعد المشغولة</span>
                             <strong style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--primary)' }} className="number-latin">{occupiedSeats}</strong>
                             <span style={{ fontSize: '0.75rem', color: 'var(--primary)', opacity: 0.8 }} className="number-latin">{occupancyRate}% إشغال</span>
                           </div>
-                          <div className="glass-panel" style={{ padding: '24px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                          <div className="glass-panel" style={{ padding: '24px', background: 'var(--glass-nested-bg)', border: '1px solid var(--glass-nested-border)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                             <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 800 }}>المقاعد الشاغرة</span>
                             <strong style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--success)' }} className="number-latin">{freeSeats}</strong>
                             <span style={{ fontSize: '0.75rem', color: 'var(--success)', opacity: 0.8 }} className="number-latin">{totalCapacity - occupiedSeats} مقعد متاح فورياً</span>
@@ -2055,7 +2055,7 @@ export const Admin: React.FC = () => {
                         </div>
 
                         {/* Large progress bar */}
-                        <div style={{ width: '100%', height: '14px', background: 'rgba(30, 41, 59, 0.45)', borderRadius: '999px', overflow: 'hidden', border: '1px solid rgba(148, 163, 184, 0.18)', padding: '2px' }}>
+                        <div style={{ width: '100%', height: '14px', background: 'var(--glass-nested-bg)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--glass-nested-border)', padding: '2px' }}>
                           <div style={{ width: `${occupancyRate}%`, height: '100%', background: 'linear-gradient(90deg, var(--primary), var(--secondary))', borderRadius: '999px', boxShadow: '0 0 10px rgba(99, 102, 241, 0.5)' }} />
                         </div>
                       </div>
@@ -2069,14 +2069,14 @@ export const Admin: React.FC = () => {
                             {productStatsList.map((pStat, index) => {
                               const rate = pStat.totalCapacity > 0 ? Math.round((pStat.occupiedSeats / pStat.totalCapacity) * 100) : 0;
                               return (
-                                <div key={index} className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)' }}>
+                                <div key={index} className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px', background: 'var(--glass-nested-bg)', border: '1px solid var(--glass-nested-border)' }}>
                                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <span style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text)' }}>{pStat.productName}</span>
                                     <span className="number-latin" style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-muted)' }}>
                                       {pStat.occupiedSeats} / {pStat.totalCapacity} مقعد
                                     </span>
                                   </div>
-                                  <div style={{ width: '100%', height: '8px', background: 'rgba(30, 41, 59, 0.55)', borderRadius: '999px', overflow: 'hidden', border: '1px solid rgba(148, 163, 184, 0.18)' }}>
+                                  <div style={{ width: '100%', height: '8px', background: 'var(--glass-nested-bg)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--glass-nested-border)' }}>
                                     <div style={{ width: `${rate}%`, height: '100%', background: 'var(--primary)', borderRadius: '999px' }} />
                                   </div>
                                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
@@ -2088,7 +2088,7 @@ export const Admin: React.FC = () => {
                             })}
                           </div>
                         ) : (
-                          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.88rem', background: 'rgba(30, 41, 59, 0.45)', borderRadius: '12px', border: '1px solid rgba(148, 163, 184, 0.18)' }}>
+                          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.88rem', background: 'var(--glass-nested-bg)', borderRadius: '12px', border: '1px solid var(--glass-nested-border)' }}>
                             لا توجد حسابات نشطة أو مقاعد مدخلة حالياً لحساب توزيعها.
                           </div>
                         )}
@@ -2101,8 +2101,8 @@ export const Admin: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
                   {/* Recent Orders list */}
-                  <div className="glass-panel md:col-span-2" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(148, 163, 184, 0.12)', paddingBottom: '12px' }}>
+                  <div className="glass-panel md:col-span-2" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--glass-border)', paddingBottom: '12px' }}>
                       <div>
                         <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text)' }}>أحدث الطلبات الواردة</h4>
                         <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>آخر 6 طلبات تم تسجيلها</p>
@@ -2125,7 +2125,7 @@ export const Admin: React.FC = () => {
                                           : o.status === 'rejected' ? 'var(--danger)' 
                                           : 'var(--text-muted)';
                         return (
-                          <div key={o.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', borderRadius: '12px' }}>
+                          <div key={o.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', background: 'var(--glass-nested-bg)', border: '1px solid var(--glass-nested-border)', borderRadius: '12px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                               <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(99, 102, 241, 0.15)', color: '#818cf8', display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center', fontWeight: 800 }}>
                                 {(getUserDisplayName(o.user_id) || o.gmail || '?')[0].toUpperCase()}
@@ -2154,8 +2154,8 @@ export const Admin: React.FC = () => {
                   </div>
 
                   {/* Top Plans bar chart */}
-                  <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
-                    <div style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.12)', paddingBottom: '12px' }}>
+                  <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+                    <div style={{ borderBottom: '1px solid var(--glass-border)', paddingBottom: '12px' }}>
                       <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text)' }}>أعلى الباقات إيراداً</h4>
                       <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>حسب إجمالي الطلبات المكتملة</p>
                     </div>
@@ -2176,8 +2176,8 @@ export const Admin: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{ width: '100%', direction: 'rtl' }}>
                   
                   {/* Section 1: Support & Communication */}
-                  <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
-                    <div style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.12)', paddingBottom: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+                    <div style={{ borderBottom: '1px solid var(--glass-border)', paddingBottom: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <div style={{ background: 'rgba(99, 102, 241, 0.15)', color: '#818cf8', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <MessageSquare size={18} />
                       </div>
@@ -2201,8 +2201,8 @@ export const Admin: React.FC = () => {
                             <div style={{
                               display: 'flex',
                               alignItems: 'center',
-                              background: 'rgba(30, 41, 59, 0.45)',
-                              border: isDirty ? '1.5px solid var(--warning)' : '1px solid rgba(148, 163, 184, 0.18)',
+                              background: 'var(--glass-nested-bg)',
+                              border: isDirty ? '1.5px solid var(--warning)' : '1px solid var(--glass-nested-border)',
                               borderRadius: '12px',
                               padding: '4px 12px',
                               transition: 'all 0.2s ease',
@@ -2287,8 +2287,8 @@ export const Admin: React.FC = () => {
                   </div>
 
                   {/* Section 2: Financial & Pricing */}
-                  <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
-                    <div style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.12)', paddingBottom: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+                    <div style={{ borderBottom: '1px solid var(--glass-border)', paddingBottom: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <div style={{ background: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Coins size={18} />
                       </div>
@@ -2312,8 +2312,8 @@ export const Admin: React.FC = () => {
                             <div style={{
                               display: 'flex',
                               alignItems: 'center',
-                              background: 'rgba(30, 41, 59, 0.45)',
-                              border: isDirty ? '1.5px solid var(--warning)' : '1px solid rgba(148, 163, 184, 0.18)',
+                              background: 'var(--glass-nested-bg)',
+                              border: isDirty ? '1.5px solid var(--warning)' : '1px solid var(--glass-nested-border)',
                               borderRadius: '12px',
                               padding: '4px 12px',
                               transition: 'all 0.2s ease',
@@ -2407,7 +2407,7 @@ export const Admin: React.FC = () => {
               <>
                 {/* Filter and Search controls bar */}
                 {['products', 'plans', 'faqs', 'testimonials', 'gmail_accounts', 'orders', 'renewals', 'subscriptions', 'users'].includes(activeTab) ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(30, 41, 59, 0.25)', border: '1px solid rgba(148, 163, 184, 0.12)', padding: '12px 16px', borderRadius: '16px', width: '100%', marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', padding: '12px 16px', borderRadius: '16px', width: '100%', marginBottom: '16px' }}>
                     <div style={{ position: 'relative', flex: 1 }}>
                       <Search size={16} style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                       <input
@@ -2437,7 +2437,7 @@ export const Admin: React.FC = () => {
                         onChange={(e) => setStatusFilter(e.target.value)}
                         style={{
                           padding: '10px 16px',
-                          background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)',
+                          background: 'var(--glass-nested-bg)', border: '1px solid var(--glass-nested-border)',
                           borderRadius: '12px', color: 'var(--text)', fontSize: '0.85rem',
                           outline: 'none', width: '180px', flexShrink: 0, cursor: 'pointer'
                         }}
@@ -2612,11 +2612,121 @@ export const Admin: React.FC = () => {
                 )}
 
                 {/* DYNAMIC DATA TABLE PANEL */}
-                <div className="admin-table-container">
-                  <div className="admin-table-wrapper">
+                {activeTab === 'faqs' && (
+                  <div className="animate-slide-up" style={{ width: '100%' }}>
+                    {faqsList.length > 0 ? (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '16px' }}>
+                        {[...faqsList]
+                          .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
+                          .map((f) => (
+                            <div
+                              key={f.id}
+                              className="glass-panel"
+                              style={{
+                                borderRadius: '16px',
+                                border: '1px solid var(--glass-border)',
+                                background: 'var(--glass-bg)',
+                                padding: '20px',
+                                boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.15)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
+                                minHeight: '180px',
+                                gap: '12px'
+                              }}
+                            >
+                              <div>
+                                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
+                                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                                    <span style={{
+                                      width: '32px',
+                                      height: '32px',
+                                      borderRadius: '8px',
+                                      background: 'rgba(99, 102, 241, 0.15)',
+                                      color: '#818cf8',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      flexShrink: 0,
+                                      marginTop: '2px'
+                                    }}>
+                                      <HelpCircle size={16} />
+                                    </span>
+                                    <h3 style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--text)', lineHeight: 1.4 }}>
+                                      {f.question}
+                                    </h3>
+                                  </div>
+                                  <span
+                                    className="status-pill"
+                                    style={{
+                                      background: f.is_active ? 'rgba(16, 185, 129, 0.15)' : 'rgba(148, 163, 184, 0.15)',
+                                      color: f.is_active ? '#34d399' : 'var(--text-muted)',
+                                      border: f.is_active ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid rgba(148, 163, 184, 0.2)',
+                                      padding: '4px 10px',
+                                      borderRadius: '20px',
+                                      fontSize: '0.72rem',
+                                      fontWeight: 800,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '4px',
+                                      height: 'fit-content',
+                                      whiteSpace: 'nowrap'
+                                    }}
+                                  >
+                                    <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: f.is_active ? '#10b981' : '#94a3b8' }}></span>
+                                    {f.is_active ? 'نشط' : 'معطّل'}
+                                  </span>
+                                </div>
+                                <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', lineHeight: '1.6', marginTop: '12px', whiteSpace: 'pre-wrap' }}>
+                                  {f.answer}
+                                </p>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--glass-border)', paddingTop: '12px', marginTop: 'auto' }}>
+                                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>
+                                  الترتيب: <span className="number-latin" style={{ fontWeight: 800, color: 'var(--text-secondary)' }}>{f.display_order}</span>
+                                </span>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                  <button
+                                    onClick={() => { setEditingItem(f); setIsAdding(false); setFormFields(f); }}
+                                    className="admin-table-action-btn"
+                                  >
+                                    <Edit2 size={12} />
+                                    <span>تعديل</span>
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteFaq(f.id)}
+                                    className="admin-table-action-btn delete"
+                                  >
+                                    <Trash2 size={12} />
+                                    <span>حذف</span>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    ) : (
+                      <div style={{
+                        padding: '40px',
+                        textAlign: 'center',
+                        color: '#64748b',
+                        background: 'var(--glass-bg)',
+                        borderRadius: '16px',
+                        border: '1px dashed var(--glass-border)'
+                      }}>
+                        <HelpCircle size={32} style={{ color: '#475569', marginBottom: '12px' }} />
+                        <div style={{ fontSize: '0.9rem', fontWeight: 800 }}>لا توجد أسئلة شائعة مسجلة.</div>
+                      </div>
+                    )}
+                  </div>
+                )}
 
-                    {/* TAB 1: ORDERS */}
-                    {activeTab === 'orders' && (
+                {activeTab !== 'faqs' && (
+                  <div className="admin-table-container">
+                    <div className="admin-table-wrapper">
+
+                      {/* TAB 1: ORDERS */}
+                      {activeTab === 'orders' && (
                       <table className="admin-table">
                         <thead>
                           <tr style={{ borderBottom: '2px solid var(--border)', background: 'rgba(255,255,255,0.01)' }}>
@@ -3074,7 +3184,7 @@ export const Admin: React.FC = () => {
                     {activeTab === 'products' && (
                       <table className="admin-table">
                         <thead>
-                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.12)', background: 'rgba(30, 41, 59, 0.45)' }}>
+                          <tr style={{ borderBottom: '1px solid var(--glass-border)', background: 'var(--glass-nested-bg)' }}>
                             <th style={{ padding: '14px 16px', fontSize: '0.8rem', fontWeight: 800, color: '#94a3b8', textAlign: 'right' }}>المنتج</th>
                             <th style={{ padding: '14px 16px', fontSize: '0.8rem', fontWeight: 800, color: '#94a3b8', textAlign: 'right' }}>المعرّف (Slug)</th>
                             <th style={{ padding: '14px 16px', fontSize: '0.8rem', fontWeight: 800, color: '#94a3b8', textAlign: 'right' }}>الوصف</th>
@@ -3115,13 +3225,13 @@ export const Admin: React.FC = () => {
                                     }}>
                                       <ShoppingBag size={17} />
                                     </span>
-                                    <span style={{ fontWeight: 800, color: '#f8fafc' }}>{p.name}</span>
+                                    <span style={{ fontWeight: 800, color: 'var(--text)' }}>{p.name}</span>
                                   </div>
                                 </td>
                                 <td style={{ padding: '14px 16px' }}>
                                   <code style={{
-                                    background: 'rgba(30, 41, 59, 0.6)',
-                                    border: '1px solid rgba(148, 163, 184, 0.15)',
+                                    background: 'var(--glass-nested-bg)',
+                                    border: '1px solid var(--glass-nested-border)',
                                     borderRadius: '6px',
                                     padding: '4px 8px',
                                     fontSize: '0.75rem',
@@ -3139,7 +3249,7 @@ export const Admin: React.FC = () => {
                                     className="status-pill"
                                     style={{
                                       background: p.is_active ? 'rgba(16, 185, 129, 0.15)' : 'rgba(148, 163, 184, 0.15)',
-                                      color: p.is_active ? '#34d399' : '#cbd5e1',
+                                      color: p.is_active ? '#34d399' : 'var(--text-muted)',
                                       border: p.is_active ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid rgba(148, 163, 184, 0.2)',
                                       padding: '4px 10px',
                                       borderRadius: '20px',
@@ -3159,56 +3269,14 @@ export const Admin: React.FC = () => {
                                   <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                                     <button
                                       onClick={() => { setEditingItem(p); setIsAdding(false); setFormFields(p); }}
-                                      style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '4px',
-                                        padding: '6px 12px',
-                                        fontSize: '0.75rem',
-                                        fontWeight: 800,
-                                        borderRadius: '8px',
-                                        cursor: 'pointer',
-                                        border: '1px solid rgba(148, 163, 184, 0.15)',
-                                        background: 'rgba(255, 255, 255, 0.03)',
-                                        color: '#cbd5e1',
-                                        transition: 'all 0.2s'
-                                      }}
-                                      onMouseEnter={(e) => {
-                                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
-                                        e.currentTarget.style.color = '#f8fafc';
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
-                                        e.currentTarget.style.color = '#cbd5e1';
-                                      }}
+                                      className="admin-table-action-btn"
                                     >
                                       <Edit2 size={12} />
                                       <span>تعديل</span>
                                     </button>
                                     <button
                                       onClick={() => handleDeleteProduct(p.id)}
-                                      style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '4px',
-                                        padding: '6px 12px',
-                                        fontSize: '0.75rem',
-                                        fontWeight: 800,
-                                        borderRadius: '8px',
-                                        cursor: 'pointer',
-                                        border: '1px solid rgba(239, 68, 68, 0.15)',
-                                        background: 'rgba(239, 68, 68, 0.05)',
-                                        color: '#f87171',
-                                        transition: 'all 0.2s'
-                                      }}
-                                      onMouseEnter={(e) => {
-                                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
-                                        e.currentTarget.style.color = '#fca5a5';
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.05)';
-                                        e.currentTarget.style.color = '#f87171';
-                                      }}
+                                      className="admin-table-action-btn delete"
                                     >
                                       <Trash2 size={12} />
                                       <span>حذف</span>
@@ -3285,157 +3353,8 @@ export const Admin: React.FC = () => {
                       </div>
                     )}
 
-                    {/* TAB 7: FAQS */}
-                    {activeTab === 'faqs' && (
-                      <div>
-                        {faqsList.length > 0 ? (
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '16px' }}>
-                            {[...faqsList]
-                              .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
-                              .map((f) => (
-                                <div
-                                  key={f.id}
-                                  className="glass-panel"
-                                  style={{
-                                    borderRadius: '16px',
-                                    border: '1px solid rgba(148, 163, 184, 0.12)',
-                                    background: 'rgba(30, 41, 59, 0.4)',
-                                    padding: '20px',
-                                    boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.15)',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'space-between',
-                                    minHeight: '180px',
-                                    gap: '12px'
-                                  }}
-                                >
-                                  <div>
-                                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
-                                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                                        <span style={{
-                                          width: '32px',
-                                          height: '32px',
-                                          borderRadius: '8px',
-                                          background: 'rgba(99, 102, 241, 0.15)',
-                                          color: '#818cf8',
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          flexShrink: 0,
-                                          marginTop: '2px'
-                                        }}>
-                                          <HelpCircle size={16} />
-                                        </span>
-                                        <h3 style={{ fontSize: '0.92rem', fontWeight: 800, color: '#f8fafc', lineHeight: 1.4 }}>
-                                          {f.question}
-                                        </h3>
-                                      </div>
-                                      <span
-                                        className="status-pill"
-                                        style={{
-                                          background: f.is_active ? 'rgba(16, 185, 129, 0.15)' : 'rgba(148, 163, 184, 0.15)',
-                                          color: f.is_active ? '#34d399' : '#cbd5e1',
-                                          border: f.is_active ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid rgba(148, 163, 184, 0.2)',
-                                          padding: '4px 10px',
-                                          borderRadius: '20px',
-                                          fontSize: '0.72rem',
-                                          fontWeight: 800,
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          gap: '4px',
-                                          height: 'fit-content',
-                                          whiteSpace: 'nowrap'
-                                        }}
-                                      >
-                                        <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: f.is_active ? '#10b981' : '#94a3b8' }}></span>
-                                        {f.is_active ? 'نشط' : 'معطّل'}
-                                      </span>
-                                    </div>
-                                    <p style={{ color: '#94a3b8', fontSize: '0.82rem', lineHeight: '1.6', marginTop: '12px', whiteSpace: 'pre-wrap' }}>
-                                      {f.answer}
-                                    </p>
-                                  </div>
-                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(148, 163, 184, 0.1)', paddingTop: '12px', marginTop: 'auto' }}>
-                                    <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700 }}>
-                                      الترتيب: <span className="number-latin" style={{ fontWeight: 800, color: '#94a3b8' }}>{f.display_order}</span>
-                                    </span>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                      <button
-                                        onClick={() => { setEditingItem(f); setIsAdding(false); setFormFields(f); }}
-                                        style={{
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          gap: '4px',
-                                          padding: '6px 12px',
-                                          fontSize: '0.75rem',
-                                          fontWeight: 800,
-                                          borderRadius: '8px',
-                                          cursor: 'pointer',
-                                          border: '1px solid rgba(148, 163, 184, 0.15)',
-                                          background: 'rgba(255, 255, 255, 0.03)',
-                                          color: '#cbd5e1',
-                                          transition: 'all 0.2s'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
-                                          e.currentTarget.style.color = '#f8fafc';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
-                                          e.currentTarget.style.color = '#cbd5e1';
-                                        }}
-                                      >
-                                        <Edit2 size={12} />
-                                        <span>تعديل</span>
-                                      </button>
-                                      <button
-                                        onClick={() => handleDeleteFaq(f.id)}
-                                        style={{
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          gap: '4px',
-                                          padding: '6px 12px',
-                                          fontSize: '0.75rem',
-                                          fontWeight: 800,
-                                          borderRadius: '8px',
-                                          cursor: 'pointer',
-                                          border: '1px solid rgba(239, 68, 68, 0.15)',
-                                          background: 'rgba(239, 68, 68, 0.05)',
-                                          color: '#f87171',
-                                          transition: 'all 0.2s'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
-                                          e.currentTarget.style.color = '#fca5a5';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.05)';
-                                          e.currentTarget.style.color = '#f87171';
-                                        }}
-                                      >
-                                        <Trash2 size={12} />
-                                        <span>حذف</span>
-                                      </button>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                          </div>
-                        ) : (
-                          <div style={{
-                            padding: '40px',
-                            textAlign: 'center',
-                            color: '#64748b',
-                            background: 'rgba(30, 41, 59, 0.2)',
-                            borderRadius: '16px',
-                            border: '1px dashed rgba(148, 163, 184, 0.12)'
-                          }}>
-                            <HelpCircle size={32} style={{ color: '#475569', marginBottom: '12px' }} />
-                            <div style={{ fontSize: '0.9rem', fontWeight: 800 }}>لا توجد أسئلة شائعة مسجلة.</div>
-                          </div>
-                        )}
-                      </div>
-                    )}
+
+
 
                     {/* TAB 8: TESTIMONIALS */}
                     {activeTab === 'testimonials' && (
@@ -3473,7 +3392,7 @@ export const Admin: React.FC = () => {
                                     </div>
                                   </td>
                                   <td style={{ padding: '16px' }}>
-                                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '26px', height: '26px', borderRadius: '50%', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(148, 163, 184, 0.18)', fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 800 }} className="number-latin">
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '26px', height: '26px', borderRadius: '50%', background: 'var(--glass-nested-bg)', border: '1px solid var(--glass-nested-border)', fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 800 }} className="number-latin">
                                       {t.display_order}
                                     </span>
                                   </td>
@@ -3508,10 +3427,11 @@ export const Admin: React.FC = () => {
                     )}
 
 
-                  </div> {/* Close admin-table-wrapper */}
-                </div> {/* Close admin-table-container */}
-              </>
-            )}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
           </div> {/* Close admin-content */}
         </div> {/* Close admin-layout */}
 
@@ -3525,17 +3445,17 @@ export const Admin: React.FC = () => {
               .redesign-input {
                 width: 100% !important;
                 padding: 12px 16px !important;
-                background: rgba(30, 41, 59, 0.45) !important;
-                border: 1px solid rgba(148, 163, 184, 0.18) !important;
+                background: var(--glass-nested-bg) !important;
+                border: 1px solid var(--glass-nested-border) !important;
                 border-radius: 12px !important;
-                color: #f8fafc !important;
+                color: var(--text) !important;
                 font-size: 0.85rem !important;
                 outline: none !important;
                 transition: all 0.2s !important;
               }
               .redesign-input:focus {
                 border-color: #818cf8 !important;
-                background: rgba(30, 41, 59, 0.6) !important;
+                background: var(--glass-nested-bg) !important;
                 box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2) !important;
               }
               /* Hide spinner arrows on number inputs */
@@ -3548,8 +3468,8 @@ export const Admin: React.FC = () => {
                 -moz-appearance: textfield !important;
               }
               .redesign-panel {
-                background: rgba(30, 41, 59, 0.4) !important;
-                border: 1px solid rgba(148, 163, 184, 0.18) !important;
+                background: var(--glass-nested-bg) !important;
+                border: 1px solid var(--glass-nested-border) !important;
                 border-radius: 12px !important;
               }
               .redesign-label {
@@ -3559,7 +3479,7 @@ export const Admin: React.FC = () => {
                 margin-bottom: 8px !important;
                 font-size: 0.82rem !important;
                 font-weight: 700 !important;
-                color: #cbd5e1 !important;
+                color: var(--text-secondary) !important;
               }
               .redesign-btn-primary {
                 padding: 10px 24px !important;
@@ -3586,14 +3506,14 @@ export const Admin: React.FC = () => {
                 font-weight: 800 !important;
                 cursor: pointer !important;
                 background: transparent !important;
-                border: 1px solid rgba(148, 163, 184, 0.25) !important;
-                color: #cbd5e1 !important;
+                border: 1px solid var(--glass-border) !important;
+                color: var(--text-secondary) !important;
                 transition: all 0.2s !important;
               }
               .redesign-btn-outline:hover {
-                background: rgba(255, 255, 255, 0.05) !important;
-                color: #f8fafc !important;
-                border-color: rgba(148, 163, 184, 0.4) !important;
+                background: var(--glass-hover-bg) !important;
+                color: var(--text) !important;
+                border-color: rgba(99, 102, 241, 0.35) !important;
               }
             `}</style>
             <button
@@ -3700,7 +3620,7 @@ export const Admin: React.FC = () => {
                 </div>
                 <div>
                   <div className="redesign-panel" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '12px 16px' }}>
-                    <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#cbd5e1' }}>نشط ومتاح للعامة</span>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-secondary)' }}>نشط ومتاح للعامة</span>
                     <button
                       type="button"
                       onClick={() => setFormFields({ ...formFields, is_active: !(formFields.is_active ?? true) })}
@@ -3735,7 +3655,7 @@ export const Admin: React.FC = () => {
                     </button>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px', borderTop: '1px solid rgba(148, 163, 184, 0.18)', paddingTop: '16px' }}>
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px', borderTop: '1px solid var(--glass-nested-border)', paddingTop: '16px' }}>
                   <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="redesign-btn-outline">إلغاء</button>
                   <button onClick={handleSaveProduct} className="redesign-btn-primary">{editingItem ? "حفظ التعديلات" : "إضافة المنتج"}</button>
                 </div>
@@ -3855,7 +3775,7 @@ export const Admin: React.FC = () => {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <div className="redesign-panel" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '10px 14px', height: '44px' }}>
-                    <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#cbd5e1' }}>باقة مميزة</span>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-secondary)' }}>باقة مميزة</span>
                     <button
                       type="button"
                       onClick={() => setFormFields({ ...formFields, is_featured: !(formFields.is_featured ?? false) })}
@@ -3890,7 +3810,7 @@ export const Admin: React.FC = () => {
                     </button>
                   </div>
                   <div className="redesign-panel" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '10px 14px', height: '44px' }}>
-                    <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#cbd5e1' }}>نشطة ومتاحة</span>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-secondary)' }}>نشطة ومتاحة</span>
                     <button
                       type="button"
                       onClick={() => setFormFields({ ...formFields, is_active: !(formFields.is_active ?? true) })}
@@ -3926,7 +3846,7 @@ export const Admin: React.FC = () => {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px', borderTop: '1px solid rgba(148, 163, 184, 0.18)', paddingTop: '16px' }}>
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px', borderTop: '1px solid var(--glass-nested-border)', paddingTop: '16px' }}>
                   <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="redesign-btn-outline">إلغاء</button>
                   <button onClick={handleSavePlan} className="redesign-btn-primary">{editingItem ? "حفظ التعديلات" : "إضافة الباقة"}</button>
                 </div>
@@ -3982,7 +3902,7 @@ export const Admin: React.FC = () => {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', height: '44px', paddingBottom: '4px' }}>
                     <div className="redesign-panel" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '10px 14px', height: '44px' }}>
-                      <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#cbd5e1' }}>نشط</span>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-secondary)' }}>نشط</span>
                       <button
                         type="button"
                         onClick={() => setFormFields({ ...formFields, is_active: !(formFields.is_active ?? true) })}
@@ -4018,7 +3938,7 @@ export const Admin: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px', borderTop: '1px solid rgba(148, 163, 184, 0.18)', paddingTop: '16px' }}>
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px', borderTop: '1px solid var(--glass-nested-border)', paddingTop: '16px' }}>
                   <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="redesign-btn-outline">إلغاء</button>
                   <button onClick={handleSaveFaq} className="redesign-btn-primary">{editingItem ? "حفظ" : "إضافة"}</button>
                 </div>
@@ -4133,7 +4053,7 @@ export const Admin: React.FC = () => {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', height: '44px', paddingBottom: '4px' }}>
                     <div className="redesign-panel" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '10px 14px', height: '44px' }}>
-                      <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#cbd5e1' }}>نشط</span>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-secondary)' }}>نشط</span>
                       <button
                         type="button"
                         onClick={() => setFormFields({ ...formFields, is_active: !(formFields.is_active ?? true) })}
@@ -4169,7 +4089,7 @@ export const Admin: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px', borderTop: '1px solid rgba(148, 163, 184, 0.18)', paddingTop: '16px' }}>
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px', borderTop: '1px solid var(--glass-nested-border)', paddingTop: '16px' }}>
                   <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="redesign-btn-outline">إلغاء</button>
                   <button onClick={handleSaveTestimonial} className="redesign-btn-primary">{editingItem ? "حفظ" : "إضافة"}</button>
                 </div>
@@ -4264,7 +4184,7 @@ export const Admin: React.FC = () => {
                     style={{ minHeight: '70px', resize: 'vertical' }}
                   />
                 </div>
-                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px', borderTop: '1px solid rgba(148, 163, 184, 0.18)', paddingTop: '16px' }}>
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px', borderTop: '1px solid var(--glass-nested-border)', paddingTop: '16px' }}>
                   <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="redesign-btn-outline">إلغاء</button>
                   <button onClick={handleSaveGmailAccount} className="redesign-btn-primary">حفظ</button>
                 </div>
@@ -4516,7 +4436,7 @@ export const Admin: React.FC = () => {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px', borderTop: '1px solid rgba(148, 163, 184, 0.18)', paddingTop: '16px' }}>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px', borderTop: '1px solid var(--glass-nested-border)', paddingTop: '16px' }}>
               <button
                 onClick={() => setAssigningOrder(null)}
                 className="redesign-btn-outline"
