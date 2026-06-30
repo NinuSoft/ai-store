@@ -3210,6 +3210,8 @@ export const Admin: React.FC = () => {
             <h3 style={{ marginBottom: '20px', color: 'var(--text)', fontWeight: 800 }}>
               {activeTab === 'testimonials'
                 ? (editingItem ? 'تعديل التقييم' : 'إضافة رأي عميل')
+                : activeTab === 'faqs'
+                ? (editingItem ? 'تعديل السؤال' : 'إضافة سؤال شائع')
                 : (editingItem ? 'تعديل البيانات' : 'إضافة سجل جديد')}
             </h3>
 
@@ -3384,55 +3386,157 @@ export const Admin: React.FC = () => {
 
             {activeTab === 'faqs' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <style>{`
+                  .redesign-input {
+                    width: 100% !important;
+                    padding: 12px 16px !important;
+                    background: rgba(30, 41, 59, 0.45) !important;
+                    border: 1px solid rgba(148, 163, 184, 0.18) !important;
+                    border-radius: 12px !important;
+                    color: #f8fafc !important;
+                    font-size: 0.85rem !important;
+                    outline: none !important;
+                    transition: all 0.2s !important;
+                  }
+                  .redesign-input:focus {
+                    border-color: #818cf8 !important;
+                    background: rgba(30, 41, 59, 0.6) !important;
+                    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2) !important;
+                  }
+                  .redesign-panel {
+                    background: rgba(30, 41, 59, 0.4) !important;
+                    border: 1px solid rgba(148, 163, 184, 0.18) !important;
+                    border-radius: 12px !important;
+                  }
+                  .redesign-label {
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 6px !important;
+                    margin-bottom: 8px !important;
+                    font-size: 0.82rem !important;
+                    font-weight: 700 !important;
+                    color: #cbd5e1 !important;
+                  }
+                  .redesign-btn-primary {
+                    padding: 10px 24px !important;
+                    border-radius: 12px !important;
+                    font-size: 0.85rem !important;
+                    font-weight: 800 !important;
+                    cursor: pointer !important;
+                    background: #4f46e5 !important;
+                    border: 1px solid #4f46e5 !important;
+                    color: #ffffff !important;
+                    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25) !important;
+                    transition: all 0.2s !important;
+                  }
+                  .redesign-btn-primary:hover {
+                    background: #4338ca !important;
+                    border-color: #4338ca !important;
+                    transform: translateY(-1px) !important;
+                    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35) !important;
+                  }
+                  .redesign-btn-outline {
+                    padding: 10px 24px !important;
+                    border-radius: 12px !important;
+                    font-size: 0.85rem !important;
+                    font-weight: 800 !important;
+                    cursor: pointer !important;
+                    background: transparent !important;
+                    border: 1px solid rgba(148, 163, 184, 0.25) !important;
+                    color: #cbd5e1 !important;
+                    transition: all 0.2s !important;
+                  }
+                  .redesign-btn-outline:hover {
+                    background: rgba(255, 255, 255, 0.05) !important;
+                    color: #f8fafc !important;
+                    border-color: rgba(148, 163, 184, 0.4) !important;
+                  }
+                `}</style>
+
                 <div>
-                  <label className="admin-form-label">السؤال (باللغة العربية)</label>
+                  <label className="redesign-label">
+                    <MessageSquare size={14} style={{ color: '#818cf8' }} />
+                    <span>السؤال</span>
+                  </label>
                   <input
                     type="text" value={formFields.question || ''}
                     onChange={e => setFormFields({ ...formFields, question: e.target.value })}
-                    className="admin-input-text"
+                    className="redesign-input"
+                    placeholder="اكتب السؤال..."
                     dir="auto"
                   />
                 </div>
                 <div>
-                  <label className="admin-form-label">الإجابة (باللغة العربية)</label>
+                  <label className="redesign-label">
+                    <Sparkles size={14} style={{ color: '#818cf8' }} />
+                    <span>الإجابة</span>
+                  </label>
                   <textarea
                     value={formFields.answer || ''}
                     onChange={e => setFormFields({ ...formFields, answer: e.target.value })}
-                    className="admin-input-text"
+                    className="redesign-input"
+                    placeholder="اكتب الإجابة التفصيلية..."
                     dir="auto"
-                    style={{ minHeight: '120px' }}
+                    style={{
+                      minHeight: '120px',
+                      resize: 'vertical',
+                      lineHeight: '1.6'
+                    }}
                   />
                 </div>
-                <div>
-                  <label className="admin-form-label">ترتيب العرض</label>
-                  <input
-                    type="number" value={formFields.display_order ?? 0}
-                    onChange={e => setFormFields({ ...formFields, display_order: e.target.value })}
-                    className="admin-input-text"
-                  />
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', margin: '4px 0' }}>
-                  <label className="flex items-center gap-3 cursor-pointer select-none">
-                    <div className="relative w-5 h-5 flex-shrink-0">
-                      <input
-                        type="checkbox"
-                        checked={formFields.is_active ?? true}
-                        onChange={e => setFormFields({ ...formFields, is_active: e.target.checked })}
-                        className="sr-only peer"
-                      />
-                      <div className="w-5 h-5 rounded-md border border-[var(--border)] bg-[var(--background-alt)] transition-all peer-checked:bg-[var(--primary)] peer-checked:border-[var(--primary)] peer-focus:ring-2 peer-focus:ring-[var(--primary)]/20"></div>
-                      <svg className="absolute inset-0 w-5 h-5 p-0.5 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', alignItems: 'end' }}>
+                  <div>
+                    <label className="redesign-label">
+                      <Activity size={14} style={{ color: '#818cf8' }} />
+                      <span>ترتيب العرض</span>
+                    </label>
+                    <input
+                      type="number" value={formFields.display_order ?? 0}
+                      onChange={e => setFormFields({ ...formFields, display_order: Number(e.target.value) })}
+                      className="redesign-input number-latin"
+                    />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', height: '44px', paddingBottom: '4px' }}>
+                    <div className="redesign-panel" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '10px 14px', height: '44px' }}>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#cbd5e1' }}>نشط</span>
+                      <button
+                        type="button"
+                        onClick={() => setFormFields({ ...formFields, is_active: !(formFields.is_active ?? true) })}
+                        style={{
+                          position: 'relative',
+                          width: '44px',
+                          height: '24px',
+                          borderRadius: '12px',
+                          background: (formFields.is_active ?? true) ? '#4f46e5' : 'rgba(71, 85, 105, 0.6)',
+                          border: 'none',
+                          cursor: 'pointer',
+                          transition: 'background-color 0.2s',
+                          padding: 0
+                        }}
+                      >
+                        <div style={{
+                          position: 'absolute',
+                          top: '2px',
+                          right: (formFields.is_active ?? true) ? '2px' : 'calc(100% - 22px)',
+                          width: '20px',
+                          height: '20px',
+                          borderRadius: '50%',
+                          background: '#ffffff',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                          transition: 'right 0.2s, left 0.2s',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}>
+                          {(formFields.is_active ?? true) && <Check size={12} style={{ color: '#4f46e5' }} />}
+                        </div>
+                      </button>
                     </div>
-                    <span className="text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text)] transition-colors">
-                      نشط ويعرض بالموقع
-                    </span>
-                  </label>
+                  </div>
                 </div>
-                <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
-                  <button onClick={handleSaveFaq} className="btn btn-primary" style={{ padding: '8px 20px' }}>حفظ</button>
-                  <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="btn btn-outline" style={{ padding: '8px 20px' }}>إلغاء</button>
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px', borderTop: '1px solid rgba(148, 163, 184, 0.18)', paddingTop: '16px' }}>
+                  <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="redesign-btn-outline">إلغاء</button>
+                  <button onClick={handleSaveFaq} className="redesign-btn-primary">{editingItem ? "حفظ" : "إضافة"}</button>
                 </div>
               </div>
             )}
