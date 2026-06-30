@@ -1511,31 +1511,7 @@ export const Admin: React.FC = () => {
           {/* RIGHT COLUMN: Sidebar (Metrics + Navigation) */}
           <aside className="admin-sidebar" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-            {/* METRICS STACK */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }} className="text-right">
-              {/* Revenue card */}
-              <div className="metric-card" style={{ padding: '20px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                  <span style={{ display: 'flex', width: '44px', height: '44px', alignItems: 'center', justifyContent: 'center', borderRadius: '12px', background: 'var(--success-light)', color: 'var(--success)' }}>
-                    <DollarSign size={20} />
-                  </span>
-                  <div style={{ width: '96px', height: '40px', opacity: 0.9 }}>
-                    <Sparkline data={series.revenue} color="var(--success)" />
-                  </div>
-                </div>
-                <p style={{ marginTop: '16px', fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-muted)' }}>إجمالي الإيرادات</p>
-                <div style={{ marginTop: '4px', display: 'flex', alignItems: 'end', gap: '8px' }}>
-                  <strong style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--text)' }} className="number-latin">
-                    {stats.totalRevenue.toLocaleString('en-US')}
-                  </strong>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>د.ع</span>
-                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${pct(series.revenue, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
-                    }`} style={{ direction: 'ltr', marginBottom: '4px' }}>
-                    {pct(series.revenue, lastIdx) >= 0 ? '+' : ''}{pct(series.revenue, lastIdx)}%
-                  </span>
-                </div>
-              </div>
-            </div>
+
 
             {/* NAVIGATION PANEL */}
             <div className="glass-panel" style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -1668,7 +1644,30 @@ export const Admin: React.FC = () => {
           <div className="admin-content" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
             {/* 1. METRICS DASHBOARD */}
-            <section className="grid grid-cols-1 md:grid-cols-3 gap-6 text-right animate-slide-up">
+            <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-right animate-slide-up">
+
+              {/* Revenue card */}
+              <div className="metric-card" style={{ padding: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                  <span style={{ display: 'flex', width: '44px', height: '44px', alignItems: 'center', justifyContent: 'center', borderRadius: '12px', background: 'var(--success-light)', color: 'var(--success)' }}>
+                    <DollarSign size={20} />
+                  </span>
+                  <div style={{ width: '96px', height: '40px', opacity: 0.9 }}>
+                    <Sparkline data={series.revenue} color="var(--success)" />
+                  </div>
+                </div>
+                <p style={{ marginTop: '16px', fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-muted)' }}>إجمالي الإيرادات</p>
+                <div style={{ marginTop: '4px', display: 'flex', alignItems: 'end', gap: '8px' }}>
+                  <strong style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--text)' }} className="number-latin">
+                    {stats.totalRevenue.toLocaleString('en-US')}
+                  </strong>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>د.ع</span>
+                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${pct(series.revenue, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
+                    }`} style={{ direction: 'ltr', marginBottom: '4px' }}>
+                    {pct(series.revenue, lastIdx) >= 0 ? '+' : ''}{pct(series.revenue, lastIdx)}%
+                  </span>
+                </div>
+              </div>
 
               {/* Active subs card */}
               <div className="metric-card" style={{ padding: '20px' }}>
@@ -3101,7 +3100,10 @@ export const Admin: React.FC = () => {
                   <label className="admin-form-label">2FA Secret (مفتاح المصادقة الثنائية)</label>
                   <input
                     type="text" value={formFields.twofa_secret || ''}
-                    onChange={e => setFormFields({ ...formFields, twofa_secret: e.target.value })}
+                    onChange={e => {
+                      const sanitized = e.target.value.replace(/\s/g, '').toUpperCase();
+                      setFormFields({ ...formFields, twofa_secret: sanitized });
+                    }}
                     className="admin-input-text"
                     placeholder="Base32 Key"
                   />
