@@ -914,14 +914,22 @@ export const useAdminData = () => {
     const orderCounts: number[] = [];
     const userCounts: number[] = [];
     const subCounts: number[] = [];
+    const cumulativeRevenue: number[] = [];
+    const cumulativeUsers: number[] = [];
+    const cumulativeOrders: number[] = [];
+    const activeSubSnapshots: number[] = [];
 
     months.forEach((mo) => {
+      const startLimit = new Date(mo.y, mo.m, 1);
+      const endLimit = new Date(mo.y, mo.m + 1, 0, 23, 59, 59, 999);
+
       const inMonth = (iso?: string) => {
         if (!iso) return false;
         const d = new Date(iso);
         return d.getFullYear() === mo.y && d.getMonth() === mo.m;
       };
 
+      // Monthly revenue
       let rev = 0;
       orders.forEach((o) => {
         if (inMonth(o.payment_date || o.created_at)) {
@@ -932,11 +940,58 @@ export const useAdminData = () => {
         }
       });
       revenue.push(rev);
+
+      // Monthly increments
       orderCounts.push(orders.filter((o) => inMonth(o.created_at)).length);
       userCounts.push(users.filter((u) => inMonth(u.created_at)).length);
       subCounts.push(subscriptions.filter((s) => inMonth(s.start_date)).length);
+
+      // Cumulative revenue
+      let cumRev = 0;
+      orders.forEach((o) => {
+        if (o.status === "paid") {
+          const date = new Date(o.payment_date || o.created_at);
+          if (date <= endLimit) {
+            const p = plans[o.plan_id];
+            if (p) cumRev += p.price_iqd;
+          }
+        }
+      });
+      cumulativeRevenue.push(cumRev);
+
+      // Cumulative users
+      const cumUsersCount = users.filter((u) => {
+        const date = new Date(u.created_at);
+        return date <= endLimit;
+      }).length;
+      cumulativeUsers.push(cumUsersCount);
+
+      // Cumulative orders
+      const cumOrdersCount = orders.filter((o) => {
+        const date = new Date(o.created_at);
+        return date <= endLimit;
+      }).length;
+      cumulativeOrders.push(cumOrdersCount);
+
+      // Active subscriptions in month
+      const activeSubsCount = subscriptions.filter((s) => {
+        const start = new Date(s.start_date);
+        const end = new Date(s.end_date);
+        return start <= endLimit && end >= startLimit;
+      }).length;
+      activeSubSnapshots.push(activeSubsCount);
     });
-    return { revenue, orderCounts, userCounts, subCounts };
+
+    return {
+      revenue,
+      orderCounts,
+      userCounts,
+      subCounts,
+      cumulativeRevenue,
+      cumulativeUsers,
+      cumulativeOrders,
+      activeSubSnapshots
+    };
   }, [months, orders, users, subscriptions, plans]);
 
   const pct = (a: number[], i: number) => {

@@ -712,7 +712,7 @@ export const AdminDashboard: React.FC = () => {
                     <DollarSign size={20} />
                   </span>
                   <div style={{ width: '96px', height: '40px', opacity: 0.9 }}>
-                    <Sparkline data={series.revenue} color={pct(series.revenue, lastIdx) >= 0 ? "var(--success)" : "var(--danger)"} />
+                    <Sparkline data={series.cumulativeRevenue} color={pct(series.cumulativeRevenue, lastIdx) >= 0 ? "var(--success)" : "var(--danger)"} />
                   </div>
                 </div>
                 <p style={{ marginTop: '16px', fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-muted)' }}>إجمالي الإيرادات</p>
@@ -721,9 +721,9 @@ export const AdminDashboard: React.FC = () => {
                     {stats.totalRevenue.toLocaleString('en-US')}
                   </strong>
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>د.ع</span>
-                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${pct(series.revenue, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
+                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${pct(series.cumulativeRevenue, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
                     }`} style={{ direction: 'ltr', marginBottom: '4px' }}>
-                    {pct(series.revenue, lastIdx) >= 0 ? '+' : ''}{pct(series.revenue, lastIdx)}%
+                    {pct(series.cumulativeRevenue, lastIdx) >= 0 ? '+' : ''}{pct(series.cumulativeRevenue, lastIdx)}%
                   </span>
                 </div>
               </div>
@@ -735,7 +735,7 @@ export const AdminDashboard: React.FC = () => {
                     <Activity size={20} />
                   </span>
                   <div style={{ width: '96px', height: '40px', opacity: 0.9 }}>
-                    <Sparkline data={series.subCounts} color={pct(series.subCounts, lastIdx) >= 0 ? "var(--primary)" : "var(--danger)"} />
+                    <Sparkline data={series.activeSubSnapshots} color={pct(series.activeSubSnapshots, lastIdx) >= 0 ? "var(--primary)" : "var(--danger)"} />
                   </div>
                 </div>
                 <p style={{ marginTop: '16px', fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-muted)' }}>الاشتراكات النشطة</p>
@@ -744,9 +744,9 @@ export const AdminDashboard: React.FC = () => {
                     {stats.activeSubs}
                   </strong>
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>اشتراك</span>
-                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${pct(series.subCounts, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
+                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${pct(series.activeSubSnapshots, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
                     }`} style={{ direction: 'ltr', marginBottom: '4px' }}>
-                    {pct(series.subCounts, lastIdx) >= 0 ? '+' : ''}{pct(series.subCounts, lastIdx)}%
+                    {pct(series.activeSubSnapshots, lastIdx) >= 0 ? '+' : ''}{pct(series.activeSubSnapshots, lastIdx)}%
                   </span>
                 </div>
               </div>
@@ -758,7 +758,7 @@ export const AdminDashboard: React.FC = () => {
                     <ShoppingBag size={20} />
                   </span>
                   <div style={{ width: '96px', height: '40px', opacity: 0.9 }}>
-                    <Sparkline data={series.orderCounts} color={pct(series.orderCounts, lastIdx) >= 0 ? "var(--warning)" : "var(--danger)"} />
+                    <Sparkline data={series.cumulativeOrders} color={pct(series.cumulativeOrders, lastIdx) >= 0 ? "var(--warning)" : "var(--danger)"} />
                   </div>
                 </div>
                 <p style={{ marginTop: '16px', fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-muted)' }}>طلبات معلّقة</p>
@@ -767,9 +767,9 @@ export const AdminDashboard: React.FC = () => {
                     {stats.pendingOrders}
                   </strong>
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>طلب معلق</span>
-                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${pct(series.orderCounts, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
+                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${pct(series.cumulativeOrders, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
                     }`} style={{ direction: 'ltr', marginBottom: '4px' }}>
-                    {pct(series.orderCounts, lastIdx) >= 0 ? '+' : ''}{pct(series.orderCounts, lastIdx)}%
+                    {pct(series.cumulativeOrders, lastIdx) >= 0 ? '+' : ''}{pct(series.cumulativeOrders, lastIdx)}%
                   </span>
                 </div>
               </div>
@@ -781,7 +781,7 @@ export const AdminDashboard: React.FC = () => {
                     <Users size={20} />
                   </span>
                   <div style={{ width: '96px', height: '40px', opacity: 0.9 }}>
-                    <Sparkline data={series.userCounts} color={pct(series.userCounts, lastIdx) >= 0 ? "var(--secondary)" : "var(--danger)"} />
+                    <Sparkline data={series.cumulativeUsers} color={pct(series.cumulativeUsers, lastIdx) >= 0 ? "var(--secondary)" : "var(--danger)"} />
                   </div>
                 </div>
                 <p style={{ marginTop: '16px', fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-muted)' }}>إجمالي المسجّلين</p>
@@ -790,9 +790,9 @@ export const AdminDashboard: React.FC = () => {
                     {stats.totalUsers}
                   </strong>
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>عميل مسجل</span>
-                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${pct(series.userCounts, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
+                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${pct(series.cumulativeUsers, lastIdx) >= 0 ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-rose-100/10 text-rose-500 border border-rose-500/20"
                     }`} style={{ direction: 'ltr', marginBottom: '4px' }}>
-                    {pct(series.userCounts, lastIdx) >= 0 ? '+' : ''}{pct(series.userCounts, lastIdx)}%
+                    {pct(series.cumulativeUsers, lastIdx) >= 0 ? '+' : ''}{pct(series.cumulativeUsers, lastIdx)}%
                   </span>
                 </div>
               </div>
