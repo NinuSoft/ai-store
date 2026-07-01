@@ -712,7 +712,7 @@ export const AdminDashboard: React.FC = () => {
                     <DollarSign size={20} />
                   </span>
                   <div style={{ width: '96px', height: '40px', opacity: 0.9 }}>
-                    <Sparkline data={series.revenue} color="var(--success)" />
+                    <Sparkline data={series.revenue} color={pct(series.revenue, lastIdx) >= 0 ? "var(--success)" : "var(--danger)"} />
                   </div>
                 </div>
                 <p style={{ marginTop: '16px', fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-muted)' }}>إجمالي الإيرادات</p>
@@ -735,7 +735,7 @@ export const AdminDashboard: React.FC = () => {
                     <Activity size={20} />
                   </span>
                   <div style={{ width: '96px', height: '40px', opacity: 0.9 }}>
-                    <Sparkline data={series.subCounts} color="var(--primary)" />
+                    <Sparkline data={series.subCounts} color={pct(series.subCounts, lastIdx) >= 0 ? "var(--primary)" : "var(--danger)"} />
                   </div>
                 </div>
                 <p style={{ marginTop: '16px', fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-muted)' }}>الاشتراكات النشطة</p>
@@ -758,7 +758,7 @@ export const AdminDashboard: React.FC = () => {
                     <ShoppingBag size={20} />
                   </span>
                   <div style={{ width: '96px', height: '40px', opacity: 0.9 }}>
-                    <Sparkline data={series.orderCounts} color="var(--warning)" />
+                    <Sparkline data={series.orderCounts} color={pct(series.orderCounts, lastIdx) >= 0 ? "var(--warning)" : "var(--danger)"} />
                   </div>
                 </div>
                 <p style={{ marginTop: '16px', fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-muted)' }}>طلبات معلّقة</p>
@@ -781,7 +781,7 @@ export const AdminDashboard: React.FC = () => {
                     <Users size={20} />
                   </span>
                   <div style={{ width: '96px', height: '40px', opacity: 0.9 }}>
-                    <Sparkline data={series.userCounts} color="var(--secondary)" />
+                    <Sparkline data={series.userCounts} color={pct(series.userCounts, lastIdx) >= 0 ? "var(--secondary)" : "var(--danger)"} />
                   </div>
                 </div>
                 <p style={{ marginTop: '16px', fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-muted)' }}>إجمالي المسجّلين</p>
