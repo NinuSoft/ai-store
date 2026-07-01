@@ -4,7 +4,7 @@ import {
   ShieldCheck, ArrowRight, Activity, ShoppingBag,
   DollarSign, RotateCw, Users, Mail, PlusCircle,
   MessageSquare, Sparkles, Settings, LogOut, Check, X,
-  Search
+  Search, Menu, ChevronDown
 } from 'lucide-react';
 
 import { ThemeToggle } from '../components/ThemeToggle';
@@ -26,6 +26,7 @@ import { Sparkline } from '../components/admin/AdminCharts';
 
 export const AdminDashboard: React.FC = () => {
   const adminState = useAdminData();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   const {
     profile,
@@ -107,6 +108,41 @@ export const AdminDashboard: React.FC = () => {
     setActiveTab
   } = adminState;
 
+  const getTabDetails = (tab: string) => {
+    switch (tab) {
+      case 'overview':
+        return { label: 'الرئيسية', icon: <Activity size={18} /> };
+      case 'orders':
+        return { label: 'الطلبات الواردة', icon: <ShoppingBag size={18} />, count: orders.length };
+      case 'renewals':
+        return { label: 'طلبات التجديد', icon: <RotateCw size={18} />, count: renewals.length };
+      case 'subscriptions':
+        return { label: 'الاشتراكات', icon: <ShieldCheck size={18} />, count: subscriptions.length };
+      case 'users':
+        return { label: 'المستخدمين', icon: <Users size={18} />, count: users.length };
+      case 'gmail_accounts':
+        return { label: 'حسابات Gmail للمشاركة', icon: <Mail size={18} />, count: gmailAccountsList.length };
+      case 'products':
+        return { label: 'المنتجات', icon: <DollarSign size={18} />, count: productsList.length };
+      case 'plans':
+        return { label: 'الباقات', icon: <PlusCircle size={18} />, count: Object.keys(plans).length };
+      case 'faqs':
+        return { label: 'الأسئلة الشائعة', icon: <MessageSquare size={18} />, count: faqsList.length };
+      case 'testimonials':
+        return { label: 'الآراء والتقييمات', icon: <Sparkles size={18} />, count: testimonialsList.length };
+      case 'settings':
+        return { label: 'إعدادات المتجر', icon: <Settings size={18} /> };
+      default:
+        return { label: '', icon: null };
+    }
+  };
+
+  const selectTab = (tab: any) => {
+    setActiveTab(tab);
+    setStatusFilter('all');
+    setIsMobileMenuOpen(false);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[var(--background)] text-[var(--text)]">
@@ -156,7 +192,105 @@ export const AdminDashboard: React.FC = () => {
           flex-direction: column;
           gap: 28px;
         }
+        .admin-mobile-selector {
+          display: none;
+        }
+        .mobile-only {
+          display: block;
+        }
+        .desktop-only {
+          display: none;
+        }
+        .header-btn {
+          padding: 8px !important;
+        }
         @media (min-width: 1024px) {
+          .header-btn {
+            padding: 6px 16px !important;
+          }
+        }
+        @media (max-width: 1023px) {
+          .mobile-only {
+            display: block !important;
+          }
+          .desktop-only {
+            display: none !important;
+          }
+          .admin-mobile-selector {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 12px 18px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text);
+            box-shadow: var(--shadow-sm);
+            direction: rtl;
+            position: sticky;
+            top: 75px;
+            z-index: 50;
+            margin-bottom: 24px;
+          }
+          .admin-mobile-selector:hover {
+            background: var(--glass-hover-bg);
+            border-color: rgba(99, 102, 241, 0.35);
+          }
+          .admin-sidebar {
+            display: none !important;
+          }
+          .admin-sidebar.mobile-open {
+            display: flex !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+            background: rgba(15, 23, 42, 0.5) !important;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            padding: 20px;
+            align-items: center;
+            justify-content: center;
+            animation: mobile-menu-fade-in 0.25s ease-out forwards;
+          }
+          .admin-sidebar-mobile-container {
+            width: 100%;
+            max-width: 420px;
+            background: var(--glass-modal-bg) !important;
+            border: 1px solid var(--glass-modal-border) !important;
+            border-radius: 24px;
+            padding: 24px 20px;
+            box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: mobile-menu-scale-up 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+          }
+        }
+        @keyframes mobile-menu-fade-in {
+          from { background: rgba(15, 23, 42, 0); }
+          to { background: rgba(15, 23, 42, 0.5); }
+        }
+        @keyframes mobile-menu-scale-up {
+          from { transform: scale(0.92) translateY(12px); opacity: 0; }
+          to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        @media (min-width: 1024px) {
+          .mobile-only {
+            display: none !important;
+          }
+          .desktop-only {
+            display: block !important;
+          }
           .admin-layout {
             flex-direction: row;
             align-items: start;
@@ -166,6 +300,7 @@ export const AdminDashboard: React.FC = () => {
             flex-shrink: 0;
             position: sticky;
             top: 24px;
+            display: flex !important;
           }
           .admin-content {
             flex-grow: 1;
@@ -545,41 +680,94 @@ export const AdminDashboard: React.FC = () => {
       `}</style>
 
       {/* HEADER */}
-      <header style={{ borderBottom: '1px solid var(--glass-border)', background: 'var(--glass-bg)', padding: '16px 0', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+      <header style={{ 
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
+        borderBottom: '1px solid var(--glass-border)', 
+        background: 'var(--glass-bg)', 
+        padding: '12px 0', 
+        backdropFilter: 'blur(16px)', 
+        WebkitBackdropFilter: 'blur(16px)' 
+      }}>
         <div className="container flex justify-between items-center">
           <div className="flex items-center gap-2">
             <ShieldCheck size={24} style={{ color: 'var(--secondary)' }} />
-            <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>لوحة الإدارة والمتابعة</span>
+            <span style={{ fontSize: '1.25rem', fontWeight: 800 }} className="desktop-only">لوحة الإدارة والمتابعة</span>
+            <span style={{ fontSize: '1rem', fontWeight: 800 }} className="mobile-only">لوحة الإدارة</span>
           </div>
 
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <Link to="/" className="btn btn-outline" style={{ padding: '6px 16px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <ArrowRight size={14} /> الصفحة الرئيسية
+            <Link to="/" className="btn btn-outline header-btn" style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <ArrowRight size={14} />
+              <span className="desktop-only">الصفحة الرئيسية</span>
             </Link>
             <button
               onClick={handleSignOut}
-              className="btn btn-outline"
-              style={{ padding: '6px 16px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+              className="btn btn-outline header-btn"
+              style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
             >
-              <LogOut size={14} /> تسجيل الخروج
+              <LogOut size={14} />
+              <span className="desktop-only">تسجيل الخروج</span>
             </button>
           </div>
         </div>
       </header>
 
       <main className="container" style={{ padding: '40px 20px' }}>
+        
+        {/* Mobile Tab Selector */}
+        <div 
+          className="admin-mobile-selector" 
+          onClick={() => setIsMobileMenuOpen(true)}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {getTabDetails(activeTab).icon}
+            <span style={{ fontSize: '0.9rem', fontWeight: 800 }}>{getTabDetails(activeTab).label}</span>
+            {getTabDetails(activeTab).count !== undefined && (
+              <span style={{ fontSize: '0.72rem', padding: '2px 8px', borderRadius: '8px', background: 'var(--glass-nested-bg)', border: '1px solid var(--glass-nested-border)', color: 'var(--text-secondary)', fontWeight: 800 }}>
+                {getTabDetails(activeTab).count}
+              </span>
+            )}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-muted)' }}>
+            <span style={{ fontSize: '0.8rem', fontWeight: 700 }}>تغيير القسم</span>
+            <ChevronDown size={16} />
+          </div>
+        </div>
+
         <div className="admin-layout">
 
           {/* RIGHT COLUMN: Sidebar (Navigation) */}
-          <aside className="admin-sidebar" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div className="glass-panel" style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '6px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
-              <div style={{ padding: '0 8px 12px 8px', borderBottom: '1px solid var(--glass-border)', marginBottom: '8px' }}>
+          <aside 
+            className={`admin-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}
+            onClick={() => setIsMobileMenuOpen(false)}
+            style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
+          >
+            <div 
+              className="glass-panel admin-sidebar-mobile-container" 
+              onClick={(e) => e.stopPropagation()}
+              style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}
+            >
+              {/* Mobile Close Header */}
+              <div className="mobile-only" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 8px 12px 8px', borderBottom: '1px solid var(--glass-border)', marginBottom: '8px' }}>
+                <span style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--text)' }}>لوحات التحكم</span>
+                <button 
+                  onClick={() => setIsMobileMenuOpen(false)} 
+                  style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px' }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Desktop-only header */}
+              <div className="desktop-only" style={{ padding: '0 8px 12px 8px', borderBottom: '1px solid var(--glass-border)', marginBottom: '8px' }}>
                 <span style={{ fontSize: '0.78rem', fontWeight: 900, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>لوحات التحكم</span>
               </div>
 
               <button
-                onClick={() => { setActiveTab('overview'); setStatusFilter('all'); }}
+                onClick={() => selectTab('overview')}
                 className={`admin-tab-item ${activeTab === 'overview' ? 'active' : ''}`}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -589,7 +777,7 @@ export const AdminDashboard: React.FC = () => {
               </button>
 
               <button
-                onClick={() => { setActiveTab('orders'); setStatusFilter('all'); }}
+                onClick={() => selectTab('orders')}
                 className={`admin-tab-item ${activeTab === 'orders' ? 'active' : ''}`}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -600,7 +788,7 @@ export const AdminDashboard: React.FC = () => {
               </button>
 
               <button
-                onClick={() => { setActiveTab('renewals'); setStatusFilter('all'); }}
+                onClick={() => selectTab('renewals')}
                 className={`admin-tab-item ${activeTab === 'renewals' ? 'active' : ''}`}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -611,7 +799,7 @@ export const AdminDashboard: React.FC = () => {
               </button>
 
               <button
-                onClick={() => { setActiveTab('subscriptions'); setStatusFilter('all'); }}
+                onClick={() => selectTab('subscriptions')}
                 className={`admin-tab-item ${activeTab === 'subscriptions' ? 'active' : ''}`}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -622,7 +810,7 @@ export const AdminDashboard: React.FC = () => {
               </button>
 
               <button
-                onClick={() => { setActiveTab('users'); setStatusFilter('all'); }}
+                onClick={() => selectTab('users')}
                 className={`admin-tab-item ${activeTab === 'users' ? 'active' : ''}`}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -633,7 +821,7 @@ export const AdminDashboard: React.FC = () => {
               </button>
 
               <button
-                onClick={() => { setActiveTab('gmail_accounts'); setStatusFilter('all'); }}
+                onClick={() => selectTab('gmail_accounts')}
                 className={`admin-tab-item ${activeTab === 'gmail_accounts' ? 'active' : ''}`}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -644,7 +832,7 @@ export const AdminDashboard: React.FC = () => {
               </button>
 
               <button
-                onClick={() => { setActiveTab('products'); setStatusFilter('all'); }}
+                onClick={() => selectTab('products')}
                 className={`admin-tab-item ${activeTab === 'products' ? 'active' : ''}`}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -655,7 +843,7 @@ export const AdminDashboard: React.FC = () => {
               </button>
 
               <button
-                onClick={() => { setActiveTab('plans'); setStatusFilter('all'); }}
+                onClick={() => selectTab('plans')}
                 className={`admin-tab-item ${activeTab === 'plans' ? 'active' : ''}`}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -666,7 +854,7 @@ export const AdminDashboard: React.FC = () => {
               </button>
 
               <button
-                onClick={() => { setActiveTab('faqs'); setStatusFilter('all'); }}
+                onClick={() => selectTab('faqs')}
                 className={`admin-tab-item ${activeTab === 'faqs' ? 'active' : ''}`}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -677,7 +865,7 @@ export const AdminDashboard: React.FC = () => {
               </button>
 
               <button
-                onClick={() => { setActiveTab('testimonials'); setStatusFilter('all'); }}
+                onClick={() => selectTab('testimonials')}
                 className={`admin-tab-item ${activeTab === 'testimonials' ? 'active' : ''}`}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -688,7 +876,7 @@ export const AdminDashboard: React.FC = () => {
               </button>
 
               <button
-                onClick={() => { setActiveTab('settings'); setStatusFilter('all'); }}
+                onClick={() => selectTab('settings')}
                 className={`admin-tab-item ${activeTab === 'settings' ? 'active' : ''}`}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
