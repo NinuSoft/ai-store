@@ -4,7 +4,7 @@ import {
   ShieldCheck, ArrowRight, Activity, ShoppingBag,
   DollarSign, RotateCw, Users, Mail, PlusCircle,
   MessageSquare, Sparkles, Settings, LogOut, Check, X,
-  Search, Menu, ChevronDown
+  Search, Menu, ChevronDown, LayoutGrid
 } from 'lucide-react';
 
 import { ThemeToggle } from '../components/ThemeToggle';
@@ -192,7 +192,7 @@ export const AdminDashboard: React.FC = () => {
           flex-direction: column;
           gap: 28px;
         }
-        .admin-mobile-selector {
+        .admin-mobile-menu-toggle {
           display: none;
         }
         .mobile-only {
@@ -216,30 +216,31 @@ export const AdminDashboard: React.FC = () => {
           .desktop-only {
             display: none !important;
           }
-          .admin-mobile-selector {
-            display: flex;
+          .admin-mobile-menu-toggle {
+            display: flex !important;
             align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            padding: 12px 18px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            justify-content: center;
+            background: var(--surface-raised) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text) !important;
+            border-radius: 50% !important;
+            width: 40px !important;
+            height: 40px !important;
+            min-width: 40px !important;
+            min-height: 40px !important;
+            padding: 0 !important;
+            box-shadow: var(--shadow) !important;
+            flex-shrink: 0 !important;
             cursor: pointer;
-            transition: all 0.2s ease;
-            color: var(--text);
-            box-shadow: var(--shadow-sm);
-            direction: rtl;
-            position: sticky;
-            top: 75px;
-            z-index: 50;
-            margin-bottom: 24px;
+            transition: var(--transition) !important;
           }
-          .admin-mobile-selector:hover {
-            background: var(--glass-hover-bg);
-            border-color: rgba(99, 102, 241, 0.35);
+          .admin-mobile-menu-toggle:hover {
+            background: var(--surface-alt) !important;
+            border-color: var(--border-hover) !important;
+            transform: scale(1.05);
+          }
+          .admin-mobile-menu-toggle:active {
+            transform: scale(0.95);
           }
           .admin-sidebar {
             display: none !important;
@@ -274,7 +275,6 @@ export const AdminDashboard: React.FC = () => {
             max-height: 85vh;
             overflow-y: auto;
             animation: mobile-menu-scale-up 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-          }
         }
         @keyframes mobile-menu-fade-in {
           from { background: rgba(15, 23, 42, 0); }
@@ -691,13 +691,22 @@ export const AdminDashboard: React.FC = () => {
         WebkitBackdropFilter: 'blur(16px)' 
       }}>
         <div className="container flex justify-between items-center">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3" style={{ flexShrink: 0 }}>
+            {/* Mobile Sidebar Menu Toggle */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="admin-mobile-menu-toggle"
+              aria-label="Toggle Dashboard Menu"
+            >
+              {isMobileMenuOpen ? <X size={20} /> : <LayoutGrid size={20} />}
+            </button>
+
             <ShieldCheck size={24} style={{ color: 'var(--secondary)' }} />
             <span style={{ fontSize: '1.25rem', fontWeight: 800 }} className="desktop-only">لوحة الإدارة والمتابعة</span>
             <span style={{ fontSize: '1rem', fontWeight: 800 }} className="mobile-only">لوحة الإدارة</span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4" style={{ flexShrink: 0 }}>
             <ThemeToggle />
             <Link to="/" className="btn btn-outline header-btn" style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <ArrowRight size={14} />
@@ -716,26 +725,6 @@ export const AdminDashboard: React.FC = () => {
       </header>
 
       <main className="container" style={{ padding: '40px 20px' }}>
-        
-        {/* Mobile Tab Selector */}
-        <div 
-          className="admin-mobile-selector" 
-          onClick={() => setIsMobileMenuOpen(true)}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            {getTabDetails(activeTab).icon}
-            <span style={{ fontSize: '0.9rem', fontWeight: 800 }}>{getTabDetails(activeTab).label}</span>
-            {getTabDetails(activeTab).count !== undefined && (
-              <span style={{ fontSize: '0.72rem', padding: '2px 8px', borderRadius: '8px', background: 'var(--glass-nested-bg)', border: '1px solid var(--glass-nested-border)', color: 'var(--text-secondary)', fontWeight: 800 }}>
-                {getTabDetails(activeTab).count}
-              </span>
-            )}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-muted)' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 700 }}>تغيير القسم</span>
-            <ChevronDown size={16} />
-          </div>
-        </div>
 
         <div className="admin-layout">
 
