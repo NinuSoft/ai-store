@@ -275,6 +275,7 @@ export const AdminDashboard: React.FC = () => {
             max-height: 85vh;
             overflow-y: auto;
             animation: mobile-menu-scale-up 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+          }
         }
         @keyframes mobile-menu-fade-in {
           from { background: rgba(15, 23, 42, 0); }
@@ -680,15 +681,15 @@ export const AdminDashboard: React.FC = () => {
       `}</style>
 
       {/* HEADER */}
-      <header style={{ 
+      <header style={{
         position: 'sticky',
         top: 0,
         zIndex: 100,
-        borderBottom: '1px solid var(--glass-border)', 
-        background: 'var(--glass-bg)', 
-        padding: '12px 0', 
-        backdropFilter: 'blur(16px)', 
-        WebkitBackdropFilter: 'blur(16px)' 
+        borderBottom: '1px solid var(--glass-border)',
+        background: 'var(--glass-bg)',
+        padding: '12px 0',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)'
       }}>
         <div className="container flex justify-between items-center">
           <div className="flex items-center gap-3" style={{ flexShrink: 0 }}>
@@ -729,21 +730,21 @@ export const AdminDashboard: React.FC = () => {
         <div className="admin-layout">
 
           {/* RIGHT COLUMN: Sidebar (Navigation) */}
-          <aside 
+          <aside
             className={`admin-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}
             onClick={() => setIsMobileMenuOpen(false)}
             style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
           >
-            <div 
-              className="glass-panel admin-sidebar-mobile-container" 
+            <div
+              className="glass-panel admin-sidebar-mobile-container"
               onClick={(e) => e.stopPropagation()}
               style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}
             >
               {/* Mobile Close Header */}
               <div className="mobile-only" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 8px 12px 8px', borderBottom: '1px solid var(--glass-border)', marginBottom: '8px' }}>
                 <span style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--text)' }}>لوحات التحكم</span>
-                <button 
-                  onClick={() => setIsMobileMenuOpen(false)} 
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
                   style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px' }}
                 >
                   <X size={20} />
@@ -1047,15 +1048,15 @@ export const AdminDashboard: React.FC = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         placeholder={
                           activeTab === 'products' ? 'ابحث عن منتج...' :
-                          activeTab === 'plans' ? 'ابحث عن باقة...' :
-                          activeTab === 'faqs' ? 'ابحث عن سؤال...' :
-                          activeTab === 'gmail_accounts' ? 'ابحث عن حساب Gmail...' :
-                          activeTab === 'testimonials' ? 'ابحث عن تقييم...' :
-                          activeTab === 'orders' ? 'ابحث عن طلب (Gmail، الاسم، أو رقم الهاتف)...' :
-                          activeTab === 'renewals' ? 'ابحث عن طلب تجديد (Gmail، الاسم، أو رقم الهاتف)...' :
-                          activeTab === 'subscriptions' ? 'ابحث عن اشتراك نشط...' :
-                          activeTab === 'users' ? 'ابحث عن مستخدم (Gmail، الاسم، أو رقم الهاتف)...' :
-                          'ابحث...'
+                            activeTab === 'plans' ? 'ابحث عن باقة...' :
+                              activeTab === 'faqs' ? 'ابحث عن سؤال...' :
+                                activeTab === 'gmail_accounts' ? 'ابحث عن حساب Gmail...' :
+                                  activeTab === 'testimonials' ? 'ابحث عن تقييم...' :
+                                    activeTab === 'orders' ? 'ابحث عن طلب (Gmail، الاسم، أو رقم الهاتف)...' :
+                                      activeTab === 'renewals' ? 'ابحث عن طلب تجديد (Gmail، الاسم، أو رقم الهاتف)...' :
+                                        activeTab === 'subscriptions' ? 'ابحث عن اشتراك نشط...' :
+                                          activeTab === 'users' ? 'ابحث عن مستخدم (Gmail، الاسم، أو رقم الهاتف)...' :
+                                            'ابحث...'
                         }
                         dir={searchTerm ? 'auto' : 'rtl'}
                         className="redesign-search-input"
